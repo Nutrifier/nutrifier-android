@@ -10,7 +10,7 @@ import androidx.compose.ui.graphics.Color
 
 @Composable
 fun BarcodeButton(color: Color? = null, onClick: () -> Unit) {
-    IconButton(onClick = { /*TODO*/ }) {
+    IconButton(onClick = { onClick() }) {
         if (color != null) {
             Icon(Icons.Rounded.QrCodeScanner, "qr-code-scanner", tint = color)
         } else {

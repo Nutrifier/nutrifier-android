@@ -82,6 +82,10 @@ fun App(applicationContext: Context) {
             composable("add_food") {
                 AddFoodScreen(navController, viewModels, snackbarHostState)
             }
+            composable("add_food/{barcodeQuery}") {
+                val barcodeQuery = it.arguments?.getString("barcodeQuery")
+                AddFoodScreen(navController, viewModels, snackbarHostState, barcodeQuery)
+            }
             composable("food_editor/{mode}") {
                 val mode = it.arguments?.getString("mode")
                 FoodEditorScreen(navController, viewModels, snackbarHostState, mode ?: "VIEW")
@@ -101,8 +105,9 @@ fun App(applicationContext: Context) {
             composable("meal") {
                 MealScreen(navController, viewModels, snackbarHostState)
             }
-            composable("barcode") {
-                BarcodeScreen(navController, viewModels, snackbarHostState)
+            composable("barcode/{case}") {
+                val case = it.arguments?.getString("case")
+                BarcodeScreen(navController, viewModels, snackbarHostState, case)
             }
         }
     }

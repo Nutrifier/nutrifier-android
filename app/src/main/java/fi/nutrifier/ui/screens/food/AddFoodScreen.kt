@@ -51,6 +51,7 @@ fun AddFoodScreen(
     navController: NavController,
     viewModels: ViewModelWrapper,
     snackbarHostState: SnackbarHostState,
+    barcodeQuery: String? = ""
 ) {
     var showResult by remember { mutableStateOf(false) }
     val listState = rememberLazyListState()
@@ -119,9 +120,10 @@ fun AddFoodScreen(
                 autoSearch = true,
                 onClear = { viewModels.logsScreen.loadFoods() },
                 search = { viewModels.logsScreen.searchFoods(it) },
+                barcodeQuery = barcodeQuery ?: "",
                 suffix = {
                     BarcodeButton(color = MaterialTheme.colorScheme.outline) {
-                        // TODO: Add search by barcode functionality
+                        navController.navigate("barcode/ADD_FOODS")
                     }
                 }
             )

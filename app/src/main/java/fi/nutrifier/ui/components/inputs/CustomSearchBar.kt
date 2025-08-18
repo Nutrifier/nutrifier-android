@@ -57,9 +57,10 @@ fun CustomSearchBar(
     autoSearch: Boolean? = null,
     onClear: (() -> Unit)? = null,
     suffix: (@Composable () -> Unit)? = null,
+    barcodeQuery: String = "",
     search: (String) -> Unit,
 ) {
-    var query by remember { mutableStateOf("") }
+    var query by remember { mutableStateOf(barcodeQuery) }
     val coroutineScope = rememberCoroutineScope()
     var debounceJob by remember { mutableStateOf<Job?>(null) }
     val delayTime = 500L

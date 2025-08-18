@@ -15,5 +15,5 @@ Because Android Studio's device connecting can't be trusted, we use Android Debu
 7. Connect to the device with `adb connect <device-ip>:<port>`
 (different ip and port, usually displayed in the wireless debugging screen)
 8. Enable reverse connection so you phone connects to you computers backend port with
-`adb devices tcp:8080 tcp:8080`
+`adb reverse tcp:8080 tcp:8080`
 9. You are now connected and Android Studio should detect your device

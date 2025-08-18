@@ -50,6 +50,18 @@ class FoodRepository(private val encryptedPrefs: SharedPreferences) {
         }
     }
 
+    suspend fun getFoodsByBarcode(query: String): Result<List<Food>> {
+        val token: String? = SharedPreferencesManager.getAuthToken(encryptedPrefs)
+
+        return try {
+            val response = service.getFoodByBarcode(query, "Bearer $token")
+            if (response.isSuccessful && response.body() != null) Result.success(response.body())
+            else Result.fail(response.code())
+        } catch (e: Exception) {
+            Result.fail(500, e.localizedMessage ?: "Unknown error occurred.")
+        }
+    }
+
     suspend fun saveFood(food: Food): Result<Boolean> {
         val token: String? = SharedPreferencesManager.getAuthToken(encryptedPrefs)
 
