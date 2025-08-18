@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -34,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import fi.nutrifier.ui.components.buttons.BackButton
+import fi.nutrifier.ui.components.buttons.BarcodeButton
 import fi.nutrifier.ui.components.layout.TopBar
 import fi.nutrifier.viewmodels.ViewModelWrapper
 import fi.nutrifier.ui.components.inputs.CustomSearchBar
@@ -49,6 +51,7 @@ fun AddFoodScreen(
     navController: NavController,
     viewModels: ViewModelWrapper,
     snackbarHostState: SnackbarHostState,
+    barcodeQuery: String? = ""
 ) {
     var showResult by remember { mutableStateOf(false) }
     val listState = rememberLazyListState()
@@ -117,6 +120,12 @@ fun AddFoodScreen(
                 autoSearch = true,
                 onClear = { viewModels.logsScreen.loadFoods() },
                 search = { viewModels.logsScreen.searchFoods(it) },
+                barcodeQuery = barcodeQuery ?: "",
+                suffix = {
+                    BarcodeButton(color = MaterialTheme.colorScheme.outline) {
+                        navController.navigate("barcode/ADD_FOODS")
+                    }
+                }
             )
             Spacer(modifier = Modifier.height(8.dp))
             Box {

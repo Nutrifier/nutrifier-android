@@ -56,9 +56,11 @@ fun CustomSearchBar(
     handleShowResult: (Boolean) -> Unit,
     autoSearch: Boolean? = null,
     onClear: (() -> Unit)? = null,
+    suffix: (@Composable () -> Unit)? = null,
+    barcodeQuery: String = "",
     search: (String) -> Unit,
 ) {
-    var query by remember { mutableStateOf("") }
+    var query by remember { mutableStateOf(barcodeQuery) }
     val coroutineScope = rememberCoroutineScope()
     var debounceJob by remember { mutableStateOf<Job?>(null) }
     val delayTime = 500L
@@ -108,7 +110,7 @@ fun CustomSearchBar(
             }
         }
         Spacer(modifier = Modifier.width(4.dp))
-        Box {
+        Box(modifier = Modifier.weight(1f)) {
             if (query == "") Text(placeholder, color = Color.Gray)
             BasicTextField(
                 value = query,
@@ -118,8 +120,8 @@ fun CustomSearchBar(
                 keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Search),
                 cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
                 textStyle = TextStyle(fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface),
-                modifier = Modifier.fillMaxWidth(),
             )
         }
+        if (suffix != null) suffix()
     }
 }

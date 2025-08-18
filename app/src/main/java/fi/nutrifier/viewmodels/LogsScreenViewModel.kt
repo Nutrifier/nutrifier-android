@@ -225,19 +225,27 @@ class LogsScreenViewModel(application: Application): BaseViewModel(application) 
 
     fun searchFoods(query: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            val fineliResult = fineliRepository.getFoodsByQuery(query)
-            val repositoryResult = foodRepository.getFoodsByQuery(query)
+            val result = mutableListOf<Food>()
 
-            val combinedFoods = mutableListOf<Food>()
+            // If all characters are digits, presume we are using a barcode
+            if (query.all { it.isDigit() }) {
+                val barcodeResult = foodRepository.getFoodsByBarcode(query)
+                if (barcodeResult.isSuccessful()) {
+                    result.addAll(barcodeResult.value ?: emptyList())
+                }
+            } else {
+                val fineliResult = fineliRepository.getFoodsByQuery(query)
+                val repositoryResult = foodRepository.getFoodsByQuery(query)
 
-            if (fineliResult.isSuccessful()) {
-                combinedFoods.addAll(fineliResult.value?.map { it.toFood() } ?: emptyList())
+                if (fineliResult.isSuccessful()) {
+                    result.addAll(fineliResult.value?.map { it.toFood() } ?: emptyList())
+                }
+                if (repositoryResult.isSuccessful()) {
+                    result.addAll(repositoryResult.value ?: emptyList())
+                }
             }
-            if (repositoryResult.isSuccessful()) {
-                combinedFoods.addAll(repositoryResult.value ?: emptyList())
-            }
 
-            _foods.value = combinedFoods
+            _foods.value = result
         }
     }
 

@@ -31,6 +31,12 @@ interface FoodService {
         @Header("Authorization") authHeader: String,
     ): Response<List<Food>>
 
+    @GET("api/foods/barcode")
+    suspend fun getFoodByBarcode(
+        @Query("query") query: String,
+        @Header("Authorization") authHeader: String,
+    ): Response<List<Food>>
+
     @POST("api/foods")
     suspend fun saveFood(
         @Body food: Food,

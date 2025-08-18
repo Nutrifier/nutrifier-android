@@ -55,6 +55,7 @@ fun BarcodeScreen(
     navController: NavController,
     viewModels: ViewModelWrapper,
     snackbarHostState: SnackbarHostState,
+    useCase: String?
 ) {
     val context = LocalContext.current
     var preview by remember { mutableStateOf<Preview?>(null) }
@@ -91,7 +92,14 @@ fun BarcodeScreen(
             val cameraProvider = cameraProviderFuture.get()
 
             cameraProvider.unbindAll()
-            navController.navigateUp()
+
+            when (useCase) {
+                "ADD_FOODS" -> navController.navigate("add_food/${viewModels.barcode.barScanResult}") {
+                    popUpTo("barcode") { inclusive = true }
+                }
+                else -> navController.popBackStack("barcode", true)
+            }
+
             viewModels.barcode.resetState()
         }
     }
