@@ -22,20 +22,20 @@ import fi.nutrifier.ui.components.inputs.NutrientInputRow
 import fi.nutrifier.ui.components.inputs.NutrientTextField
 import fi.nutrifier.ui.components.layout.NutrientColumn
 import fi.nutrifier.ui.components.layout.TitledContainer
-import fi.nutrifier.viewmodels.LogsScreenViewModel
+import fi.nutrifier.viewmodels.ViewModelWrapper
 
 @Composable
-internal fun EditMode(viewModel: LogsScreenViewModel) {
+internal fun EditMode(viewModels: ViewModelWrapper) {
     var calculatedNutrientSummary by remember { mutableStateOf(NutrientSummary(0.0, 0.0, 0.0, 0.0)) }
 
-    LaunchedEffect(viewModel.currentAmount) {
-        if (viewModel.selectedFood != null && viewModel.currentAmount.isNotEmpty()) {
-            val multiplier = (viewModel.currentAmount.toDouble() / 100)
+    LaunchedEffect(viewModels.logsScreen.currentAmount) {
+        if (viewModels.foods.selectedFood != null && viewModels.logsScreen.currentAmount.isNotEmpty()) {
+            val multiplier = (viewModels.logsScreen.currentAmount.toDouble() / 100)
 
-            val calories = viewModel.selectedFood!!.food!!.calories * multiplier
-            val fats = viewModel.selectedFood!!.food!!.fat * multiplier
-            val carbs = viewModel.selectedFood!!.food!!.carbs * multiplier
-            val protein = viewModel.selectedFood!!.food!!.protein * multiplier
+            val calories = viewModels.foods.selectedFood!!.food!!.calories * multiplier
+            val fats = viewModels.foods.selectedFood!!.food!!.fat * multiplier
+            val carbs = viewModels.foods.selectedFood!!.food!!.carbs * multiplier
+            val protein = viewModels.foods.selectedFood!!.food!!.protein * multiplier
 
             calculatedNutrientSummary = NutrientSummary(calories, fats, carbs, protein)
         }
@@ -44,14 +44,14 @@ internal fun EditMode(viewModel: LogsScreenViewModel) {
     Column(modifier = Modifier.padding(horizontal = 16.dp)) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text(
-                "${viewModel.selectedFood?.food?.name}",
+                "${viewModels.foods.selectedFood?.food?.name}",
                 style = MaterialTheme.typography.headlineLarge
             )
             // TODO: Add functionality to request update
             // TODO: Add functionality to request delete
         }
         Text(
-            text = "${viewModel.selectedFood?.food?.barcode}",
+            text = "${viewModels.foods.selectedFood?.food?.barcode}",
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.outline,
         )
@@ -62,8 +62,8 @@ internal fun EditMode(viewModel: LogsScreenViewModel) {
                 value = calculatedNutrientSummary.calories,
                 suffix = "kcal",
             )
-            NutrientTextField(value = viewModel.currentAmount) {
-                viewModel.setCurrentAmount(it)
+            NutrientTextField(value = viewModels.logsScreen.currentAmount) {
+                viewModels.logsScreen.setCurrentAmount(it)
             }
         }
         Spacer(modifier = Modifier.padding(vertical = 8.dp))
@@ -95,7 +95,7 @@ internal fun EditMode(viewModel: LogsScreenViewModel) {
             Column(modifier = Modifier.padding(start = 8.dp)) {
                 NutrientInputRow(
                     "Calories *",
-                    viewModel.selectedFood?.food?.calories.toString(),
+                    viewModels.foods.selectedFood?.food?.calories.toString(),
                     120.dp,
                     "kcal",
                     editable = false
@@ -103,21 +103,21 @@ internal fun EditMode(viewModel: LogsScreenViewModel) {
                 Spacer(Modifier.padding(vertical = 4.dp))
                 NutrientInputRow(
                     "Carbohydrates",
-                    viewModel.selectedFood?.food?.carbs.toString(),
+                    viewModels.foods.selectedFood?.food?.carbs.toString(),
                     suffixText = "g",
                     editable = false
                 )
                 Spacer(Modifier.padding(vertical = 4.dp))
                 NutrientInputRow(
                     "Protein",
-                    viewModel.selectedFood?.food?.protein.toString(),
+                    viewModels.foods.selectedFood?.food?.protein.toString(),
                     suffixText = "g",
                     editable = false
                 )
                 Spacer(Modifier.padding(vertical = 4.dp))
                 NutrientInputRow(
                     "Fat",
-                    viewModel.selectedFood?.food?.fat.toString(),
+                    viewModels.foods.selectedFood?.food?.fat.toString(),
                     suffixText = "g",
                     editable = false
                 )
@@ -126,7 +126,7 @@ internal fun EditMode(viewModel: LogsScreenViewModel) {
                 Spacer(Modifier.padding(vertical = 8.dp))
                 NutrientInputRow(
                     "PEV",
-                    viewModel.selectedFood?.pev.toString(),
+                    viewModels.foods.selectedFood?.pev.toString(),
                     suffixText = "",
                     editable = false
                 )

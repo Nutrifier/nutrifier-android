@@ -57,7 +57,7 @@ fun AddFoodScreen(
     val listState = rememberLazyListState()
 
     LaunchedEffect(Unit) {
-        viewModels.logsScreen.loadFoods()
+        viewModels.foods.loadFoods()
     }
 
     LaunchedEffect(viewModels.logsScreen.alert) {
@@ -74,10 +74,10 @@ fun AddFoodScreen(
             .collectLatest {
                 val lastVisibleItemIndex = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index
                 if (lastVisibleItemIndex != null
-                    && lastVisibleItemIndex >= viewModels.logsScreen.foods.size - 5
+                    && lastVisibleItemIndex >= viewModels.foods.foods.size - 5
                     && !viewModels.logsScreen.loading
                 ) {
-                    viewModels.logsScreen.loadMoreFoods()
+                    viewModels.foods.loadMoreFoods()
                 }
             }
     }
@@ -118,8 +118,8 @@ fun AddFoodScreen(
                 showResult = showResult,
                 handleShowResult = { showResult = it },
                 autoSearch = true,
-                onClear = { viewModels.logsScreen.loadFoods() },
-                search = { viewModels.logsScreen.searchFoods(it) },
+                onClear = { viewModels.foods.loadFoods() },
+                search = { viewModels.foods.searchFoods(it) },
                 barcodeQuery = barcodeQuery ?: "",
                 suffix = {
                     BarcodeButton(color = MaterialTheme.colorScheme.outline) {
@@ -135,14 +135,14 @@ fun AddFoodScreen(
                     flingBehavior = ScrollableDefaults.flingBehavior(),
                 ) {
                     itemsIndexed(
-                        viewModels.logsScreen.foods,
-                        key = { index, food -> food.id!! }
+                        viewModels.foods.foods,
+                        key = { index, food -> food.id ?: 0 }
                     ) {index, food ->
                         FoodButton(food) {
-                            viewModels.logsScreen.setSelectedFood(food)
+                            viewModels.foods.setSelectedFood(food)
                             navController.navigate("food_editor/EDIT")
                         }
-                        if (index < viewModels.logsScreen.foods.size - 1) ItemDivider()
+                        if (index < viewModels.foods.foods.size - 1) ItemDivider()
                     }
                 }
                 if (viewModels.logsScreen.loading) {

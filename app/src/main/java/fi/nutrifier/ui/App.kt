@@ -25,6 +25,7 @@ import fi.nutrifier.ui.screens.ShoppingListScreen
 import fi.nutrifier.viewmodels.AuthViewModel
 import fi.nutrifier.viewmodels.BarcodeScannerViewModel
 import fi.nutrifier.viewmodels.FavouriteRecipesViewModel
+import fi.nutrifier.viewmodels.FoodsViewModel
 import fi.nutrifier.viewmodels.LogsScreenViewModel
 import fi.nutrifier.viewmodels.PersonalRecipesViewModel
 import fi.nutrifier.viewmodels.RecipeUnderInspectionViewModel
@@ -56,6 +57,7 @@ fun App(applicationContext: Context) {
     val logsScreenViewModel: LogsScreenViewModel = viewModel()
     val authViewModel: AuthViewModel = viewModel()
     val barcodeScannerViewModel: BarcodeScannerViewModel = viewModel()
+    val foodsViewModel: FoodsViewModel = viewModel()
 
     val viewModels = ViewModelWrapper(
         favourite = favouriteRecipesViewModel,
@@ -67,6 +69,7 @@ fun App(applicationContext: Context) {
         logsScreen = logsScreenViewModel,
         authViewModel = authViewModel,
         barcode = barcodeScannerViewModel,
+        foods = foodsViewModel,
     )
 
     CompositionLocalProvider(LocalApplicationContext provides applicationContext) {

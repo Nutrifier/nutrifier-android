@@ -53,14 +53,14 @@ fun FoodEditorScreen(
                 when (mode) {
                     "ADD" ->
                         CancelSaveOption(onClose = { navController.navigateUp() }) {
-                            viewModels.logsScreen.savableFood?.let {
-                                viewModels.logsScreen.saveFood(it)
+                            viewModels.foods.savableFood?.let {
+                                viewModels.foods.saveFood(it)
                                 navController.navigateUp()
                             }
                         }
                     "EDIT" ->
                         CancelSaveOption(onClose = { navController.navigateUp() }) {
-                            viewModels.logsScreen.selectedFood?.let {
+                            viewModels.foods.selectedFood?.let {
                                 val log = it.food?.id?.let { it1 ->
                                     Log(
                                         date = viewModels.logsScreen.date.toString(),
@@ -102,8 +102,8 @@ fun FoodEditorScreen(
     ) {
         when (mode) {
             "ADD" -> AddMode(navController, viewModels)
-            "EDIT" -> EditMode(viewModels.logsScreen)
-            "UPDATE" -> EditMode(viewModels.logsScreen)
+            "EDIT" -> EditMode(viewModels)
+            "UPDATE" -> EditMode(viewModels)
             else -> ViewMode(navController, viewModels)
         }
     }

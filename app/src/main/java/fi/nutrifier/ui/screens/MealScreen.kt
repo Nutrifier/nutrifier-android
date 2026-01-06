@@ -98,7 +98,7 @@ fun MealScreen(
                         items(logs) {
                             MealLogButton(it,
                                 onClick = {
-                                    viewModels.logsScreen.setSelectedFood(it.food)
+                                    viewModels.foods.setSelectedFood(it.food)
                                     viewModels.logsScreen.setSelectedLog(it.log)
                                     viewModels.logsScreen.setCurrentAmount(it.log.amount.toString())
                                     navController.navigate("food_editor/UPDATE")

@@ -28,7 +28,9 @@ data class FineliResponse(
 ) {
     fun toFood(): Food {
         return Food(
-            name = this.name.en,
+            id = UUID.randomUUID().toString(),
+            fineliId = this.id,
+            name = this.name.fi,
             barcode = "",
             servingSize = 100,
             calories = this.energyKcal,
@@ -37,7 +39,6 @@ data class FineliResponse(
             editedBy = BuildConfig.FINELI_UUID,
             fat = this.fat,
             protein = this.protein
-
         )
     }
 }

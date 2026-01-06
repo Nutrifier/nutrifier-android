@@ -9,12 +9,10 @@ import fi.nutrifier.models.database.FoodLog
 import fi.nutrifier.models.database.Log
 import fi.nutrifier.models.database.MealType
 import fi.nutrifier.models.database.NutrientSummary
-import fi.nutrifier.models.database.SelectedFood
 import fi.nutrifier.repositories.database.FineliRepository
 import fi.nutrifier.repositories.database.FoodRepository
 import fi.nutrifier.repositories.database.LogRepository
 import fi.nutrifier.utils.AlertType
-import fi.nutrifier.utils.ConversionUtils.calculatePev
 import fi.nutrifier.utils.ConversionUtils.emptyFood
 import fi.nutrifier.utils.Result
 import kotlinx.coroutines.Dispatchers
@@ -36,18 +34,10 @@ class LogsScreenViewModel(application: Application): BaseViewModel(application) 
     private var _snacksLogs: MutableState<List<FoodLog>> = mutableStateOf(emptyList())
     val snacksLogs get() = _snacksLogs.value
 
-    private var _foods: MutableState<List<Food>> = mutableStateOf(emptyList())
-    val foods get() = _foods.value
-    val setFoods: (List<Food>) -> Unit = { _foods.value = it }
-
     // NOTE: Can be exploited by changing the devices date
     private var _date: MutableState<LocalDate> = mutableStateOf(LocalDate.now())
     val date get() = _date.value
     val setDate: (LocalDate) -> Unit = { _date.value = it; loadLogs() }
-
-    private var _savableFood: MutableState<Food?> = mutableStateOf(null)
-    val savableFood get() = _savableFood.value
-    val setSavableFood: (Food?) -> Unit = { _savableFood.value = it }
 
     private var _overallNutrients = mutableStateOf(NutrientSummary(0.0, 0.0, 0.0, 0.0))
     val overallNutrients get() = _overallNutrients.value
@@ -57,13 +47,9 @@ class LogsScreenViewModel(application: Application): BaseViewModel(application) 
     val nutrients get() = _mealNutrients.value
     val setNutrients: (Map<MealType, NutrientSummary>) -> Unit = { _mealNutrients.value = it }
 
-    private var _selectedFood = mutableStateOf<SelectedFood?>(null)
-    val selectedFood get() = _selectedFood.value
-    val setSelectedFood: (Food?) -> Unit = {
-        _selectedFood.value = SelectedFood(
-            food = it,
-            pev = calculatePev(it?.calories, it?.protein),
-        )
+    suspend fun fetchFoodById(id: String): Food?  {
+        val result = foodRepository.getFoodById(id)
+        return if (result.isSuccessful()) result.value else null
     }
 
     private var _selectedMeal = mutableStateOf<MealType?>(null)
@@ -77,9 +63,6 @@ class LogsScreenViewModel(application: Application): BaseViewModel(application) 
     private var _currentAmount = mutableStateOf("100")
     val currentAmount get() = _currentAmount.value
     val setCurrentAmount: (String) -> Unit = { _currentAmount.value = it }
-
-    private var foodPage = 0
-    private val foodPageSize = 20
 
     private suspend fun calculateNutrients(logs: List<Log>): NutrientSummary {
         var calories = 0.0
@@ -147,36 +130,6 @@ class LogsScreenViewModel(application: Application): BaseViewModel(application) 
         }
     }
 
-    fun loadFoods() {
-        android.util.Log.d("LogsScreenViewModel", "foods")
-        foodPage = 0 // Reset food page
-
-        viewModelScope.launch(Dispatchers.IO) {
-            val result = foodRepository.getFoods(foodPage, foodPageSize)
-            if (result.isSuccessful()) {
-                _foods.value = result.value ?: emptyList()
-            } else {
-                showAlert("Error occurred while loading foods (${result.errorCode}).")
-            }
-        }
-    }
-
-    fun loadMoreFoods() {
-        android.util.Log.d("LogsScreenViewModel", "MORE foods")
-        if (loading) return
-        setLoading(true)
-
-        viewModelScope.launch(Dispatchers.IO) {
-            foodPage++
-            val result = foodRepository.getFoods(foodPage, foodPageSize)
-            if (result.isSuccessful()) {
-                android.util.Log.d("LogsScreenViewModel", "LoadMoreFoods result: ${result.value}")
-                _foods.value += result.value ?: emptyList()
-            }
-            setLoading(false)
-        }
-    }
-
     fun updateLog(log: Log) {
         viewModelScope.launch(Dispatchers.IO) {
             val result = logRepository.updateLog(log)
@@ -219,52 +172,6 @@ class LogsScreenViewModel(application: Application): BaseViewModel(application) 
             } else {
                 showAlert("Error occurred while deleting the log (${result.errorCode}).")
                 setLoading(false)
-            }
-        }
-    }
-
-    fun searchFoods(query: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val result = mutableListOf<Food>()
-
-            // If all characters are digits, presume we are using a barcode
-            if (query.all { it.isDigit() }) {
-                val barcodeResult = foodRepository.getFoodsByBarcode(query)
-                if (barcodeResult.isSuccessful()) {
-                    result.addAll(barcodeResult.value ?: emptyList())
-                }
-            } else {
-                val fineliResult = fineliRepository.getFoodsByQuery(query)
-                val repositoryResult = foodRepository.getFoodsByQuery(query)
-
-                if (fineliResult.isSuccessful()) {
-                    result.addAll(fineliResult.value?.map { it.toFood() } ?: emptyList())
-                }
-                if (repositoryResult.isSuccessful()) {
-                    result.addAll(repositoryResult.value ?: emptyList())
-                }
-            }
-
-            _foods.value = result
-        }
-    }
-
-    suspend fun fetchFoodById(id: String): Food?  {
-        val result = foodRepository.getFoodById(id)
-        return if (result.isSuccessful()) result.value else null
-    }
-
-    fun saveFood(food: Food) {
-        android.util.Log.d("LogsScreenViewModel", "Saving food: $food")
-
-
-        viewModelScope.launch(Dispatchers.IO) {
-            val result = foodRepository.saveFood(food)
-            if (result.isSuccessful()) {
-                loadFoods()
-                showAlert("Food saved!", AlertType.INFO)
-            } else {
-                showAlert("Error occurred while saving the food (${result.errorCode}).")
             }
         }
     }

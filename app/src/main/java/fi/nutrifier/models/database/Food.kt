@@ -13,4 +13,5 @@ data class Food(
     val created: String? = null,
     val edited: String? = null,
     val id: String? = null,
+    val fineliId: Int? = null,
 )

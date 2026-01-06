@@ -54,7 +54,7 @@ fun FoodForm(navController: NavController, viewModels: ViewModelWrapper) {
     }
 
     LaunchedEffect(name, barcode, servingSize, calories, carbs, protein, fat) {
-        viewModels.logsScreen.setSavableFood(null)
+        viewModels.foods.setSavableFood(null)
         if (name.isNotEmpty() && servingSize.isNotEmpty() && calories.isNotEmpty()) {
             val food = Food(
                 name = name,
@@ -73,7 +73,7 @@ fun FoodForm(navController: NavController, viewModels: ViewModelWrapper) {
                 createdBy = viewModels.logsScreen.getUserId(),
                 editedBy = viewModels.logsScreen.getUserId(),
             )
-            viewModels.logsScreen.setSavableFood(food)
+            viewModels.foods.setSavableFood(food)
         }
     }
 
