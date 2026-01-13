@@ -48,24 +48,22 @@ fun CookbookScreen(
             AddRecipeButton(navController, viewModels.inspection)
         }
     ) {
-        Column(modifier = Modifier.padding(horizontal = 24.dp)) {
-            TabRow(selectedTabIndex = selectedTab, modifier = Modifier.fillMaxWidth()) {
-                Tab(
-                    selected = selectedTab == 0,
-                    onClick = { selectedTab = 0 },
-                    text = { Text("My Recipes") }
-                )
-                Tab(
-                    selected = selectedTab == 1,
-                    onClick = { selectedTab = 1 },
-                    text = { Text("Saved Recipes") }
-                )
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-            when (selectedTab) {
-                0 -> PersonalRecipesTab(navController, viewModels)
-                1 -> FavouriteRecipesTab(navController, viewModels)
-            }
+        TabRow(selectedTabIndex = selectedTab, modifier = Modifier.fillMaxWidth()) {
+            Tab(
+                selected = selectedTab == 0,
+                onClick = { selectedTab = 0 },
+                text = { Text("My Recipes") }
+            )
+            Tab(
+                selected = selectedTab == 1,
+                onClick = { selectedTab = 1 },
+                text = { Text("Saved Recipes") }
+            )
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+        when (selectedTab) {
+            0 -> PersonalRecipesTab(navController, viewModels)
+            1 -> FavouriteRecipesTab(navController, viewModels)
         }
     }
 }

@@ -50,21 +50,7 @@ fun DiscoverScreen(
     var showSearchPanel by remember { mutableStateOf(false) }
 
     Screen(
-        topBar = {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-            ) {
-                TopBar("Discover")
-                TextButton(onClick = {
-                    viewModels.authViewModel.logout()
-                    navController.navigate("login")
-                }) {
-                    Text(text = "Logout")
-                }
-            }
-        },
+        topBar = { TopBar("Discover", navController = navController) },
         bottomBar = { NavBar(navController, "discover") },
         screen = Constants.Screen.DISCOVER,
         viewModels,
@@ -81,7 +67,7 @@ fun DiscoverScreen(
             Column(modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())) {
-                Column(modifier = Modifier.padding(horizontal = 24.dp)) {
+                Column {
                     /* === SEARCH SECTION === */
                     CustomSearchBar(
                         placeholder = "Search any recipe",

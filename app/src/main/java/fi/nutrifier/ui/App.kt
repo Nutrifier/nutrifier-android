@@ -19,6 +19,7 @@ import fi.nutrifier.ui.screens.food.AddFoodScreen
 import fi.nutrifier.ui.screens.LoginScreen
 import fi.nutrifier.ui.screens.LogsScreen
 import fi.nutrifier.ui.screens.MealScreen
+import fi.nutrifier.ui.screens.settings.SettingsScreen
 import fi.nutrifier.ui.screens.recipe.RecipeScreen
 import fi.nutrifier.ui.screens.ShoppingListScreen
 import fi.nutrifier.viewmodels.AuthViewModel
@@ -108,6 +109,9 @@ fun App(applicationContext: Context) {
             composable("barcode/{case}") {
                 val case = it.arguments?.getString("case")
                 BarcodeScreen(navController, viewModels, snackbarHostState, case)
+            }
+            composable("settings") {
+                SettingsScreen(navController, viewModels, snackbarHostState)
             }
         }
     }

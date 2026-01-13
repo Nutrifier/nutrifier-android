@@ -37,6 +37,7 @@ object Constants {
         RECIPE_VIEW,
         SHOPPING_LIST,
         BARCODE,
+        SETTINGS,
     }
 }
 

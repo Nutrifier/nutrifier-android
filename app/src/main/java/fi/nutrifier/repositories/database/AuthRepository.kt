@@ -24,7 +24,6 @@ class AuthRepository {
     suspend fun login(authRequest: AuthRequest): Result<AuthResponse> {
         return try {
             val response = service.login(authRequest)
-            Log.d("AuthRepository", "$response")
             if (response.isSuccessful) {
                 Result.success(response.body())
             }

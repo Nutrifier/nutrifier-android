@@ -45,7 +45,7 @@ fun ShoppingListScreen(
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())) {
                 Column(
-                    modifier = Modifier.padding(horizontal = 32.dp)) {
+                    modifier = Modifier.padding(horizontal = 8.dp)) {
                     Text("Items", style = MaterialTheme.typography.headlineMedium)
                     Spacer(modifier = Modifier.height(8.dp))
                     if (viewModels.shopping.items.isEmpty()) {

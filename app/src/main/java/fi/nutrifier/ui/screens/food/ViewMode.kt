@@ -16,7 +16,7 @@ import fi.nutrifier.viewmodels.ViewModelWrapper
 
 @Composable
 internal fun ViewMode(navController: NavController, viewModels: ViewModelWrapper) {
-    Column(modifier = Modifier.padding(horizontal = 40.dp)) {
+    Column(modifier = Modifier.padding(horizontal = 16.dp)) {
         Text("Add food", style = MaterialTheme.typography.headlineLarge)
         Spacer(modifier = Modifier.height(24.dp))
         FoodForm(navController, viewModels)
