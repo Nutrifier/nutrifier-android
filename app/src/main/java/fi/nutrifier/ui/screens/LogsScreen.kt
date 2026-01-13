@@ -55,7 +55,7 @@ fun LogsScreen(
         snackbarHostState,
         floatingActionButton = { AddButton { navController.navigate("add_food") } }
     ) {
-        LazyColumn(modifier = Modifier.padding(horizontal = 24.dp)) {
+        LazyColumn {
             item {
                 Column(modifier = Modifier.padding(horizontal = 24.dp)) {
                     Column(

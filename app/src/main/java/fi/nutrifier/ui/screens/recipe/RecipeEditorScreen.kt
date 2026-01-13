@@ -125,7 +125,7 @@ fun RecipeEditorScreen(
         snackbarHostState,
     ) {
         Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-            Column(modifier = Modifier.padding(horizontal = 40.dp)) {
+            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                 when (currentFormStep) {
                     0 -> Text("General", style = MaterialTheme.typography.headlineLarge)
                     1 -> Text("Ingredients", style = MaterialTheme.typography.headlineLarge)

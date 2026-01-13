@@ -41,7 +41,7 @@ internal fun EditMode(viewModel: LogsScreenViewModel) {
         }
     }
 
-    Column(modifier = Modifier.padding(horizontal = 40.dp)) {
+    Column(modifier = Modifier.padding(horizontal = 16.dp)) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text(
                 "${viewModel.selectedFood?.food?.name}",

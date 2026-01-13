@@ -102,7 +102,7 @@ fun AddFoodScreen(
         navController,
         snackbarHostState,
     ) {
-        Column(modifier = Modifier.padding(horizontal = 40.dp)) {
+        Column(modifier = Modifier.padding(horizontal = 16.dp)) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Text("Add foods", style = MaterialTheme.typography.headlineLarge)
                 Row {

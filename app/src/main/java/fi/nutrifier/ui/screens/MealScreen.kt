@@ -77,7 +77,7 @@ fun MealScreen(
         floatingActionButton = { AddButton { navController.navigate("add_food") }
     }) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomEnd) {
-            Column(modifier = Modifier.padding(horizontal = 40.dp).fillMaxSize()) {
+            Column(modifier = Modifier.padding(horizontal = 16.dp).fillMaxSize()) {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     Text(
                         toLowerCaseCapitalizeFirst(viewModels.logsScreen.selectedMeal.toString()),

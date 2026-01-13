@@ -31,6 +31,8 @@ class AuthViewModel(application: Application): BaseViewModel(application) {
         Log.d("AUTH", "Token found: $token")
         Log.d("AUTH", "User found: $user")
 
+        if (user != null) _user.value = user
+
         setLoading(false)
 
         return token != null && user != null
@@ -84,7 +86,7 @@ class AuthViewModel(application: Application): BaseViewModel(application) {
                     )
 
                     // Saving the user to SharedPrefs
-                    val user = User(response.value.userId, response.value.userEmail)
+                    val user = User(response.value.userId, "default@gmail.com")
 
                     Log.d("AuthViewModel", "Kirjauduttu sisään käyttäjällä: $user")
 
