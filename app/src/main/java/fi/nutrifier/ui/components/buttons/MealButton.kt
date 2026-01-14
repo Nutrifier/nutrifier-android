@@ -15,16 +15,15 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import fi.nutrifier.models.database.MealType
 import fi.nutrifier.utils.FormattingUtils.toLowerCaseCapitalizeFirst
-import fi.nutrifier.viewmodels.LogsScreenViewModel
+import fi.nutrifier.viewmodels.FoodEntryViewModel
 
 @Composable
 fun MealButton(
     mealType: MealType,
-    viewModel: LogsScreenViewModel,
+    viewModel: FoodEntryViewModel,
     onClick: () -> Unit,
 ) {
     val nutrientString = viewModel.nutrients.entries.find { it.key == mealType }?.value?.let {

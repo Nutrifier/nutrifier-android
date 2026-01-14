@@ -11,7 +11,7 @@ import fi.nutrifier.ui.screens.food.AddFoodScreen
 import fi.nutrifier.viewmodels.AuthViewModel
 import fi.nutrifier.viewmodels.BarcodeScannerViewModel
 import fi.nutrifier.viewmodels.FavouriteRecipesViewModel
-import fi.nutrifier.viewmodels.LogsScreenViewModel
+import fi.nutrifier.viewmodels.FoodEntryViewModel
 import fi.nutrifier.viewmodels.PersonalRecipesViewModel
 import fi.nutrifier.viewmodels.RecipeUnderInspectionViewModel
 import fi.nutrifier.viewmodels.SearchViewModel
@@ -37,7 +37,7 @@ class AddFoodScreenTest {
         search = SearchViewModel(ApplicationProvider.getApplicationContext()),
         specials = TodaysSpecialsViewModel(ApplicationProvider.getApplicationContext()),
         shopping = ShoppingListViewModel(ApplicationProvider.getApplicationContext()),
-        logsScreen = LogsScreenViewModel(ApplicationProvider.getApplicationContext()),
+        foodEntry = FoodEntryViewModel(ApplicationProvider.getApplicationContext()),
         authViewModel = AuthViewModel(ApplicationProvider.getApplicationContext()),
         barcode = BarcodeScannerViewModel(ApplicationProvider.getApplicationContext())
     )

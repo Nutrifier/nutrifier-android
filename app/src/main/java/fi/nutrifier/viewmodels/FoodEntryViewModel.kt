@@ -5,13 +5,12 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import fi.nutrifier.models.database.Food
-import fi.nutrifier.models.database.FoodLog
-import fi.nutrifier.models.database.Log
+import fi.nutrifier.models.database.FoodEntryFood
+import fi.nutrifier.models.database.FoodEntry
 import fi.nutrifier.models.database.MealType
 import fi.nutrifier.models.database.NutrientSummary
-import fi.nutrifier.repositories.database.FineliRepository
 import fi.nutrifier.repositories.database.FoodRepository
-import fi.nutrifier.repositories.database.LogRepository
+import fi.nutrifier.repositories.database.FoodEntryRepository
 import fi.nutrifier.utils.AlertType
 import fi.nutrifier.utils.ConversionUtils.emptyFood
 import fi.nutrifier.utils.Result
@@ -19,25 +18,24 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
-class LogsScreenViewModel(application: Application): BaseViewModel(application) {
-    private val logRepository = LogRepository(this.encryptedSharedPreferences)
+class FoodEntryViewModel(application: Application): BaseViewModel(application) {
+    private val foodEntryRepository = FoodEntryRepository(this.encryptedSharedPreferences)
     private val foodRepository = FoodRepository(this.encryptedSharedPreferences)
-    private val fineliRepository = FineliRepository()
 
-    private var _logs: MutableState<List<Log>> = mutableStateOf(emptyList())
-    private var _breakfastLogs: MutableState<List<FoodLog>> = mutableStateOf(emptyList())
-    val breakfastLogs get() = _breakfastLogs.value
-    private var _lunchLogs: MutableState<List<FoodLog>> = mutableStateOf(emptyList())
-    val lunchLogs get() = _lunchLogs.value
-    private var _dinnerLogs: MutableState<List<FoodLog>> = mutableStateOf(emptyList())
-    val dinnerLogs get() = _dinnerLogs.value
-    private var _snacksLogs: MutableState<List<FoodLog>> = mutableStateOf(emptyList())
-    val snacksLogs get() = _snacksLogs.value
+    private var _entries: MutableState<List<FoodEntry>> = mutableStateOf(emptyList())
+    private var _breakfastEntries: MutableState<List<FoodEntryFood>> = mutableStateOf(emptyList())
+    val breakfastEntries get() = _breakfastEntries.value
+    private var _lunchEntries: MutableState<List<FoodEntryFood>> = mutableStateOf(emptyList())
+    val lunchEntries get() = _lunchEntries.value
+    private var _dinnerEntries: MutableState<List<FoodEntryFood>> = mutableStateOf(emptyList())
+    val dinnerEntries get() = _dinnerEntries.value
+    private var _snacksEntries: MutableState<List<FoodEntryFood>> = mutableStateOf(emptyList())
+    val snacksEntries get() = _snacksEntries.value
 
     // NOTE: Can be exploited by changing the devices date
     private var _date: MutableState<LocalDate> = mutableStateOf(LocalDate.now())
     val date get() = _date.value
-    val setDate: (LocalDate) -> Unit = { _date.value = it; loadLogs() }
+    val setDate: (LocalDate) -> Unit = { _date.value = it; loadFoodEntries() }
 
     private var _overallNutrients = mutableStateOf(NutrientSummary(0.0, 0.0, 0.0, 0.0))
     val overallNutrients get() = _overallNutrients.value
@@ -56,21 +54,21 @@ class LogsScreenViewModel(application: Application): BaseViewModel(application) 
     val selectedMeal get() = _selectedMeal.value
     val setSelectedMeal: (MealType?) -> Unit = { _selectedMeal.value = it }
 
-    private var _selectedLog = mutableStateOf<Log?>(null)
-    val selectedLog get() = _selectedLog.value
-    val setSelectedLog: (Log?) -> Unit = { _selectedLog.value = it }
+    private var _selectedFoodEntry = mutableStateOf<FoodEntry?>(null)
+    val selectedFoodEntry get() = _selectedFoodEntry.value
+    val setSelectedFoodEntry: (FoodEntry?) -> Unit = { _selectedFoodEntry.value = it }
 
     private var _currentAmount = mutableStateOf("100")
     val currentAmount get() = _currentAmount.value
     val setCurrentAmount: (String) -> Unit = { _currentAmount.value = it }
 
-    private suspend fun calculateNutrients(logs: List<Log>): NutrientSummary {
+    private suspend fun calculateNutrients(foodEntries: List<FoodEntry>): NutrientSummary {
         var calories = 0.0
         var fats = 0.0
         var carbs = 0.0
         var protein = 0.0
 
-        logs.forEach { log ->
+        foodEntries.forEach { log ->
             val food = fetchFoodById(log.foodId)
             food?.calories?.let { calories += it * (log.amount / 100) }
             food?.fat?.let { fats += it * (log.amount / 100) }
@@ -80,14 +78,14 @@ class LogsScreenViewModel(application: Application): BaseViewModel(application) 
         return NutrientSummary(calories, fats, carbs, protein)
     }
 
-    fun loadLogs(triggerLoading: Boolean = true) {
+    fun loadFoodEntries(triggerLoading: Boolean = true) {
         if (triggerLoading) setLoading(true)
 
         viewModelScope.launch(Dispatchers.IO) {
-            val result: Result<List<Log>> = logRepository.getLogsByDate(_date.value)
+            val result: Result<List<FoodEntry>> = foodEntryRepository.getFoodEntriesByDate(_date.value)
 
             if (result.isSuccessful()) {
-                _logs.value = result.value ?: emptyList()
+                _entries.value = result.value ?: emptyList()
 
                 val nutrientSummary = result.value?.let { calculateNutrients(it) }
                 if (nutrientSummary != null) setOverallNutrients(nutrientSummary)
@@ -101,17 +99,17 @@ class LogsScreenViewModel(application: Application): BaseViewModel(application) 
                             && it.meal != "DINNER")
                 } ?: emptyList()
 
-                _breakfastLogs.value = newBreakfastLogs.map {
-                    FoodLog(it, fetchFoodById(it.foodId) ?: emptyFood.copy())
+                _breakfastEntries.value = newBreakfastLogs.map {
+                    FoodEntryFood(it, fetchFoodById(it.foodId) ?: emptyFood.copy())
                 }
-                _lunchLogs.value = newLunchLogs.map {
-                    FoodLog(it, fetchFoodById(it.foodId) ?: emptyFood.copy())
+                _lunchEntries.value = newLunchLogs.map {
+                    FoodEntryFood(it, fetchFoodById(it.foodId) ?: emptyFood.copy())
                 }
-                _dinnerLogs.value = newDinnerLogs.map {
-                    FoodLog(it, fetchFoodById(it.foodId) ?: emptyFood.copy())
+                _dinnerEntries.value = newDinnerLogs.map {
+                    FoodEntryFood(it, fetchFoodById(it.foodId) ?: emptyFood.copy())
                 }
-                _snacksLogs.value = newSnacksLogs.map {
-                    FoodLog(it, fetchFoodById(it.foodId) ?: emptyFood.copy())
+                _snacksEntries.value = newSnacksLogs.map {
+                    FoodEntryFood(it, fetchFoodById(it.foodId) ?: emptyFood.copy())
                 }
 
                 val newMealNutrients = MealType.entries.associateWith { mealType ->
@@ -130,15 +128,15 @@ class LogsScreenViewModel(application: Application): BaseViewModel(application) 
         }
     }
 
-    fun updateLog(log: Log) {
+    fun updateFoodEntry(foodEntry: FoodEntry) {
         viewModelScope.launch(Dispatchers.IO) {
-            val result = logRepository.updateLog(log)
+            val result = foodEntryRepository.updateFoodEntry(foodEntry)
             if (result.isSuccessful()) {
-                _logs.value = _logs.value.map {
-                    if (it.id == log.id) log
+                _entries.value = _entries.value.map {
+                    if (it.id == foodEntry.id) foodEntry
                     else it
                 }
-                loadLogs(false)
+                loadFoodEntries(false)
                 showAlert("Log updated!", AlertType.INFO)
             } else {
                 showAlert("Error occurred while updating log (${result.errorCode}).")
@@ -146,14 +144,14 @@ class LogsScreenViewModel(application: Application): BaseViewModel(application) 
         }
     }
 
-    fun saveLog(log: Log) {
+    fun saveFoodEntry(foodEntry: FoodEntry) {
         setLoading(true)
 
         viewModelScope.launch(Dispatchers.IO) {
-            val result = logRepository.saveLog(log)
+            val result = foodEntryRepository.saveFoodEntry(foodEntry)
             if (result.isSuccessful()) {
                 showAlert("Log saved!", AlertType.INFO)
-                loadLogs()
+                loadFoodEntries()
             } else {
                 showAlert("Error occurred while saving the log (${result.errorCode}).")
                 setLoading(false)
@@ -162,12 +160,12 @@ class LogsScreenViewModel(application: Application): BaseViewModel(application) 
         }
     }
 
-    fun deleteLog(id: String) {
+    fun deleteFoodEntry(id: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            val result = logRepository.deleteLog(id)
+            val result = foodEntryRepository.deleteFoodEntry(id)
             if (result.isSuccessful()) {
-                _logs.value = _logs.value.filter { id != it.id }
-                loadLogs(false)
+                _entries.value = _entries.value.filter { id != it.id }
+                loadFoodEntries(false)
                 showAlert("Log deleted!", AlertType.INFO)
             } else {
                 showAlert("Error occurred while deleting the log (${result.errorCode}).")

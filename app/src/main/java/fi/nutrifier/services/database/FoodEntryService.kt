@@ -1,6 +1,6 @@
 package fi.nutrifier.services.database
 
-import fi.nutrifier.models.database.Log
+import fi.nutrifier.models.database.FoodEntry
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -10,34 +10,30 @@ import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
-import java.util.UUID
 
-interface LogService {
-    @GET("api/logs")
-    suspend fun getLogs(): Response<List<Log>>
-
-    @GET("api/logs/by-date")
-    suspend fun getLogsByDateAndUser(
+interface FoodEntryService {
+    @GET("api/food-entries/by-date")
+    suspend fun getFoodEntriesByDateAndUser(
         @Query("date") date: String,
         @Query("userId") userId: String,
         @Header("Authorization") authHeader: String,
-    ): Response<List<Log>>
+    ): Response<List<FoodEntry>>
 
-    @POST("api/logs")
-    suspend fun saveLog(
-        @Body log: Log,
+    @POST("api/food-entries")
+    suspend fun saveFoodEntry(
+        @Body foodEntry: FoodEntry,
         @Header("Authorization") authHeader: String,
-    ): Response<Log>
+    ): Response<FoodEntry>
 
-    @PATCH("api/logs/{id}")
-    suspend fun updateLog(
+    @PATCH("api/food-entries/{id}")
+    suspend fun updateFoodEntry(
         @Path("id") id: String,
-        @Body log: Log,
+        @Body foodEntry: FoodEntry,
         @Header("Authorization") authHeader: String,
-    ): Response<Log>
+    ): Response<FoodEntry>
 
-    @DELETE("api/logs/{id}")
-    suspend fun deleteLog(
+    @DELETE("api/food-entries/{id}")
+    suspend fun deleteFoodEntry(
         @Path("id") id: String,
         @Header("Authorization") authHeader: String,
     ): Response<Void>

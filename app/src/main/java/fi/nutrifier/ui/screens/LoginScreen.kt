@@ -60,7 +60,7 @@ fun LoginScreen(
         if (viewModels.authViewModel.checkAuthToken()) {
             navigateToMainScreen()
         }
-        viewModels.logsScreen.setLoading(false)
+        viewModels.foodEntry.setLoading(false)
     }
 
     LaunchedEffect(viewModels.authViewModel.alert) {
@@ -141,7 +141,7 @@ fun LoginScreen(
                 Button(onClick = { handleLogin() }, modifier = Modifier
                     .fillMaxWidth()
                     .height(44.dp)) {
-                    if (viewModels.logsScreen.loading) {
+                    if (viewModels.foodEntry.loading) {
                         CircularProgressIndicator(
                             color = MaterialTheme.colorScheme.onPrimary,
                             modifier = Modifier.size(24.dp),

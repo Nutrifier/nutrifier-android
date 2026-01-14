@@ -22,15 +22,16 @@ import fi.nutrifier.ui.components.inputs.NutrientInputRow
 import fi.nutrifier.ui.components.inputs.NutrientTextField
 import fi.nutrifier.ui.components.layout.NutrientColumn
 import fi.nutrifier.ui.components.layout.TitledContainer
+import fi.nutrifier.utils.FormattingUtils
 import fi.nutrifier.viewmodels.ViewModelWrapper
 
 @Composable
 internal fun EditMode(viewModels: ViewModelWrapper) {
     var calculatedNutrientSummary by remember { mutableStateOf(NutrientSummary(0.0, 0.0, 0.0, 0.0)) }
 
-    LaunchedEffect(viewModels.logsScreen.currentAmount) {
-        if (viewModels.foods.selectedFood != null && viewModels.logsScreen.currentAmount.isNotEmpty()) {
-            val multiplier = (viewModels.logsScreen.currentAmount.toDouble() / 100)
+    LaunchedEffect(viewModels.foodEntry.currentAmount) {
+        if (viewModels.foods.selectedFood != null && viewModels.foodEntry.currentAmount.isNotEmpty()) {
+            val multiplier = (viewModels.foodEntry.currentAmount.toDouble() / 100)
 
             val calories = viewModels.foods.selectedFood!!.food!!.calories * multiplier
             val fats = viewModels.foods.selectedFood!!.food!!.fat * multiplier
@@ -62,8 +63,8 @@ internal fun EditMode(viewModels: ViewModelWrapper) {
                 value = calculatedNutrientSummary.calories,
                 suffix = "kcal",
             )
-            NutrientTextField(value = viewModels.logsScreen.currentAmount) {
-                viewModels.logsScreen.setCurrentAmount(it)
+            NutrientTextField(value = viewModels.foodEntry.currentAmount) {
+                viewModels.foodEntry.setCurrentAmount(it)
             }
         }
         Spacer(modifier = Modifier.padding(vertical = 8.dp))
@@ -95,7 +96,7 @@ internal fun EditMode(viewModels: ViewModelWrapper) {
             Column(modifier = Modifier.padding(start = 8.dp)) {
                 NutrientInputRow(
                     "Calories *",
-                    viewModels.foods.selectedFood?.food?.calories.toString(),
+                    FormattingUtils.roundUp(viewModels.foods.selectedFood?.food?.calories).toString(),
                     120.dp,
                     "kcal",
                     editable = false
@@ -103,21 +104,21 @@ internal fun EditMode(viewModels: ViewModelWrapper) {
                 Spacer(Modifier.padding(vertical = 4.dp))
                 NutrientInputRow(
                     "Carbohydrates",
-                    viewModels.foods.selectedFood?.food?.carbs.toString(),
+                    FormattingUtils.roundUp(viewModels.foods.selectedFood?.food?.carbs).toString(),
                     suffixText = "g",
                     editable = false
                 )
                 Spacer(Modifier.padding(vertical = 4.dp))
                 NutrientInputRow(
                     "Protein",
-                    viewModels.foods.selectedFood?.food?.protein.toString(),
+                    FormattingUtils.roundUp(viewModels.foods.selectedFood?.food?.protein).toString(),
                     suffixText = "g",
                     editable = false
                 )
                 Spacer(Modifier.padding(vertical = 4.dp))
                 NutrientInputRow(
                     "Fat",
-                    viewModels.foods.selectedFood?.food?.fat.toString(),
+                    FormattingUtils.roundUp(viewModels.foods.selectedFood?.food?.fat).toString(),
                     suffixText = "g",
                     editable = false
                 )
@@ -126,7 +127,7 @@ internal fun EditMode(viewModels: ViewModelWrapper) {
                 Spacer(Modifier.padding(vertical = 8.dp))
                 NutrientInputRow(
                     "PEV",
-                    viewModels.foods.selectedFood?.pev.toString(),
+                    FormattingUtils.roundUp(viewModels.foods.selectedFood?.pev).toString(),
                     suffixText = "",
                     editable = false
                 )

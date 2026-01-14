@@ -3,6 +3,7 @@ package fi.nutrifier.utils
 import android.util.Log
 import java.time.LocalDate
 import java.time.LocalTime
+import kotlin.math.round
 
 object FormattingUtils {
     fun toLowerCaseCapitalizeFirst(str: String): String {
@@ -17,5 +18,10 @@ object FormattingUtils {
     fun stringToDouble(string: String): Double {
         val convertedCommas = string.replace(",", ".")
         return convertedCommas.toDouble()
+    }
+
+    fun roundUp(value: Double?): Double {
+        if (value == null) return 0.0
+        return round(value * 10) / 10
     }
 }

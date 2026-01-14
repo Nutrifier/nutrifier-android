@@ -51,8 +51,8 @@ android {
     buildTypes {
         debug {
             // Use 10.0... url for emulators and 127.0... for actual devices
-            //buildConfigField("String", "BASE_URL", "\"http://10.0.2.2:8080/\"")
-            buildConfigField("String", "BASE_URL", "\"http://127.0.0.1:8080/\"")
+            buildConfigField("String", "BASE_URL", "\"http://10.0.2.2:8080/\"")
+            //buildConfigField("String", "BASE_URL", "\"http://127.0.0.1:8080/\"")
         }
 
         release {

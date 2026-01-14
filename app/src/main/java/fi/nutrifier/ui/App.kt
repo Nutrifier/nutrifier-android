@@ -17,7 +17,7 @@ import fi.nutrifier.ui.screens.cookbook.CookbookScreen
 import fi.nutrifier.ui.screens.food.FoodEditorScreen
 import fi.nutrifier.ui.screens.food.AddFoodScreen
 import fi.nutrifier.ui.screens.LoginScreen
-import fi.nutrifier.ui.screens.LogsScreen
+import fi.nutrifier.ui.screens.FoodEntryScreen
 import fi.nutrifier.ui.screens.MealScreen
 import fi.nutrifier.ui.screens.settings.SettingsScreen
 import fi.nutrifier.ui.screens.recipe.RecipeScreen
@@ -26,7 +26,7 @@ import fi.nutrifier.viewmodels.AuthViewModel
 import fi.nutrifier.viewmodels.BarcodeScannerViewModel
 import fi.nutrifier.viewmodels.FavouriteRecipesViewModel
 import fi.nutrifier.viewmodels.FoodsViewModel
-import fi.nutrifier.viewmodels.LogsScreenViewModel
+import fi.nutrifier.viewmodels.FoodEntryViewModel
 import fi.nutrifier.viewmodels.PersonalRecipesViewModel
 import fi.nutrifier.viewmodels.RecipeUnderInspectionViewModel
 import fi.nutrifier.viewmodels.SearchViewModel
@@ -54,7 +54,7 @@ fun App(applicationContext: Context) {
     val searchViewModel: SearchViewModel = viewModel()
     val todaysSpecialsViewModel: TodaysSpecialsViewModel = viewModel()
     val shoppingListViewModel: ShoppingListViewModel = viewModel()
-    val logsScreenViewModel: LogsScreenViewModel = viewModel()
+    val foodEntryViewModel: FoodEntryViewModel = viewModel()
     val authViewModel: AuthViewModel = viewModel()
     val barcodeScannerViewModel: BarcodeScannerViewModel = viewModel()
     val foodsViewModel: FoodsViewModel = viewModel()
@@ -66,7 +66,7 @@ fun App(applicationContext: Context) {
         search = searchViewModel,
         specials = todaysSpecialsViewModel,
         shopping = shoppingListViewModel,
-        logsScreen = logsScreenViewModel,
+        foodEntry = foodEntryViewModel,
         authViewModel = authViewModel,
         barcode = barcodeScannerViewModel,
         foods = foodsViewModel,
@@ -81,7 +81,7 @@ fun App(applicationContext: Context) {
                 DiscoverScreen(navController, viewModels, snackbarHostState)
             }
             composable("logs") {
-                LogsScreen(navController, viewModels, snackbarHostState)
+                FoodEntryScreen(navController, viewModels, snackbarHostState)
             }
             composable("add_food") {
                 AddFoodScreen(navController, viewModels, snackbarHostState)

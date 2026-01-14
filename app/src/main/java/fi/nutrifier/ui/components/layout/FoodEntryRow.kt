@@ -19,18 +19,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import fi.nutrifier.models.database.Food
-import fi.nutrifier.models.database.Log
-import fi.nutrifier.viewmodels.LogsScreenViewModel
+import fi.nutrifier.models.database.FoodEntry
+import fi.nutrifier.viewmodels.FoodEntryViewModel
 
 /**
  * A composable function that displays a row representing a log.
  */
 @Composable
-fun LogRow(log: Log, viewModel: LogsScreenViewModel) {
+fun FoodEntryRow(foodEntry: FoodEntry, viewModel: FoodEntryViewModel) {
     var food: Food? by remember { mutableStateOf(null) }
 
-    LaunchedEffect(log) {
-        food = viewModel.fetchFoodById(log.foodId)
+    LaunchedEffect(foodEntry) {
+        food = viewModel.fetchFoodById(foodEntry.foodId)
     }
 
     Row(
@@ -43,8 +43,8 @@ fun LogRow(log: Log, viewModel: LogsScreenViewModel) {
             NutrientRow(food = food)
         }
         Row {
-            Text(text = "${log.amount}")
-            IconButton(onClick = { log.id?.let { viewModel.deleteLog(it) } }) {
+            Text(text = "${foodEntry.amount}")
+            IconButton(onClick = { foodEntry.id?.let { viewModel.deleteFoodEntry(it) } }) {
                 Icon(imageVector = Icons.Filled.Close, contentDescription = "Close")
             }
         }

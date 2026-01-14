@@ -1,6 +1,6 @@
 package fi.nutrifier.models.database
 
-data class Log(
+data class FoodEntry(
     val id: String? = null,
     val date: String,
     val time: String,

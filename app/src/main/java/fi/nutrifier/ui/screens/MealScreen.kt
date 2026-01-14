@@ -25,11 +25,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import fi.nutrifier.models.database.FoodLog
+import fi.nutrifier.models.database.FoodEntryFood
 import fi.nutrifier.models.database.MealType
 import fi.nutrifier.ui.components.buttons.AddButton
 import fi.nutrifier.ui.components.buttons.BackButton
-import fi.nutrifier.ui.components.buttons.MealLogButton
+import fi.nutrifier.ui.components.buttons.FoodEntryButton
 import fi.nutrifier.ui.components.layout.MealNutrients
 import fi.nutrifier.ui.components.layout.NutrientColumn
 import fi.nutrifier.ui.components.layout.TopBar
@@ -43,27 +43,27 @@ fun MealScreen(
     viewModels: ViewModelWrapper,
     snackbarHostState: SnackbarHostState,
 ) {
-    var logs: List<FoodLog> by remember { mutableStateOf(emptyList()) }
+    var foodEntries: List<FoodEntryFood> by remember { mutableStateOf(emptyList()) }
 
     LaunchedEffect(
-        viewModels.logsScreen.selectedMeal,
-        viewModels.logsScreen.breakfastLogs,
-        viewModels.logsScreen.lunchLogs,
-        viewModels.logsScreen.dinnerLogs,
-        viewModels.logsScreen.snacksLogs,
+        viewModels.foodEntry.selectedMeal,
+        viewModels.foodEntry.breakfastEntries,
+        viewModels.foodEntry.lunchEntries,
+        viewModels.foodEntry.dinnerEntries,
+        viewModels.foodEntry.snacksEntries,
     ) {
-        logs = when (viewModels.logsScreen.selectedMeal) {
-            MealType.BREAKFAST -> viewModels.logsScreen.breakfastLogs
-            MealType.LUNCH -> viewModels.logsScreen.lunchLogs
-            MealType.DINNER -> viewModels.logsScreen.dinnerLogs
-            else -> viewModels.logsScreen.snacksLogs
+        foodEntries = when (viewModels.foodEntry.selectedMeal) {
+            MealType.BREAKFAST -> viewModels.foodEntry.breakfastEntries
+            MealType.LUNCH -> viewModels.foodEntry.lunchEntries
+            MealType.DINNER -> viewModels.foodEntry.dinnerEntries
+            else -> viewModels.foodEntry.snacksEntries
         }
     }
 
-    LaunchedEffect(viewModels.logsScreen.alert) {
-        viewModels.logsScreen.alert?.let {
+    LaunchedEffect(viewModels.foodEntry.alert) {
+        viewModels.foodEntry.alert?.let {
             snackbarHostState.showSnackbar(it.message)
-            viewModels.logsScreen.clearAlert()
+            viewModels.foodEntry.clearAlert()
         }
     }
 
@@ -80,36 +80,36 @@ fun MealScreen(
             Column(modifier = Modifier.padding(horizontal = 16.dp).fillMaxSize()) {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     Text(
-                        toLowerCaseCapitalizeFirst(viewModels.logsScreen.selectedMeal.toString()),
+                        toLowerCaseCapitalizeFirst(viewModels.foodEntry.selectedMeal.toString()),
                         style = MaterialTheme.typography.headlineLarge,
                     )
-                    viewModels.logsScreen.nutrients[viewModels.logsScreen.selectedMeal]?.let {
+                    viewModels.foodEntry.nutrients[viewModels.foodEntry.selectedMeal]?.let {
                         NutrientColumn("Calories", it.calories, suffix = "kcal")
                     }
                 }
                 Spacer(modifier = Modifier.padding(vertical = 8.dp))
-                viewModels.logsScreen.nutrients[viewModels.logsScreen.selectedMeal]?.let {
+                viewModels.foodEntry.nutrients[viewModels.foodEntry.selectedMeal]?.let {
                     MealNutrients(it.carbs, it.protein, it.fats)
                 }
                 Spacer(modifier = Modifier.padding(vertical = 16.dp))
 
                 Box {
                     LazyColumn {
-                        items(logs) {
-                            MealLogButton(it,
+                        items(foodEntries) {
+                            FoodEntryButton(it,
                                 onClick = {
                                     viewModels.foods.setSelectedFood(it.food)
-                                    viewModels.logsScreen.setSelectedLog(it.log)
-                                    viewModels.logsScreen.setCurrentAmount(it.log.amount.toString())
+                                    viewModels.foodEntry.setSelectedFoodEntry(it.foodEntry)
+                                    viewModels.foodEntry.setCurrentAmount(it.foodEntry.amount.toString())
                                     navController.navigate("food_editor/UPDATE")
                                 },
                                 onDelete = {
-                                    it.log.id?.let { logId -> viewModels.logsScreen.deleteLog(logId) }
+                                    it.foodEntry.id?.let { logId -> viewModels.foodEntry.deleteFoodEntry(logId) }
                                 }
                             )
                         }
                     }
-                    if (viewModels.logsScreen.loading) {
+                    if (viewModels.foodEntry.loading) {
                         Box(
                             contentAlignment = Alignment.Center,
                             modifier = Modifier

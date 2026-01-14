@@ -4,26 +4,26 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.TextStyle
-import fi.nutrifier.models.database.Log
+import fi.nutrifier.models.database.FoodEntry
 import fi.nutrifier.ui.components.misc.ItemDivider
 import fi.nutrifier.viewmodels.ViewModelWrapper
 
 @Composable
-fun LogsSection(
+fun FoodEntrySection(
     title: String,
-    logs: List<Log>,
+    foodEntries: List<FoodEntry>,
     viewModels: ViewModelWrapper,
 ) {
     TitledContainer(title) {
-        if (logs.isEmpty()) {
+        if (foodEntries.isEmpty()) {
             Text(
                 text = "No foods logged.",
                 style = TextStyle(color = MaterialTheme.colorScheme.outline)
             )
         } else {
-            logs.forEachIndexed { index, log ->
-                LogRow(log = log, viewModel = viewModels.logsScreen)
-                if (index < logs.size - 1) ItemDivider()
+            foodEntries.forEachIndexed { index, log ->
+                FoodEntryRow(foodEntry = log, viewModel = viewModels.foodEntry)
+                if (index < foodEntries.size - 1) ItemDivider()
             }
         }
     }

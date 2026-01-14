@@ -1,7 +1,6 @@
 package fi.nutrifier.ui.screens
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -9,7 +8,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -30,26 +28,26 @@ import fi.nutrifier.viewmodels.ViewModelWrapper
  * @param viewModels The ViewModelWrapper containing the necessary view models for the screen.
  */
 @Composable
-fun LogsScreen(
+fun FoodEntryScreen(
     navController: NavController,
     viewModels: ViewModelWrapper,
     snackbarHostState: SnackbarHostState,
 ) {
     LaunchedEffect(Unit) {
-        viewModels.logsScreen.loadLogs()
+        viewModels.foodEntry.loadFoodEntries()
     }
 
-    LaunchedEffect(viewModels.logsScreen.alert) {
-        viewModels.logsScreen.alert?.let {
+    LaunchedEffect(viewModels.foodEntry.alert) {
+        viewModels.foodEntry.alert?.let {
             snackbarHostState.showSnackbar(it.message)
-            viewModels.logsScreen.clearAlert()
+            viewModels.foodEntry.clearAlert()
         }
     }
 
     Screen(
-        topBar = { TopBar("Logs") },
+        topBar = { TopBar("Food Entries") },
         bottomBar = { NavBar(navController, "logs") },
-        screen = Constants.Screen.LOGS,
+        screen = Constants.Screen.FOOD_ENTRIES,
         viewModels,
         navController,
         snackbarHostState,
@@ -62,35 +60,35 @@ fun LogsScreen(
                         Modifier.fillMaxWidth(),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        DateNavigator(viewModels.logsScreen.date) {
-                            viewModels.logsScreen.setDate(it)
+                        DateNavigator(viewModels.foodEntry.date) {
+                            viewModels.foodEntry.setDate(it)
                         }
-                        MacroWheels(viewModels.logsScreen.overallNutrients)
+                        MacroWheels(viewModels.foodEntry.overallNutrients)
                         Spacer(modifier = Modifier.padding(vertical = 16.dp))
                     }
                 }
             }
             item {
-                MealButton(MealType.BREAKFAST, viewModels.logsScreen) {
-                    viewModels.logsScreen.setSelectedMeal(MealType.BREAKFAST)
+                MealButton(MealType.BREAKFAST, viewModels.foodEntry) {
+                    viewModels.foodEntry.setSelectedMeal(MealType.BREAKFAST)
                     navController.navigate("meal")
                 }
             }
             item {
-                MealButton(MealType.LUNCH, viewModels.logsScreen) {
-                    viewModels.logsScreen.setSelectedMeal(MealType.LUNCH)
+                MealButton(MealType.LUNCH, viewModels.foodEntry) {
+                    viewModels.foodEntry.setSelectedMeal(MealType.LUNCH)
                     navController.navigate("meal")
                 }
             }
             item {
-                MealButton(MealType.DINNER, viewModels.logsScreen) {
-                    viewModels.logsScreen.setSelectedMeal(MealType.DINNER)
+                MealButton(MealType.DINNER, viewModels.foodEntry) {
+                    viewModels.foodEntry.setSelectedMeal(MealType.DINNER)
                     navController.navigate("meal")
                 }
             }
             item {
-                MealButton(MealType.SNACKS, viewModels.logsScreen) {
-                    viewModels.logsScreen.setSelectedMeal(MealType.SNACKS)
+                MealButton(MealType.SNACKS, viewModels.foodEntry) {
+                    viewModels.foodEntry.setSelectedMeal(MealType.SNACKS)
                     navController.navigate("meal")
                 }
             }

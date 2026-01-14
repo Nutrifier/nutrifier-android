@@ -16,7 +16,6 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -60,10 +59,10 @@ fun AddFoodScreen(
         viewModels.foods.loadFoods()
     }
 
-    LaunchedEffect(viewModels.logsScreen.alert) {
-        viewModels.logsScreen.alert?.let {
+    LaunchedEffect(viewModels.foodEntry.alert) {
+        viewModels.foodEntry.alert?.let {
             snackbarHostState.showSnackbar(it.message)
-            viewModels.logsScreen.clearAlert()
+            viewModels.foodEntry.clearAlert()
         }
     }
 
@@ -75,7 +74,7 @@ fun AddFoodScreen(
                 val lastVisibleItemIndex = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index
                 if (lastVisibleItemIndex != null
                     && lastVisibleItemIndex >= viewModels.foods.foods.size - 5
-                    && !viewModels.logsScreen.loading
+                    && !viewModels.foodEntry.loading
                 ) {
                     viewModels.foods.loadMoreFoods()
                 }
@@ -145,7 +144,7 @@ fun AddFoodScreen(
                         if (index < viewModels.foods.foods.size - 1) ItemDivider()
                     }
                 }
-                if (viewModels.logsScreen.loading) {
+                if (viewModels.foodEntry.loading) {
                     Box(
                         contentAlignment = Alignment.Center,
                         modifier = Modifier

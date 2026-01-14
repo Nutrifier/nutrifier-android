@@ -45,7 +45,7 @@ class RetrofitInstance {
         .build()
 
     val recipeService: RecipeService = retrofitSpoonacular.create(RecipeService::class.java)
-    val logsService: LogService = retrofitDatabase.create(LogService::class.java)
+    val foodEntryService: FoodEntryService = retrofitDatabase.create(FoodEntryService::class.java)
     val foodService: FoodService = retrofitDatabase.create(FoodService::class.java)
     val authService: AuthService = retrofitDatabase.create(AuthService::class.java)
     val fineliService: FineliService = retrofitFineli.create(FineliService::class.java)

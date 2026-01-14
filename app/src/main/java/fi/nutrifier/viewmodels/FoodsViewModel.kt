@@ -5,21 +5,13 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import fi.nutrifier.models.database.Food
-import fi.nutrifier.models.database.FoodLog
-import fi.nutrifier.models.database.Log
-import fi.nutrifier.models.database.MealType
-import fi.nutrifier.models.database.NutrientSummary
 import fi.nutrifier.models.database.SelectedFood
 import fi.nutrifier.repositories.database.FineliRepository
 import fi.nutrifier.repositories.database.FoodRepository
-import fi.nutrifier.repositories.database.LogRepository
 import fi.nutrifier.utils.AlertType
 import fi.nutrifier.utils.ConversionUtils.calculatePev
-import fi.nutrifier.utils.ConversionUtils.emptyFood
-import fi.nutrifier.utils.Result
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.time.LocalDate
 
 class FoodsViewModel(application: Application): BaseViewModel(application) {
     private val foodRepository = FoodRepository(this.encryptedSharedPreferences)
@@ -105,11 +97,6 @@ class FoodsViewModel(application: Application): BaseViewModel(application) {
 
             _foods.value = result
         }
-    }
-
-    suspend fun fetchFoodById(id: String): Food?  {
-        val result = foodRepository.getFoodById(id)
-        return if (result.isSuccessful()) result.value else null
     }
 
     fun saveFood(food: Food) {
