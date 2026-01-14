@@ -31,7 +31,7 @@ object Constants {
         COOKBOOK,
         DISCOVER,
         LOGIN,
-        LOGS,
+        FOOD_ENTRIES,
         MEAL,
         RECIPE_EDIT,
         RECIPE_VIEW,

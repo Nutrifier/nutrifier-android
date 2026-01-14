@@ -16,7 +16,6 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -57,13 +56,13 @@ fun AddFoodScreen(
     val listState = rememberLazyListState()
 
     LaunchedEffect(Unit) {
-        viewModels.logsScreen.loadFoods()
+        viewModels.foods.loadFoods()
     }
 
-    LaunchedEffect(viewModels.logsScreen.alert) {
-        viewModels.logsScreen.alert?.let {
+    LaunchedEffect(viewModels.foodEntry.alert) {
+        viewModels.foodEntry.alert?.let {
             snackbarHostState.showSnackbar(it.message)
-            viewModels.logsScreen.clearAlert()
+            viewModels.foodEntry.clearAlert()
         }
     }
 
@@ -74,10 +73,10 @@ fun AddFoodScreen(
             .collectLatest {
                 val lastVisibleItemIndex = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index
                 if (lastVisibleItemIndex != null
-                    && lastVisibleItemIndex >= viewModels.logsScreen.foods.size - 5
-                    && !viewModels.logsScreen.loading
+                    && lastVisibleItemIndex >= viewModels.foods.foods.size - 5
+                    && !viewModels.foodEntry.loading
                 ) {
-                    viewModels.logsScreen.loadMoreFoods()
+                    viewModels.foods.loadMoreFoods()
                 }
             }
     }
@@ -118,8 +117,8 @@ fun AddFoodScreen(
                 showResult = showResult,
                 handleShowResult = { showResult = it },
                 autoSearch = true,
-                onClear = { viewModels.logsScreen.loadFoods() },
-                search = { viewModels.logsScreen.searchFoods(it) },
+                onClear = { viewModels.foods.loadFoods() },
+                search = { viewModels.foods.searchFoods(it) },
                 barcodeQuery = barcodeQuery ?: "",
                 suffix = {
                     BarcodeButton(color = MaterialTheme.colorScheme.outline) {
@@ -135,17 +134,17 @@ fun AddFoodScreen(
                     flingBehavior = ScrollableDefaults.flingBehavior(),
                 ) {
                     itemsIndexed(
-                        viewModels.logsScreen.foods,
-                        key = { index, food -> food.id!! }
+                        viewModels.foods.foods,
+                        key = { index, food -> food.id ?: 0 }
                     ) {index, food ->
                         FoodButton(food) {
-                            viewModels.logsScreen.setSelectedFood(food)
+                            viewModels.foods.setSelectedFood(food)
                             navController.navigate("food_editor/EDIT")
                         }
-                        if (index < viewModels.logsScreen.foods.size - 1) ItemDivider()
+                        if (index < viewModels.foods.foods.size - 1) ItemDivider()
                     }
                 }
-                if (viewModels.logsScreen.loading) {
+                if (viewModels.foodEntry.loading) {
                     Box(
                         contentAlignment = Alignment.Center,
                         modifier = Modifier

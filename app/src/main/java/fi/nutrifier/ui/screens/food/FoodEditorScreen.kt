@@ -11,7 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import fi.nutrifier.models.database.Log
+import fi.nutrifier.models.database.FoodEntry
 import fi.nutrifier.ui.components.buttons.BackButton
 import fi.nutrifier.ui.components.layout.TopBar
 import fi.nutrifier.viewmodels.ViewModelWrapper
@@ -33,10 +33,10 @@ fun FoodEditorScreen(
     snackbarHostState: SnackbarHostState,
     mode: String,
 ) {
-    LaunchedEffect(viewModels.logsScreen.alert) {
-        viewModels.logsScreen.alert?.let {
+    LaunchedEffect(viewModels.foodEntry.alert) {
+        viewModels.foodEntry.alert?.let {
             snackbarHostState.showSnackbar(it.message)
-            viewModels.logsScreen.clearAlert()
+            viewModels.foodEntry.clearAlert()
         }
     }
 
@@ -53,40 +53,41 @@ fun FoodEditorScreen(
                 when (mode) {
                     "ADD" ->
                         CancelSaveOption(onClose = { navController.navigateUp() }) {
-                            viewModels.logsScreen.savableFood?.let {
-                                viewModels.logsScreen.saveFood(it)
+                            viewModels.foods.savableFood?.let {
+                                viewModels.foods.saveFood(it)
                                 navController.navigateUp()
                             }
                         }
                     "EDIT" ->
                         CancelSaveOption(onClose = { navController.navigateUp() }) {
-                            viewModels.logsScreen.selectedFood?.let {
-                                val log = it.food?.id?.let { it1 ->
-                                    Log(
-                                        date = viewModels.logsScreen.date.toString(),
+
+                            viewModels.foods.selectedFood?.let {
+                                val foodEntry = it.food?.id?.let { it1 ->
+                                    FoodEntry(
+                                        date = viewModels.foodEntry.date.toString(),
                                         // TODO: Make time changeable
                                         time = FormattingUtils.formatLocalTimeToString(
                                             LocalTime.now()
                                         ),
-                                        meal = viewModels.logsScreen.selectedMeal.toString(),
-                                        userId = viewModels.logsScreen.getUserId(),
+                                        meal = viewModels.foodEntry.selectedMeal.toString(),
+                                        userId = viewModels.foodEntry.getUserId(),
                                         foodId = it1,
-                                        amount = viewModels.logsScreen.currentAmount.toDouble(),
+                                        amount = viewModels.foodEntry.currentAmount.toDouble(),
                                     )
                                 }
-                                if (log != null) {
-                                    viewModels.logsScreen.saveLog(log)
+                                if (foodEntry != null) {
+                                    viewModels.foodEntry.saveFoodEntry(foodEntry)
                                     repeat(2) { navController.popBackStack() }
                                 }
                             }
                         }
                     "UPDATE" ->
                         CancelSaveOption(onClose = { navController.navigateUp() }) {
-                            val newAmount = viewModels.logsScreen.currentAmount.toDoubleOrNull()
+                            val newAmount = viewModels.foodEntry.currentAmount.toDoubleOrNull()
                             if (newAmount != null) {
-                                val updatedLog = viewModels.logsScreen.selectedLog?.copy(amount = newAmount)
+                                val updatedLog = viewModels.foodEntry.selectedFoodEntry?.copy(amount = newAmount)
                                 if (updatedLog != null) {
-                                    viewModels.logsScreen.updateLog(updatedLog)
+                                    viewModels.foodEntry.updateFoodEntry(updatedLog)
                                     navController.popBackStack()
                                 }
                             }
@@ -102,8 +103,8 @@ fun FoodEditorScreen(
     ) {
         when (mode) {
             "ADD" -> AddMode(navController, viewModels)
-            "EDIT" -> EditMode(viewModels.logsScreen)
-            "UPDATE" -> EditMode(viewModels.logsScreen)
+            "EDIT" -> EditMode(viewModels)
+            "UPDATE" -> EditMode(viewModels)
             else -> ViewMode(navController, viewModels)
         }
     }

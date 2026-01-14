@@ -1,6 +1,6 @@
 package fi.nutrifier.models.database
 
-data class FoodLog(
-    val log: Log,
+data class FoodEntryFood(
+    val foodEntry: FoodEntry,
     val food: Food,
 )

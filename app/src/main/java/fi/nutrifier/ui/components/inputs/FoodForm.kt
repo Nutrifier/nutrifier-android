@@ -36,7 +36,6 @@ import androidx.navigation.NavController
 import fi.nutrifier.models.database.Food
 import fi.nutrifier.ui.components.layout.TitledContainer
 import fi.nutrifier.utils.FormattingUtils
-import fi.nutrifier.viewmodels.BarScanState
 import fi.nutrifier.viewmodels.ViewModelWrapper
 
 @Composable
@@ -54,7 +53,7 @@ fun FoodForm(navController: NavController, viewModels: ViewModelWrapper) {
     }
 
     LaunchedEffect(name, barcode, servingSize, calories, carbs, protein, fat) {
-        viewModels.logsScreen.setSavableFood(null)
+        viewModels.foods.setSavableFood(null)
         if (name.isNotEmpty() && servingSize.isNotEmpty() && calories.isNotEmpty()) {
             val food = Food(
                 name = name,
@@ -70,10 +69,10 @@ fun FoodForm(navController: NavController, viewModels: ViewModelWrapper) {
                 fat = if (fat.isNotEmpty()) {
                     FormattingUtils.stringToDouble(fat)
                 } else 0.0,
-                createdBy = viewModels.logsScreen.getUserId(),
-                editedBy = viewModels.logsScreen.getUserId(),
+                createdBy = viewModels.foodEntry.getUserId(),
+                editedBy = viewModels.foodEntry.getUserId(),
             )
-            viewModels.logsScreen.setSavableFood(food)
+            viewModels.foods.setSavableFood(food)
         }
     }
 

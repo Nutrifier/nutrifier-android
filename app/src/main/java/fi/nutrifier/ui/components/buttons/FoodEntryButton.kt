@@ -18,14 +18,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import fi.nutrifier.models.database.FoodLog
+import fi.nutrifier.models.database.FoodEntryFood
 
 @Composable
-fun MealLogButton(foodLog: FoodLog, onClick: () -> Unit, onDelete: () -> Unit) {
-    val calories = (foodLog.food.calories * (foodLog.log.amount / 100)).toInt()
-    val carbs = (foodLog.food.carbs * (foodLog.log.amount / 100)).toInt()
-    val protein = (foodLog.food.protein * (foodLog.log.amount / 100)).toInt()
-    val fat = (foodLog.food.fat * (foodLog.log.amount / 100)).toInt()
+fun FoodEntryButton(foodEntryFood: FoodEntryFood, onClick: () -> Unit, onDelete: () -> Unit) {
+    val calories = (foodEntryFood.food.calories * (foodEntryFood.foodEntry.amount / 100)).toInt()
+    val carbs = (foodEntryFood.food.carbs * (foodEntryFood.foodEntry.amount / 100)).toInt()
+    val protein = (foodEntryFood.food.protein * (foodEntryFood.foodEntry.amount / 100)).toInt()
+    val fat = (foodEntryFood.food.fat * (foodEntryFood.foodEntry.amount / 100)).toInt()
 
     val calorieString = "$calories kcal"
     val nutrientString = "${carbs}/${protein}/${fat}"
@@ -47,13 +47,13 @@ fun MealLogButton(foodLog: FoodLog, onClick: () -> Unit, onDelete: () -> Unit) {
             ) {
                 Column(modifier = Modifier.weight(0.7f)) {
                     Text(
-                        text = foodLog.food.name.ifEmpty { "[Deleted Food]" },
+                        text = foodEntryFood.food.name.ifEmpty { "[Deleted Food]" },
                         style = MaterialTheme.typography.titleMedium,
                         overflow = TextOverflow.Ellipsis,
                         maxLines = 1,
                     )
                     Text(
-                        text = "${foodLog.food.barcode}, ${foodLog.log.amount.toInt()} g",
+                        text = "${foodEntryFood.food.barcode}, ${foodEntryFood.foodEntry.amount.toInt()} g",
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.outline,
                     )

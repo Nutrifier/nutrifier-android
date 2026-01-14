@@ -19,7 +19,8 @@ data class ViewModelWrapper (
     val search: SearchViewModel,
     val specials: TodaysSpecialsViewModel,
     val shopping: ShoppingListViewModel,
-    val logsScreen: LogsScreenViewModel,
+    val foodEntry: FoodEntryViewModel,
     val authViewModel: AuthViewModel,
     val barcode: BarcodeScannerViewModel,
+    val foods: FoodsViewModel,
 )

@@ -107,7 +107,7 @@ private fun MockDialogOptions(
                 Text(text = "Login")
             }
         }
-        Screen.LOGS -> {
+        Screen.FOOD_ENTRIES -> {
             baseActions()
             TextButton(onClick = { notYetImplemented() }) {
                 Text(text = "Logs")
