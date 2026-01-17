@@ -3,18 +3,13 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
-    id("kotlin-kapt")
-}
-
-kapt {
-    arguments {
-        arg("room.schemaLocation", "$projectDir/schemas")
-    }
+    alias(libs.plugins.compose.compiler)
+    id("com.google.devtools.ksp")
 }
 
 android {
     namespace = "fi.nutrifier"
-    compileSdk = 34
+    compileSdk = 36
 
     // Load keystore
     val keystoreFile = rootProject.file("api.keystore")
@@ -68,9 +63,6 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions {
-        jvmTarget = "17"
-    }
     buildFeatures {
         compose = true
     }
@@ -84,6 +76,12 @@ android {
     }
     testOptions {
         animationsDisabled = true
+    }
+}
+
+kotlin {
+    jvmToolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
     }
 }
 
@@ -116,12 +114,11 @@ dependencies {
     implementation(libs.coil.compose.v260)
     implementation(libs.androidx.material.icons.extended.v167)
     implementation(libs.androidx.room.runtime)
-    //noinspection KaptUsageInsteadOfKsp
-    kapt(libs.androidx.room.compiler) // Room annotation processor
     implementation(libs.androidx.room.ktx) // Needed for coroutine support
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.security.crypto)
     implementation (libs.logging.interceptor)
+    ksp(libs.androidx.room.compiler)
 
     // Barcode dependencies
     implementation(libs.barcode.scanning)
