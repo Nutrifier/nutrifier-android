@@ -36,7 +36,7 @@ fun Section(
     isCollapsible: Boolean = true,
     content: @Composable () -> Unit,
 ) {
-    var isExpanded by remember { mutableStateOf(false) }
+    var isExpanded by remember { mutableStateOf(true) }
 
     Column {
         Row(

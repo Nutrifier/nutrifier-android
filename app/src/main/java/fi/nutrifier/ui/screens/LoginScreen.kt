@@ -2,7 +2,9 @@ package fi.nutrifier.ui.screens
 
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -24,6 +26,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,7 +39,11 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import fi.nutrifier.models.database.AuthRequest
+import fi.nutrifier.ui.components.misc.UserFeedbackMessage
+import fi.nutrifier.utils.AlertType
 import fi.nutrifier.utils.Constants.Screen
+import fi.nutrifier.utils.LocalApplicationContext
+import fi.nutrifier.utils.NetworkUtils.checkInternetConnection
 import fi.nutrifier.viewmodels.ViewModelWrapper
 
 @Composable
@@ -45,10 +52,13 @@ fun LoginScreen(
     viewModels: ViewModelWrapper,
     snackbarHostState: SnackbarHostState,
 ) {
+    val context = LocalApplicationContext.current
     var mode by remember { mutableStateOf("LOGIN") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
+    val isLoading by viewModels.authViewModel.loading.collectAsState()
+    val networkConnected = checkInternetConnection(context)
 
     fun navigateToMainScreen() {
         navController.navigate("discover") {
@@ -56,20 +66,11 @@ fun LoginScreen(
         }
     }
 
-    LaunchedEffect(Unit) {
+    // Check if user's auth token is found and get the user by id
+    LaunchedEffect(key1 = true) {
         if (viewModels.authViewModel.checkAuthToken()) {
+            viewModels.user.getUser()
             navigateToMainScreen()
-        }
-        viewModels.foodEntry.setLoading(false)
-    }
-
-    LaunchedEffect(viewModels.authViewModel.alert) {
-        Log.d("LoginScreen", "${viewModels.authViewModel.alert}")
-        viewModels.authViewModel.alert?.let {
-            Log.d("LoginScreen", "alert let: $it")
-
-            snackbarHostState.showSnackbar(it.message, withDismissAction = true)
-            viewModels.authViewModel.clearAlert()
         }
     }
 
@@ -81,13 +82,16 @@ fun LoginScreen(
         val authRequest = AuthRequest(email, password)
         Log.d("AuthScreen", "Auth: ${authRequest}")
         if (mode == "LOGIN") {
-            viewModels.authViewModel.login(authRequest) { navigateToMainScreen() }
+            viewModels.authViewModel.login(authRequest) {
+                viewModels.user.getUser()
+                navigateToMainScreen()
+            }
         } else {
             viewModels.authViewModel.register(authRequest) { navigateToMainScreen() }
         }
     }
 
-    Screen(
+    BaseScreen(
         topBar = {},
         bottomBar = {},
         screen = Screen.LOGIN,
@@ -95,6 +99,15 @@ fun LoginScreen(
         navController,
         snackbarHostState,
     ) {
+        if (!networkConnected) {
+            Box(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+                UserFeedbackMessage(
+                    message = "No internet connection",
+                    type = AlertType.ERROR,
+                    modifier = Modifier.align(Alignment.TopEnd)
+                )
+            }
+        }
         Column(
             modifier = Modifier
                 .padding(horizontal = 16.dp)
@@ -102,7 +115,7 @@ fun LoginScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            if (viewModels.authViewModel.loading) CircularProgressIndicator()
+            if (isLoading) CircularProgressIndicator()
             else {
                 Text(text = "Recipe App", style = MaterialTheme.typography.headlineLarge)
                 Spacer(modifier = Modifier.padding(vertical = 24.dp))
@@ -141,7 +154,7 @@ fun LoginScreen(
                 Button(onClick = { handleLogin() }, modifier = Modifier
                     .fillMaxWidth()
                     .height(44.dp)) {
-                    if (viewModels.foodEntry.loading) {
+                    if (isLoading) {
                         CircularProgressIndicator(
                             color = MaterialTheme.colorScheme.onPrimary,
                             modifier = Modifier.size(24.dp),

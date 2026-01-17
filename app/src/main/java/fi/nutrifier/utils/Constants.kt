@@ -39,5 +39,25 @@ object Constants {
         BARCODE,
         SETTINGS,
     }
+
+    enum class EnergyUnit {
+        KCAL,
+        KJ,
+    }
+
+    enum class Diet {
+        KG,
+        LB,
+    }
+
+    enum class Role {
+        USER,
+        ADMIN,
+    }
+
+    enum class WeightUnit {
+        KG,
+        LB,
+    }
 }
 

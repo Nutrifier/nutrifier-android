@@ -1,10 +1,14 @@
 package fi.nutrifier.models.database
 
-import fi.nutrifier.models.other.Role
-
 data class UserSettings(
-    val id: String,
-    val email: String,
-    val role: Role,
-    val settings: UserSettings,
+    val weightUnit: String,
+    val energyUnit: String,
+    val language: String,
+    val timeBetweenMeals: Int,
+    val diet: String,
+    val weekStartsOn: Int,
+    val proteinEfficiencyEnabled: Boolean,
+    val mealReminderEnabled: Boolean,
+    val weighInReminderEnabled: Boolean,
+    val motivationMessagesEnabled: Boolean,
 )

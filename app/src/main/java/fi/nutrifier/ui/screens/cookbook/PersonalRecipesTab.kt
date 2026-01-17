@@ -31,18 +31,8 @@ import fi.nutrifier.viewmodels.ViewModelWrapper
 @Composable
 internal fun PersonalRecipesTab(navController: NavController, viewModels: ViewModelWrapper) {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomEnd) {
-        Column(modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())) {
-            if (viewModels.personal.alert != null) {
-                UserFeedbackMessage(viewModels.personal.alert!!.message, "error")
-            } else if (viewModels.personal.loading) {
-                LinearProgressIndicator()
-            } else {
-                RecipeList(navController, viewModels.personal.recipes, viewModels,
-                    onEmpty = { EmptyRecipeList(navController, viewModels) }
-                )
-            }
-        }
+        RecipeList(navController, viewModels.personal.recipes, viewModels,
+            onEmpty = { EmptyRecipeList(navController, viewModels) }
+        )
     }
 }

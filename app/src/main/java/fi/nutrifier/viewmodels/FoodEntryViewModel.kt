@@ -1,6 +1,7 @@
 package fi.nutrifier.viewmodels
 
 import android.app.Application
+import android.content.SharedPreferences
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
@@ -9,6 +10,7 @@ import fi.nutrifier.models.database.FoodEntryFood
 import fi.nutrifier.models.database.FoodEntry
 import fi.nutrifier.models.database.MealType
 import fi.nutrifier.models.database.NutrientSummary
+import fi.nutrifier.repositories.database.AuthRepository
 import fi.nutrifier.repositories.database.FoodRepository
 import fi.nutrifier.repositories.database.FoodEntryRepository
 import fi.nutrifier.utils.AlertType
@@ -18,8 +20,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
-class FoodEntryViewModel(application: Application): BaseViewModel(application) {
-    private val foodEntryRepository = FoodEntryRepository(this.encryptedSharedPreferences)
+class FoodEntryViewModel(
+    private val repository: FoodEntryRepository,
+    encryptedSharedPreferences: SharedPreferences,
+): BaseViewModel(encryptedSharedPreferences) {
     private val foodRepository = FoodRepository(this.encryptedSharedPreferences)
 
     private var _entries: MutableState<List<FoodEntry>> = mutableStateOf(emptyList())
@@ -82,7 +86,7 @@ class FoodEntryViewModel(application: Application): BaseViewModel(application) {
         if (triggerLoading) setLoading(true)
 
         viewModelScope.launch(Dispatchers.IO) {
-            val result: Result<List<FoodEntry>> = foodEntryRepository.getFoodEntriesByDate(_date.value)
+            val result: Result<List<FoodEntry>> = repository.getFoodEntriesByDate(_date.value)
 
             if (result.isSuccessful()) {
                 _entries.value = result.value ?: emptyList()
@@ -130,7 +134,7 @@ class FoodEntryViewModel(application: Application): BaseViewModel(application) {
 
     fun updateFoodEntry(foodEntry: FoodEntry) {
         viewModelScope.launch(Dispatchers.IO) {
-            val result = foodEntryRepository.updateFoodEntry(foodEntry)
+            val result = repository.updateFoodEntry(foodEntry)
             if (result.isSuccessful()) {
                 _entries.value = _entries.value.map {
                     if (it.id == foodEntry.id) foodEntry
@@ -148,7 +152,7 @@ class FoodEntryViewModel(application: Application): BaseViewModel(application) {
         setLoading(true)
 
         viewModelScope.launch(Dispatchers.IO) {
-            val result = foodEntryRepository.saveFoodEntry(foodEntry)
+            val result = repository.saveFoodEntry(foodEntry)
             if (result.isSuccessful()) {
                 showAlert("Log saved!", AlertType.INFO)
                 loadFoodEntries()
@@ -162,7 +166,7 @@ class FoodEntryViewModel(application: Application): BaseViewModel(application) {
 
     fun deleteFoodEntry(id: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            val result = foodEntryRepository.deleteFoodEntry(id)
+            val result = repository.deleteFoodEntry(id)
             if (result.isSuccessful()) {
                 _entries.value = _entries.value.filter { id != it.id }
                 loadFoodEntries(false)

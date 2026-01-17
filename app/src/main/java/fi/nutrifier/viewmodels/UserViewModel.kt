@@ -1,65 +1,53 @@
 package fi.nutrifier.viewmodels
 
-import android.app.Application
+import android.content.SharedPreferences
 import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
-import fi.nutrifier.BuildConfig
-import fi.nutrifier.models.database.AuthRequest
 import fi.nutrifier.models.database.User
-import fi.nutrifier.repositories.database.AuthRepository
-import fi.nutrifier.utils.SharedPreferencesManager
+import fi.nutrifier.repositories.database.UserRepository
+import fi.nutrifier.utils.AlertType
 import kotlinx.coroutines.launch
 
-class AuthViewModel(application: Application): BaseViewModel(application) {
-    private val repository = AuthRepository()
+class UserViewModel(
+    private val repository: UserRepository,
+    encryptedSharedPreferences: SharedPreferences
+): BaseViewModel(encryptedSharedPreferences) {
 
     private var _user: MutableState<User?> = mutableStateOf(null)
     val user get() = _user.value
 
+    /*
+    private var _settings: MutableState<UserSettings?> = mutableStateOf(null)
+    val settings get() = _settings.value
+    */
+
     init {
         setLoading(true)
-        Log.d("AuthViewModel", "Base url: ${BuildConfig.BASE_URL}")
     }
 
-    // TODO: Add check that the auth token isn't expired
-    fun checkAuthToken(): Boolean {
-        val token = SharedPreferencesManager.getAuthToken(encryptedSharedPreferences)
-        val user = SharedPreferencesManager.getUser(encryptedSharedPreferences)
-
-        Log.d("AUTH", "Token found: $token")
-        Log.d("AUTH", "User found: $user")
-
-        if (user != null) _user.value = user
-
-        setLoading(false)
-
-        return token != null && user != null
-    }
-
-    fun register(authRequest: AuthRequest, callback: () -> Unit) {
+    fun getUser() {
         setLoading(true)
         viewModelScope.launch {
             try {
-                // Calling the api for auth token
-                val response = repository.register(authRequest)
+                val response = repository.getUser()
                 if (response.isSuccessful() && response.value != null) {
-                    Log.d("RegisterResponse", response.value.toString())
+                    Log.d("UserResponse", response.value.toString())
 
-                    // Saving the token to SharedPrefs
+                    _user.value = response.value
+
+                    /*
+                    // Saving the user to SharedPrefs
                     SharedPreferencesManager.saveAuthToken(
                         encryptedSharedPreferences,
                         response.value.token,
                     )
+                    */
 
-                    // Saving the user to SharedPrefs
-                    val user = User(response.value.userId, response.value.userEmail)
-                    SharedPreferencesManager.saveUser(encryptedSharedPreferences, user)
-                    callback()
                 } else {
-                    Log.d("AuthViewModel", "Ongelma rekisteröitymisessä: ${response.message} (${response.errorCode}).")
-                    showAlert("Error occurred in registering (${response.errorCode}).")
+                    Log.d("UserViewModel", "Ongelma käyttäjän hakemisessa: ${response.message} (${response.errorCode}).")
+                    showAlert("Error occurred in user (${response.errorCode}).")
                 }
                 setLoading(false)
             } catch (e: Exception) {
@@ -68,43 +56,56 @@ class AuthViewModel(application: Application): BaseViewModel(application) {
         }
     }
 
-    fun login(authRequest: AuthRequest, callback: () -> Unit) {
-        setLoading(true)
+    fun updateSettings(
+        weightUnit: String? = null,
+        energyUnit: String? = null,
+        language: String? = null,
+        timeBetweenMeals: Int? = null,
+        diet: String? = null,
+        weekStartsOn: Int? = null,
+        proteinEfficiencyEnabled: Boolean? = null,
+        mealReminderEnabled: Boolean? = null,
+        weighInReminderEnabled: Boolean? = null,
+        motivationMessagesEnabled: Boolean? = null,
+    ) {
+        if (user == null || user?.settings == null) {
+            viewModelScope.launch {
+                showAlert("Error: User settings is not found. Try to log in again!")
+            }
+            return
+        }
+
+        val updatedSettings = user!!.settings.copy(
+            weightUnit = weightUnit ?: user!!.settings.weightUnit,
+            energyUnit = energyUnit ?: user!!.settings.energyUnit,
+            language = language ?: user!!.settings.language,
+            timeBetweenMeals = timeBetweenMeals ?: user!!.settings.timeBetweenMeals,
+            diet = diet ?: user!!.settings.diet,
+            weekStartsOn = weekStartsOn ?: user!!.settings.weekStartsOn,
+            proteinEfficiencyEnabled = proteinEfficiencyEnabled ?: user!!.settings.proteinEfficiencyEnabled,
+            mealReminderEnabled = mealReminderEnabled ?: user!!.settings.mealReminderEnabled,
+            weighInReminderEnabled = weighInReminderEnabled ?: user!!.settings.weighInReminderEnabled,
+            motivationMessagesEnabled = motivationMessagesEnabled ?: user!!.settings.motivationMessagesEnabled,
+        )
+
         viewModelScope.launch {
+            setLoading(true)
             try {
-                // Calling the api for auth token
-                val response = repository.login(authRequest)
-                Log.d("AuthViewModel", "Login response: $response")
+                Log.d("UserViewModel", "Inside viewModelScope")
+                val response = repository.updateSettings(updatedSettings)
 
                 if (response.isSuccessful() && response.value != null) {
-                    Log.d("RegisterResponse", response.value.toString())
-
-                    // Saving the token to SharedPrefs
-                    SharedPreferencesManager.saveAuthToken(
-                        encryptedSharedPreferences,
-                        response.value.token,
-                    )
-
-                    // Saving the user to SharedPrefs
-                    val user = User(response.value.userId, "default@gmail.com")
-
-                    Log.d("AuthViewModel", "Kirjauduttu sisään käyttäjällä: $user")
-
-                    SharedPreferencesManager.saveUser(encryptedSharedPreferences, user)
-                    callback()
+                    Log.d("UserResponse", response.value.toString())
+                    showAlert("Settings saved!", AlertType.INFO)
+                    //_settings.value = response.value
                 } else {
-                    Log.d("AuthViewModel", "Ongelma kirjautumisessa: ${response.message} (${response.errorCode}).")
-                    showAlert("Error occurred in logging in (${response.errorCode}).")
+                    Log.d("UserViewModel", "Ongelma käyttäjän hakemisessa: ${response.message} (${response.errorCode}).")
+                    showAlert("Error occurred in user (${response.errorCode}).")
                 }
                 setLoading(false)
             } catch (e: Exception) {
                 showAlert("Error: ${e.localizedMessage}")
             }
         }
-    }
-
-    fun logout(callback: (() -> Unit)? = null) {
-        SharedPreferencesManager.clearPrefs(encryptedSharedPreferences)
-        if (callback !== null) callback()
     }
 }

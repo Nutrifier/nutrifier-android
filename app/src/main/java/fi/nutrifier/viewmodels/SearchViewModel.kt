@@ -1,11 +1,13 @@
 package fi.nutrifier.viewmodels
 
 import android.app.Application
+import android.content.SharedPreferences
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.viewModelScope
 import fi.nutrifier.models.database.Recipe
 import fi.nutrifier.models.database.SpoonacularRecipe
 import fi.nutrifier.repositories.database.SearchRepository
+import fi.nutrifier.repositories.room.PersonalRecipeRepository
 import fi.nutrifier.utils.ConversionUtils.emptyRecipe
 import kotlinx.coroutines.launch
 
@@ -14,16 +16,12 @@ import kotlinx.coroutines.launch
  *
  * This class provides methods for searching recipes based on a query string and encapsulates the search results,
  * loading state, and error state.
- *
- * @property application The application context associated with the ViewModel.
  */
 class SearchViewModel(
-    application: Application
-): BaseViewModel(application) {
+    private val repository: SearchRepository,
+    encryptedSharedPreferences: SharedPreferences
+): BaseViewModel(encryptedSharedPreferences) {
 
-    private val repository: SearchRepository = SearchRepository()
-
-    // Search results state encapsulation
     private val _searchResults = mutableStateListOf<SpoonacularRecipe>()
     val searchResults: List<Recipe?> get() = _searchResults.map { it.toRecipe() ?: emptyRecipe } ?: listOf()
 

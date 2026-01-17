@@ -18,6 +18,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import fi.nutrifier.ui.components.buttons.ProfileButton
 import fi.nutrifier.ui.components.misc.UserFeedbackMessage
+import fi.nutrifier.utils.AlertType
 import fi.nutrifier.utils.LocalApplicationContext
 import fi.nutrifier.utils.NetworkUtils.checkInternetConnection
 
@@ -45,7 +46,7 @@ fun TopBar(title: String? = null, subtitle: (@Composable () -> Unit)? = null, na
             }
             if (!networkConnected) {
                 Spacer(modifier = Modifier.height(8.dp))
-                UserFeedbackMessage("No internet connection", type = "warning")
+                UserFeedbackMessage("No internet connection", type = AlertType.ERROR)
             }
         }
         if (navController != null) ProfileButton(navController)

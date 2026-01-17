@@ -1,10 +1,10 @@
 package fi.nutrifier.models.database
 
-import fi.nutrifier.models.other.Role
+import fi.nutrifier.utils.Constants
 
-data class UserSettings(
+data class User(
     val id: String,
     val email: String,
-    val role: Role,
+    val role: Constants.Role,
     val settings: UserSettings,
 )

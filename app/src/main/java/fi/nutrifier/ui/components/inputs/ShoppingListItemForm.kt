@@ -15,6 +15,7 @@ import androidx.compose.material.icons.rounded.ArrowDropUp
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -32,7 +33,6 @@ import fi.nutrifier.viewmodels.ShoppingListViewModel
 
 @Composable
 fun ShoppingListItemForm(viewModel: ShoppingListViewModel) {
-    var show by remember { mutableStateOf(false) }
     var newItemName by remember { mutableStateOf("") }
     var newItemNote by remember { mutableStateOf("") }
 
@@ -45,30 +45,14 @@ fun ShoppingListItemForm(viewModel: ShoppingListViewModel) {
         }
     }
 
-    Column(
+    Surface(
         modifier = Modifier
             .clip(RoundedCornerShape(8.dp))
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.surface)
-            .padding(start = 16.dp, end = 16.dp, bottom = if (show) 16.dp else 0.dp)
+            .padding(16.dp)
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Add new item", style = MaterialTheme.typography.titleMedium)
-            TextButton(onClick = { show = !show }) {
-                Text(if (show) "Hide" else "Show")
-                Icon(
-                    imageVector =
-                        if (show) Icons.Rounded.ArrowDropUp
-                        else Icons.Rounded.ArrowDropDown,
-                    contentDescription = "arrow down"
-                )
-            }
-        }
-        if (show) {
+        Column {
             Spacer(modifier = Modifier.height(8.dp))
             TextField(
                 value = newItemName,
@@ -89,7 +73,7 @@ fun ShoppingListItemForm(viewModel: ShoppingListViewModel) {
                 modifier = Modifier.fillMaxWidth(),
                 onClick = { handleOnSubmit() }
             ) {
-                Text("Save")
+                Text("Add")
             }
         }
     }

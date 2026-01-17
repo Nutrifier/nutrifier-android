@@ -7,6 +7,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -16,9 +21,11 @@ import fi.nutrifier.ui.components.buttons.BackButton
 import fi.nutrifier.ui.components.layout.TopBar
 import fi.nutrifier.viewmodels.ViewModelWrapper
 import fi.nutrifier.ui.components.inputs.CancelSaveOption
-import fi.nutrifier.ui.screens.Screen
+import fi.nutrifier.ui.screens.BaseScreen
+import fi.nutrifier.utils.Alert
 import fi.nutrifier.utils.Constants
 import fi.nutrifier.utils.FormattingUtils
+import kotlinx.coroutines.flow.collectLatest
 import java.time.LocalTime
 
 /**
@@ -33,14 +40,19 @@ fun FoodEditorScreen(
     snackbarHostState: SnackbarHostState,
     mode: String,
 ) {
-    LaunchedEffect(viewModels.foodEntry.alert) {
-        viewModels.foodEntry.alert?.let {
-            snackbarHostState.showSnackbar(it.message)
-            viewModels.foodEntry.clearAlert()
+    val isLoading by viewModels.specials.loading.collectAsState()
+    var showDialog by remember { mutableStateOf<Alert?>(null) }
+
+    LaunchedEffect(key1 = true) {
+        viewModels.specials.alert.collectLatest {
+            snackbarHostState.showSnackbar(
+                message = it.message,
+                withDismissAction = true,
+            )
         }
     }
 
-    Screen(
+    BaseScreen(
         topBar = { TopBar(subtitle = { BackButton(navController) }) },
         bottomBar = {
             Row(

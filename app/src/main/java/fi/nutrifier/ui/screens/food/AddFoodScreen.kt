@@ -24,6 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,7 +42,8 @@ import fi.nutrifier.ui.components.inputs.CustomSearchBar
 import fi.nutrifier.ui.components.buttons.FoodButton
 import fi.nutrifier.ui.components.inputs.CancelSaveOption
 import fi.nutrifier.ui.components.misc.ItemDivider
-import fi.nutrifier.ui.screens.Screen
+import fi.nutrifier.ui.screens.BaseScreen
+import fi.nutrifier.utils.Alert
 import fi.nutrifier.utils.Constants
 import kotlinx.coroutines.flow.collectLatest
 
@@ -54,16 +56,20 @@ fun AddFoodScreen(
 ) {
     var showResult by remember { mutableStateOf(false) }
     val listState = rememberLazyListState()
+    val isLoading by viewModels.foodEntry.loading.collectAsState()
+    var showDialog by remember { mutableStateOf<Alert?>(null) }
+
+    LaunchedEffect(key1 = true) {
+        viewModels.foodEntry.alert.collectLatest {
+            snackbarHostState.showSnackbar(
+                message = it.message,
+                withDismissAction = true,
+            )
+        }
+    }
 
     LaunchedEffect(Unit) {
         viewModels.foods.loadFoods()
-    }
-
-    LaunchedEffect(viewModels.foodEntry.alert) {
-        viewModels.foodEntry.alert?.let {
-            snackbarHostState.showSnackbar(it.message)
-            viewModels.foodEntry.clearAlert()
-        }
     }
 
     LaunchedEffect(listState) {
@@ -74,14 +80,14 @@ fun AddFoodScreen(
                 val lastVisibleItemIndex = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index
                 if (lastVisibleItemIndex != null
                     && lastVisibleItemIndex >= viewModels.foods.foods.size - 5
-                    && !viewModels.foodEntry.loading
+                    && isLoading
                 ) {
                     viewModels.foods.loadMoreFoods()
                 }
             }
     }
 
-    Screen(
+    BaseScreen(
         topBar = { TopBar(subtitle = { BackButton(navController) })},
         bottomBar = {
             Row(
@@ -144,7 +150,7 @@ fun AddFoodScreen(
                         if (index < viewModels.foods.foods.size - 1) ItemDivider()
                     }
                 }
-                if (viewModels.foodEntry.loading) {
+                if (isLoading) {
                     Box(
                         contentAlignment = Alignment.Center,
                         modifier = Modifier

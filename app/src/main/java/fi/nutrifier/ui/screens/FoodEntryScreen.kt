@@ -8,6 +8,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -19,8 +24,10 @@ import fi.nutrifier.ui.components.inputs.DateNavigator
 import fi.nutrifier.ui.components.layout.MacroWheels
 import fi.nutrifier.ui.components.navigation.NavBar
 import fi.nutrifier.ui.components.layout.TopBar
+import fi.nutrifier.utils.Alert
 import fi.nutrifier.utils.Constants
 import fi.nutrifier.viewmodels.ViewModelWrapper
+import kotlinx.coroutines.flow.collectLatest
 
 /**
  * Composable function for displaying the Logs screen.
@@ -33,19 +40,14 @@ fun FoodEntryScreen(
     viewModels: ViewModelWrapper,
     snackbarHostState: SnackbarHostState,
 ) {
+    val isLoading by viewModels.foodEntry.loading.collectAsState()
+
     LaunchedEffect(Unit) {
         viewModels.foodEntry.loadFoodEntries()
     }
 
-    LaunchedEffect(viewModels.foodEntry.alert) {
-        viewModels.foodEntry.alert?.let {
-            snackbarHostState.showSnackbar(it.message)
-            viewModels.foodEntry.clearAlert()
-        }
-    }
-
-    Screen(
-        topBar = { TopBar("Food Entries") },
+    BaseScreen(
+        topBar = { TopBar("Food Entries", navController = navController) },
         bottomBar = { NavBar(navController, "logs") },
         screen = Constants.Screen.FOOD_ENTRIES,
         viewModels,

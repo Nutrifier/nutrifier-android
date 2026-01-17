@@ -1,10 +1,8 @@
 package fi.nutrifier.ui.screens.cookbook
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
@@ -20,7 +18,7 @@ import androidx.navigation.NavController
 import fi.nutrifier.ui.components.buttons.AddRecipeButton
 import fi.nutrifier.ui.components.navigation.NavBar
 import fi.nutrifier.ui.components.layout.TopBar
-import fi.nutrifier.ui.screens.Screen
+import fi.nutrifier.ui.screens.BaseScreen
 import fi.nutrifier.utils.Constants
 import fi.nutrifier.viewmodels.ViewModelWrapper
 
@@ -37,8 +35,8 @@ fun CookbookScreen(
 ) {
     var selectedTab: Int by remember { mutableIntStateOf(0) }
 
-    Screen(
-        topBar = { TopBar("Cookbook")  },
+    BaseScreen(
+        topBar = { TopBar("Cookbook", navController = navController)  },
         bottomBar = { NavBar(navController, "cookbook") },
         screen = Constants.Screen.COOKBOOK,
         viewModels,

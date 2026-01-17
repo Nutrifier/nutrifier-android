@@ -47,7 +47,6 @@ import fi.nutrifier.utils.Constants
 import fi.nutrifier.viewmodels.BarScanState
 import fi.nutrifier.viewmodels.ViewModelWrapper
 import com.google.common.util.concurrent.ListenableFuture
-import fi.nutrifier.ui.screens.settings.sections.ProfileSection
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -105,7 +104,7 @@ fun BarcodeScreen(
         }
     }
 
-    Screen(
+    BaseScreen(
         topBar = { TopBar(subtitle = { BackButton(navController) }) },
         bottomBar = {
             Row(

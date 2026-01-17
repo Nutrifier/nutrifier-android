@@ -1,22 +1,19 @@
 package fi.nutrifier.ui.screens
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,8 +30,11 @@ import fi.nutrifier.ui.components.layout.RecipeShelf
 import fi.nutrifier.ui.components.layout.SearchPanel
 import fi.nutrifier.ui.components.layout.TopBar
 import fi.nutrifier.ui.components.misc.UserFeedbackMessage
+import fi.nutrifier.utils.Alert
+import fi.nutrifier.utils.AlertType
 import fi.nutrifier.utils.Constants
 import fi.nutrifier.viewmodels.ViewModelWrapper
+import kotlinx.coroutines.flow.collectLatest
 
 /**
  * Composable function for displaying the Discover screen.
@@ -48,8 +48,9 @@ fun DiscoverScreen(
     snackbarHostState: SnackbarHostState,
 ) {
     var showSearchPanel by remember { mutableStateOf(false) }
+    val isLoading by viewModels.specials.loading.collectAsState()
 
-    Screen(
+    BaseScreen(
         topBar = { TopBar("Discover", navController = navController) },
         bottomBar = { NavBar(navController, "discover") },
         screen = Constants.Screen.DISCOVER,
@@ -80,9 +81,7 @@ fun DiscoverScreen(
                     /* === TODAY'S SPECIALS SECTION === */
                     Text("Today's Specials", style = MaterialTheme.typography.headlineMedium)
                     Spacer(modifier = Modifier.height(8.dp))
-                    if (viewModels.specials.alert != null) {
-                        UserFeedbackMessage(viewModels.specials.alert!!.message, "error")
-                    } else if (viewModels.specials.loading) {
+                    if (isLoading) {
                         LinearProgressIndicator()
                     } else {
                         RecipeShelf(

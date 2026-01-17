@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -21,7 +22,7 @@ import fi.nutrifier.utils.Constants.IS_DEV
 import fi.nutrifier.viewmodels.ViewModelWrapper
 
 @Composable
-fun Screen(
+fun BaseScreen(
     topBar: @Composable () -> Unit,
     bottomBar: @Composable () -> Unit,
     screen: Constants.Screen,
@@ -32,6 +33,14 @@ fun Screen(
     content: @Composable () -> Unit,
 ) {
     var showMockDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        viewModels.alerts.collect {
+            snackbarHostState.showSnackbar(
+                message = it.message
+            )
+        }
+    }
 
     Scaffold(
         topBar = { Column {
@@ -46,7 +55,6 @@ fun Screen(
         bottomBar = { Column {
             bottomBar()
         }},
-        snackbarHost = { CustomSnackbar(snackbarHostState) },
         floatingActionButton = {
             Column(horizontalAlignment = Alignment.End) {
                 if (IS_DEV) MockButton { showMockDialog = true }

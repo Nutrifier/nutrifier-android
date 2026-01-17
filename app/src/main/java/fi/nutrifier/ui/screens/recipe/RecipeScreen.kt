@@ -26,9 +26,9 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberDismissState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -55,7 +55,10 @@ import fi.nutrifier.ui.components.layout.InstructionRow
 import fi.nutrifier.ui.components.inputs.NumberCounter
 import fi.nutrifier.ui.components.misc.RecipeImage
 import fi.nutrifier.ui.components.misc.UserFeedbackMessage
+import fi.nutrifier.utils.Alert
+import fi.nutrifier.utils.AlertType
 import fi.nutrifier.viewmodels.ViewModelWrapper
+import kotlinx.coroutines.flow.collectLatest
 import java.util.UUID
 
 /**
@@ -65,7 +68,6 @@ import java.util.UUID
  * @param viewModels The [ViewModelWrapper] containing view models for recipe inspection and favorites.
  * @param isPreview Flag indicating whether the screen is in preview mode.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecipeScreen(
     navController: NavController,
@@ -80,7 +82,7 @@ fun RecipeScreen(
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showServingsChangedNotice by remember { mutableStateOf(false) }
     var initialServings by remember { mutableIntStateOf(recipe.servings) }
-    var swipeState = rememberDismissState()
+    val isLoading by viewModels.inspection.loading.collectAsState()
 
     LaunchedEffect(Unit) {
         if (!recipe.isPersonalRecipe && !isPreview) {
@@ -144,7 +146,7 @@ fun RecipeScreen(
         if (isPreview) Modifier.padding(32.dp)
         else Modifier.padding(32.dp).verticalScroll(rememberScrollState())
     ) {
-        if (viewModels.inspection.loading) LinearProgressIndicator()
+        if (isLoading) LinearProgressIndicator()
         else {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -272,7 +274,7 @@ fun RecipeScreen(
                 Text("Instructions", style = MaterialTheme.typography.headlineMedium)
                 if (showServingsChangedNotice) {
                     Spacer(modifier = Modifier.height(8.dp))
-                    UserFeedbackMessage("Serving size changed", type = "warning")
+                    UserFeedbackMessage("Serving size changed", type = AlertType.WARNING)
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 recipe.instructions.forEachIndexed { index, instruction ->

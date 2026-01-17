@@ -16,50 +16,46 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import fi.nutrifier.utils.AlertType
 
-/**
- * Composable function that displays a user feedback message based on the provided type.
- *
- * @param message The message to display.
- * @param type The type of feedback message. Defaults to "default".
- */
 @Composable
-fun UserFeedbackMessage(message: String, type: String = "default") {
+fun UserFeedbackMessage(
+    message: String,
+    modifier: Modifier = Modifier,
+    type: AlertType = AlertType.INFO,
+) {
     when (type) {
-        "error" -> Error(message)
-        "warning" -> Warning(message)
-        "default" -> Default(message)
+        AlertType.ERROR -> Error(message, modifier)
+        AlertType.WARNING -> Warning(message, modifier)
+        AlertType.INFO -> Default(message, modifier)
     }
 }
 
-/**
- * Composable function that displays a default user feedback message.
- *
- * @param message The message to display.
- */
 @Composable
-private fun Default(message: String) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp),
+private fun Default(message: String, modifier: Modifier) {
+    Surface(
+        shape = RoundedCornerShape(6.dp),
+        shadowElevation = 8.dp,
+        modifier = modifier,
     ) {
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(message, style = MaterialTheme.typography.labelLarge)
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp),
+        ) {
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(message, style = MaterialTheme.typography.labelLarge)
+        }
     }
 }
 
-/**
- * Composable function that displays an error user feedback message.
- *
- * @param message The message to display.
- */
 @Composable
-private fun Error(message: String) {
+private fun Error(message: String, modifier: Modifier) {
     Surface(
         shape = RoundedCornerShape(6.dp),
         color = MaterialTheme.colorScheme.error,
         contentColor = MaterialTheme.colorScheme.errorContainer,
-        shadowElevation = 8.dp
+        shadowElevation = 8.dp,
+        modifier = modifier,
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -75,18 +71,14 @@ private fun Error(message: String) {
     }
 }
 
-/**
- * Composable function that displays a warning user feedback message.
- *
- * @param message The message to display.
- */
 @Composable
-private fun Warning(message: String) {
+private fun Warning(message: String, modifier: Modifier) {
     Surface(
         shape = RoundedCornerShape(6.dp),
         color = MaterialTheme.colorScheme.primaryContainer,
         contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-        shadowElevation = 8.dp
+        shadowElevation = 8.dp,
+        modifier = modifier,
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,

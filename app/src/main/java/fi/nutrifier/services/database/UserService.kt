@@ -1,15 +1,23 @@
-package fi.nutrifier.services
+package fi.nutrifier.services.database
 
-import fi.nutrifier.models.database.AuthRequest
-import fi.nutrifier.models.database.AuthResponse
+import fi.nutrifier.models.database.Food
+import fi.nutrifier.models.database.User
+import fi.nutrifier.models.database.UserSettings
 import retrofit2.Response
 import retrofit2.http.Body
-import retrofit2.http.POST
+import retrofit2.http.GET
+import retrofit2.http.Header
+import retrofit2.http.PATCH
 
-interface AuthService {
-    @POST("api/register")
-    suspend fun register(@Body authRequest: AuthRequest): Response<AuthResponse>
+interface UserService {
+    @GET("api/users")
+    suspend fun getUser(
+        @Header("Authorization") authHeader: String
+    ): Response<User>
 
-    @POST("api/login")
-    suspend fun login(@Body authRequest: AuthRequest): Response<AuthResponse>
+    @PATCH("api/users/settings")
+    suspend fun updateSettings(
+        @Body settings: UserSettings,
+        @Header("Authorization") authHeader: String
+    ): Response<UserSettings>
 }

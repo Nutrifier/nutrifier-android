@@ -12,11 +12,13 @@ import fi.nutrifier.viewmodels.AuthViewModel
 import fi.nutrifier.viewmodels.BarcodeScannerViewModel
 import fi.nutrifier.viewmodels.FavouriteRecipesViewModel
 import fi.nutrifier.viewmodels.FoodEntryViewModel
+import fi.nutrifier.viewmodels.FoodsViewModel
 import fi.nutrifier.viewmodels.PersonalRecipesViewModel
 import fi.nutrifier.viewmodels.RecipeUnderInspectionViewModel
 import fi.nutrifier.viewmodels.SearchViewModel
 import fi.nutrifier.viewmodels.ShoppingListViewModel
 import fi.nutrifier.viewmodels.TodaysSpecialsViewModel
+import fi.nutrifier.viewmodels.UserViewModel
 import fi.nutrifier.viewmodels.ViewModelWrapper
 import org.junit.Rule
 import org.junit.Test
@@ -39,7 +41,9 @@ class AddFoodScreenTest {
         shopping = ShoppingListViewModel(ApplicationProvider.getApplicationContext()),
         foodEntry = FoodEntryViewModel(ApplicationProvider.getApplicationContext()),
         authViewModel = AuthViewModel(ApplicationProvider.getApplicationContext()),
-        barcode = BarcodeScannerViewModel(ApplicationProvider.getApplicationContext())
+        barcode = BarcodeScannerViewModel(ApplicationProvider.getApplicationContext()),
+        user = UserViewModel(ApplicationProvider.getApplicationContext()),
+        foods = FoodsViewModel(ApplicationProvider.getApplicationContext())
     )
 
     @Test

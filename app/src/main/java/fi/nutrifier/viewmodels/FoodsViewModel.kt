@@ -1,11 +1,13 @@
 package fi.nutrifier.viewmodels
 
 import android.app.Application
+import android.content.SharedPreferences
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import fi.nutrifier.models.database.Food
 import fi.nutrifier.models.database.SelectedFood
+import fi.nutrifier.repositories.database.AuthRepository
 import fi.nutrifier.repositories.database.FineliRepository
 import fi.nutrifier.repositories.database.FoodRepository
 import fi.nutrifier.utils.AlertType
@@ -13,8 +15,10 @@ import fi.nutrifier.utils.ConversionUtils.calculatePev
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class FoodsViewModel(application: Application): BaseViewModel(application) {
-    private val foodRepository = FoodRepository(this.encryptedSharedPreferences)
+class FoodsViewModel(
+    private val repository: FoodRepository,
+    encryptedSharedPreferences: SharedPreferences,
+): BaseViewModel(encryptedSharedPreferences) {
     private val fineliRepository = FineliRepository()
 
     private var _foods: MutableState<List<Food>> = mutableStateOf(emptyList())
@@ -42,7 +46,7 @@ class FoodsViewModel(application: Application): BaseViewModel(application) {
         foodPage = 0 // Reset food page
 
         viewModelScope.launch(Dispatchers.IO) {
-            val result = foodRepository.getFoods(foodPage, foodPageSize)
+            val result = repository.getFoods(foodPage, foodPageSize)
             if (result.isSuccessful()) {
                 _foods.value = result.value ?: emptyList()
             } else {
@@ -53,12 +57,12 @@ class FoodsViewModel(application: Application): BaseViewModel(application) {
 
     fun loadMoreFoods() {
         android.util.Log.d("LogsScreenViewModel", "MORE foods")
-        if (loading) return
+        if (loading.value) return
         setLoading(true)
 
         viewModelScope.launch(Dispatchers.IO) {
             foodPage++
-            val result = foodRepository.getFoods(foodPage, foodPageSize)
+            val result = repository.getFoods(foodPage, foodPageSize)
             if (result.isSuccessful()) {
                 android.util.Log.d("LogsScreenViewModel", "LoadMoreFoods result: ${result.value}")
                 _foods.value += result.value ?: emptyList()
@@ -73,7 +77,7 @@ class FoodsViewModel(application: Application): BaseViewModel(application) {
 
             // If all characters are digits, presume we are using a barcode
             if (query.all { it.isDigit() }) {
-                val barcodeResult = foodRepository.getFoodsByBarcode(query)
+                val barcodeResult = repository.getFoodsByBarcode(query)
                 if (barcodeResult.isSuccessful()) {
                     result.addAll(barcodeResult.value ?: emptyList())
                 }
@@ -81,7 +85,7 @@ class FoodsViewModel(application: Application): BaseViewModel(application) {
 
                 // Searching foods from database and Fineli
                 val fineliResult = fineliRepository.getFoodsByQuery(query)
-                val repositoryResult = foodRepository.getFoodsByQuery(query)
+                val repositoryResult = repository.getFoodsByQuery(query)
 
                 // TODO: Show frequently used foods first
                 // Then database results
@@ -103,7 +107,7 @@ class FoodsViewModel(application: Application): BaseViewModel(application) {
         android.util.Log.d("LogsScreenViewModel", "Saving food: $food")
 
         viewModelScope.launch(Dispatchers.IO) {
-            val result = foodRepository.saveFood(food)
+            val result = repository.saveFood(food)
             if (result.isSuccessful()) {
                 loadFoods()
                 showAlert("Food saved!", AlertType.INFO)

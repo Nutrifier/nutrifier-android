@@ -17,6 +17,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,6 +37,7 @@ import fi.nutrifier.ui.components.layout.TopBar
 import fi.nutrifier.utils.Constants
 import fi.nutrifier.utils.FormattingUtils.toLowerCaseCapitalizeFirst
 import fi.nutrifier.viewmodels.ViewModelWrapper
+import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun MealScreen(
@@ -44,6 +46,7 @@ fun MealScreen(
     snackbarHostState: SnackbarHostState,
 ) {
     var foodEntries: List<FoodEntryFood> by remember { mutableStateOf(emptyList()) }
+    val isLoading by viewModels.foodEntry.loading.collectAsState()
 
     LaunchedEffect(
         viewModels.foodEntry.selectedMeal,
@@ -60,14 +63,16 @@ fun MealScreen(
         }
     }
 
-    LaunchedEffect(viewModels.foodEntry.alert) {
-        viewModels.foodEntry.alert?.let {
-            snackbarHostState.showSnackbar(it.message)
-            viewModels.foodEntry.clearAlert()
+    LaunchedEffect(true) {
+        viewModels.foodEntry.alert.collectLatest {
+            snackbarHostState.showSnackbar(
+                message = it.message,
+                withDismissAction = true
+            )
         }
     }
 
-    Screen(
+    BaseScreen(
         topBar = { TopBar(subtitle = { BackButton(navController) }) },
         bottomBar = {},
         screen = Constants.Screen.MEAL,
@@ -109,7 +114,7 @@ fun MealScreen(
                             )
                         }
                     }
-                    if (viewModels.foodEntry.loading) {
+                    if (isLoading) {
                         Box(
                             contentAlignment = Alignment.Center,
                             modifier = Modifier

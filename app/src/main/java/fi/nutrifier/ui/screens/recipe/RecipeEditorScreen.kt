@@ -31,7 +31,7 @@ import androidx.navigation.NavController
 import fi.nutrifier.ui.components.buttons.BackButton
 import fi.nutrifier.ui.components.misc.StepIndicator
 import fi.nutrifier.ui.components.layout.TopBar
-import fi.nutrifier.ui.screens.Screen
+import fi.nutrifier.ui.screens.BaseScreen
 import fi.nutrifier.utils.Constants
 import fi.nutrifier.viewmodels.RecipeUnderInspectionViewModel
 import fi.nutrifier.viewmodels.ViewModelWrapper
@@ -82,7 +82,7 @@ fun RecipeEditorScreen(
         allowNext = newValue
     }
 
-    Screen(
+    BaseScreen(
         topBar = { TopBar(subtitle = { BackButton(navController) }) },
         bottomBar = {
             Row(
