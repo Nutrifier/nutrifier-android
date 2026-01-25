@@ -125,13 +125,13 @@ fun IngredientForm(addIngredient: (Ingredient) -> Unit) {
         horizontalArrangement = Arrangement.Start,
         verticalArrangement = Arrangement.Top
     ) {
-         Constants.INGREDIENT_UNITS.forEach {
+         Constants.IngredientUnit.entries.forEach {
             TextButton(
                 shape = RoundedCornerShape(8.dp),
                 modifier = Modifier.height(32.dp).padding(2.dp),
                 contentPadding = PaddingValues(0.dp),
                 onClick = {
-                    unit = it
+                    unit = it.displayName
                     unitError = false
                 },
                 colors = ButtonDefaults.buttonColors(
@@ -149,14 +149,14 @@ fun IngredientForm(addIngredient: (Ingredient) -> Unit) {
                 border = BorderStroke(
                     width = 2.dp,
                     color =
-                    if (it == unit) {
+                    if (it == Constants.IngredientUnit.valueOf(unit)) {
                         MaterialTheme.colorScheme.outline
                     } else {
                         Color.Transparent
                     }
                 ),
             ) {
-                Text(it)
+                Text(it.displayName)
             }
         }
     }

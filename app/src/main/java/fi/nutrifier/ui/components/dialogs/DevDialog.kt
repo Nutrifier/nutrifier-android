@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -17,16 +16,16 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
+import fi.nutrifier.utils.AlertType
 import fi.nutrifier.utils.Constants.Screen
 import fi.nutrifier.viewmodels.ViewModelWrapper
 import kotlinx.coroutines.launch
 
 @Composable
-fun MockDialog(
+fun DevDialog(
     screen: Screen,
     viewModels: ViewModelWrapper,
     navController: NavController,
-    snackbarHostState: SnackbarHostState,
     exitDialog: () -> Unit,
 ) {
     Dialog(onDismissRequest = { exitDialog() }) {
@@ -36,26 +35,25 @@ fun MockDialog(
                 .background(MaterialTheme.colorScheme.surface)
                 .padding(24.dp)
         ) {
-            Text(text = "Mock Menu", style = MaterialTheme.typography.headlineMedium)
+            Text(text = "Dev Menu", style = MaterialTheme.typography.headlineMedium)
             Text(text = "Only for the eyes of the developers!")
             Spacer(modifier = Modifier.height(16.dp))
-            MockDialogOptions(selected = screen, viewModels, navController, snackbarHostState)
+            DevDialogOptions(selected = screen, viewModels, navController)
         }
     }
 }
 
 @Composable
-private fun MockDialogOptions(
+private fun DevDialogOptions(
     selected: Screen,
     viewModels: ViewModelWrapper,
     navController: NavController,
-    snackbarHostState: SnackbarHostState,
 ) {
     val coroutineScope = rememberCoroutineScope()
 
     fun notYetImplemented() {
         coroutineScope.launch {
-            snackbarHostState.showSnackbar("Not yet implemented!")
+            viewModels.authViewModel.showAlert("Not yet implemented!", AlertType.INFO)
         }
     }
 
@@ -82,10 +80,10 @@ private fun MockDialogOptions(
                 Text(text = "Cookbook")
             }
         }
-        Screen.DISCOVER -> {
+        Screen.DASHBOARD -> {
             baseActions()
             TextButton(onClick = { notYetImplemented() }) {
-                Text(text = "Discover")
+                Text(text = "Dashboard")
             }
         }
         Screen.FOOD_EDIT -> {
@@ -102,7 +100,7 @@ private fun MockDialogOptions(
         }
         Screen.LOGIN -> {
             TextButton(onClick = {
-                navController.navigate("discover")
+                navController.navigate("dashboard")
             }) {
                 Text(text = "Login")
             }

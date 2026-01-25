@@ -26,11 +26,6 @@ class BarcodeScannerViewModel(encryptedSharedPreferences: SharedPreferences): Ba
     val barScanState get() = _barScanState.value
     val barScanResult get() = _barScanResult.value
 
-    init {
-        setLoading(true)
-        Log.d("AuthViewModel", "Base url: ${BuildConfig.BASE_URL}")
-    }
-
     fun onBarCodeDetected(barcodes: List<Barcode>) {
         viewModelScope.launch {
             if (barcodes.isEmpty()) {

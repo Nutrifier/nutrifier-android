@@ -6,6 +6,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import fi.nutrifier.models.database.User
+import fi.nutrifier.models.database.UserSettings
 import fi.nutrifier.repositories.database.UserRepository
 import fi.nutrifier.utils.AlertType
 import kotlinx.coroutines.launch
@@ -18,32 +19,28 @@ class UserViewModel(
     private var _user: MutableState<User?> = mutableStateOf(null)
     val user get() = _user.value
 
-    /*
     private var _settings: MutableState<UserSettings?> = mutableStateOf(null)
     val settings get() = _settings.value
-    */
 
     init {
         setLoading(true)
     }
 
-    fun getUser() {
+    fun getUser(token: String? = null) {
+        Log.d("UserResponse", "Getting user...")
+
         setLoading(true)
         viewModelScope.launch {
             try {
-                val response = repository.getUser()
+                // Token can be null if the token is saved in SharedPrefs
+                val response = repository.getUser(token)
                 if (response.isSuccessful() && response.value != null) {
                     Log.d("UserResponse", response.value.toString())
 
                     _user.value = response.value
+                    _settings.value = response.value.settings
 
-                    /*
-                    // Saving the user to SharedPrefs
-                    SharedPreferencesManager.saveAuthToken(
-                        encryptedSharedPreferences,
-                        response.value.token,
-                    )
-                    */
+                    Log.d("UserViewModel", "Got user: ${response.value}")
 
                 } else {
                     Log.d("UserViewModel", "Ongelma käyttäjän hakemisessa: ${response.message} (${response.errorCode}).")
@@ -56,18 +53,9 @@ class UserViewModel(
         }
     }
 
-    fun updateSettings(
-        weightUnit: String? = null,
-        energyUnit: String? = null,
-        language: String? = null,
-        timeBetweenMeals: Int? = null,
-        diet: String? = null,
-        weekStartsOn: Int? = null,
-        proteinEfficiencyEnabled: Boolean? = null,
-        mealReminderEnabled: Boolean? = null,
-        weighInReminderEnabled: Boolean? = null,
-        motivationMessagesEnabled: Boolean? = null,
-    ) {
+    fun updateSettings(updatedSettings: UserSettings) {
+        Log.d("UserViewModel", "updating settings...")
+
         if (user == null || user?.settings == null) {
             viewModelScope.launch {
                 showAlert("Error: User settings is not found. Try to log in again!")
@@ -75,20 +63,11 @@ class UserViewModel(
             return
         }
 
-        val updatedSettings = user!!.settings.copy(
-            weightUnit = weightUnit ?: user!!.settings.weightUnit,
-            energyUnit = energyUnit ?: user!!.settings.energyUnit,
-            language = language ?: user!!.settings.language,
-            timeBetweenMeals = timeBetweenMeals ?: user!!.settings.timeBetweenMeals,
-            diet = diet ?: user!!.settings.diet,
-            weekStartsOn = weekStartsOn ?: user!!.settings.weekStartsOn,
-            proteinEfficiencyEnabled = proteinEfficiencyEnabled ?: user!!.settings.proteinEfficiencyEnabled,
-            mealReminderEnabled = mealReminderEnabled ?: user!!.settings.mealReminderEnabled,
-            weighInReminderEnabled = weighInReminderEnabled ?: user!!.settings.weighInReminderEnabled,
-            motivationMessagesEnabled = motivationMessagesEnabled ?: user!!.settings.motivationMessagesEnabled,
-        )
+        // Update current session's settings even though if the persistence fails
+        _settings.value = updatedSettings
 
         viewModelScope.launch {
+
             setLoading(true)
             try {
                 Log.d("UserViewModel", "Inside viewModelScope")
@@ -96,11 +75,10 @@ class UserViewModel(
 
                 if (response.isSuccessful() && response.value != null) {
                     Log.d("UserResponse", response.value.toString())
-                    showAlert("Settings saved!", AlertType.INFO)
-                    //_settings.value = response.value
+                    //showAlert("Settings saved!", AlertType.INFO)
                 } else {
-                    Log.d("UserViewModel", "Ongelma käyttäjän hakemisessa: ${response.message} (${response.errorCode}).")
-                    showAlert("Error occurred in user (${response.errorCode}).")
+                    Log.d("UserViewModel", "Ongelma asetusten päivittämisessä: ${response.message} (${response.errorCode}).")
+                    showAlert("Couldn't save user settings (${response.errorCode}).")
                 }
                 setLoading(false)
             } catch (e: Exception) {

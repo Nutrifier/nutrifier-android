@@ -1,4 +1,4 @@
-package fi.nutrifier.ui.screens.recipe
+package fi.nutrifier.ui.screens.recipe.steps
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row

@@ -7,7 +7,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.navigation.testing.TestNavHostController
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import fi.nutrifier.ui.screens.food.AddFoodScreen
+import fi.nutrifier.ui.screens.AddEntryScreen
 import fi.nutrifier.viewmodels.AuthViewModel
 import fi.nutrifier.viewmodels.BarcodeScannerViewModel
 import fi.nutrifier.viewmodels.FavouriteRecipesViewModel
@@ -49,7 +49,7 @@ class AddFoodScreenTest {
     @Test
     fun testComposable_showsScreen() {
         composeTestRule.setContent { 
-            AddFoodScreen(navController = navController, viewModels = viewModels, snackbarHostState = SnackbarHostState())
+            AddEntryScreen(navController = navController, viewModels = viewModels, snackbarHostState = SnackbarHostState())
         }
 
         composeTestRule.onNodeWithText("Add food").assertIsDisplayed()

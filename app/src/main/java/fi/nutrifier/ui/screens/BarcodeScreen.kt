@@ -22,6 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -54,7 +55,6 @@ import java.util.concurrent.Executors
 fun BarcodeScreen(
     navController: NavController,
     viewModels: ViewModelWrapper,
-    snackbarHostState: SnackbarHostState,
     useCase: String?
 ) {
     val context = LocalContext.current
@@ -104,9 +104,8 @@ fun BarcodeScreen(
         }
     }
 
-    BaseScreen(
-        topBar = { TopBar(subtitle = { BackButton(navController) }) },
-        bottomBar = {
+    Scaffold(
+        floatingActionButton = {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -118,19 +117,11 @@ fun BarcodeScreen(
                     Log.d("BARCODE", "Implement barcode after reading")
                 }
             }
-        },
-        screen = Constants.Screen.BARCODE,
-        viewModels,
-        navController,
-        snackbarHostState,
+        }
     ) {
-        Column(
-            modifier = Modifier
-                .clip(RoundedCornerShape(8.dp))
-        ) {
-            Text(text = "Scan barcode", style = MaterialTheme.typography.headlineMedium)
-            Text(text = "State: ${viewModels.barcode.barScanState}")
-            AndroidView(factory = { androidViewContext ->
+        AndroidView(
+            modifier = Modifier.padding(it).fillMaxSize(),
+            factory = { androidViewContext ->
                 PreviewView(androidViewContext).apply {
                     this.scaleType = PreviewView.ScaleType.FILL_START
                     layoutParams = ViewGroup.LayoutParams(
@@ -139,7 +130,7 @@ fun BarcodeScreen(
                     )
                     implementationMode = PreviewView.ImplementationMode.COMPATIBLE
                 }
-            }, modifier = Modifier.fillMaxSize(),
+            },
             update = { previewView ->
                 val cameraSelector = CameraSelector.Builder()
                     .requireLensFacing(CameraSelector.LENS_FACING_BACK)
@@ -175,43 +166,5 @@ fun BarcodeScreen(
                     }
                 }, ContextCompat.getMainExecutor(context))
             })
-        }
-
-        when (barScanState) {
-            is BarScanState.Ideal -> {
-                Column {
-                    Text(text = "Position the barcode in front of the camera")
-                }
-            }
-
-            is BarScanState.Loading -> {
-                Column {
-                    CircularProgressIndicator()
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(text = "Scanning...")
-                }
-            }
-
-            is BarScanState.ScanSuccess -> {
-                Column {
-                    Text(text = "Barcode data: $barScanState")
-                    Row {
-                        Button(onClick = { viewModels.barcode.resetState() }) {
-                            Text(text = "Done")
-                        }
-                    }
-                }
-            }
-
-            is BarScanState.Error -> {
-                Column {
-                    Text(text = "Error: ${barScanState.error}")
-                }
-            }
-
-            else -> {
-                Text(text = "What?!")
-            }
-        }
     }
 }

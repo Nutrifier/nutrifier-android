@@ -1,6 +1,5 @@
 package fi.nutrifier.ui.components.inputs
 
-import android.util.Log
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -18,8 +17,8 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun NutrientTextField(
     value: String,
+    suffixText: String,
     width: Dp = 96.dp,
-    suffixText: String? = "g",
     keyboardType: KeyboardType = KeyboardType.Number,
     editable: Boolean = true,
     onChange: ((String) -> Unit)? = null,
@@ -38,9 +37,7 @@ fun NutrientTextField(
                 .border(2.dp, MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(32.dp))
                 .clip(RoundedCornerShape(32.dp)),
             suffix = {
-                if (!suffixText.isNullOrEmpty()) {
-                    Text(text = suffixText, color = MaterialTheme.colorScheme.outlineVariant)
-                }
+                Text(text = suffixText, color = MaterialTheme.colorScheme.outlineVariant)
             },
         )
     } else {

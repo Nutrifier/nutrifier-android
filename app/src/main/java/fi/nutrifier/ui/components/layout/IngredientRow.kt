@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -26,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import fi.nutrifier.models.database.Ingredient
 import fi.nutrifier.ui.components.buttons.RemoveButton
 import fi.nutrifier.utils.ConversionUtils.convertToFraction
+import fi.nutrifier.utils.FormattingUtils
 import fi.nutrifier.viewmodels.ViewModelWrapper
 
 /**
@@ -36,7 +38,6 @@ import fi.nutrifier.viewmodels.ViewModelWrapper
  * @param ingredient The ingredient to display.
  * @param handleDelete An optional lambda function to handle the deletion of the ingredient.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun IngredientRow(
     index: Int,
@@ -44,7 +45,10 @@ fun IngredientRow(
     viewModels: ViewModelWrapper? = null,
     handleDelete: ((Int) -> Unit)? = null,
 ) {
-    val amountWithFraction: String = convertToFraction(ingredient.amount)
+    val unitsToIgnoreFraction = listOf("g", "ml")
+    val amountWithFraction: List<String> = if (!unitsToIgnoreFraction.any { ingredient.unit.lowercase() == it }) {
+        convertToFraction(ingredient.amount)
+    } else listOf(FormattingUtils.roundUp(ingredient.amount.toDouble()).toString())
     var showSwipe by remember { mutableStateOf(true) }
     //val swipeState = rememberDismissState()
     var iconSize by remember { mutableFloatStateOf(1f) }
@@ -74,23 +78,29 @@ fun IngredientRow(
     AnimatedVisibility(showSwipe, exit = fadeOut(spring())) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier
                 .clip(RoundedCornerShape(4.dp))
                 .fillMaxWidth()
                 .background(MaterialTheme.colorScheme.background)
         ) {
-            Text(
-                text = "$amountWithFraction ${ingredient.unit}",
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier
-                    .width(104.dp)
-                    .padding(horizontal = 8.dp),
-            )
+            Row(
+                verticalAlignment = Alignment.Bottom,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Text(
+                    text = amountWithFraction[0],
+                    style = MaterialTheme.typography.titleMedium,
+                )
+                Text(
+                    text = "${if (amountWithFraction.size > 1) "${amountWithFraction[1]} " else ""}${ingredient.unit.lowercase()}",
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+            }
             Spacer(modifier = Modifier.width(8.dp))
             Text(
                 text = ingredient.name,
                 style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.weight(1f),
             )
             if (handleDelete != null) {
                 RemoveButton(index, handleDelete)

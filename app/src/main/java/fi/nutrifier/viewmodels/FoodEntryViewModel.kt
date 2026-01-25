@@ -2,18 +2,23 @@ package fi.nutrifier.viewmodels
 
 import android.app.Application
 import android.content.SharedPreferences
+import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
+import fi.nutrifier.models.database.FineliResponse
 import fi.nutrifier.models.database.Food
 import fi.nutrifier.models.database.FoodEntryFood
 import fi.nutrifier.models.database.FoodEntry
 import fi.nutrifier.models.database.MealType
 import fi.nutrifier.models.database.NutrientSummary
 import fi.nutrifier.repositories.database.AuthRepository
+import fi.nutrifier.repositories.database.FineliRepository
 import fi.nutrifier.repositories.database.FoodRepository
 import fi.nutrifier.repositories.database.FoodEntryRepository
 import fi.nutrifier.utils.AlertType
+import fi.nutrifier.utils.Constants
+import fi.nutrifier.utils.ConversionUtils
 import fi.nutrifier.utils.ConversionUtils.emptyFood
 import fi.nutrifier.utils.Result
 import kotlinx.coroutines.Dispatchers
@@ -25,6 +30,7 @@ class FoodEntryViewModel(
     encryptedSharedPreferences: SharedPreferences,
 ): BaseViewModel(encryptedSharedPreferences) {
     private val foodRepository = FoodRepository(this.encryptedSharedPreferences)
+    private val fineliRepository = FineliRepository()
 
     private var _entries: MutableState<List<FoodEntry>> = mutableStateOf(emptyList())
     private var _breakfastEntries: MutableState<List<FoodEntryFood>> = mutableStateOf(emptyList())
@@ -39,9 +45,20 @@ class FoodEntryViewModel(
     // NOTE: Can be exploited by changing the devices date
     private var _date: MutableState<LocalDate> = mutableStateOf(LocalDate.now())
     val date get() = _date.value
-    val setDate: (LocalDate) -> Unit = { _date.value = it; loadFoodEntries() }
+    fun setDate(date: LocalDate) {
+        Log.d("FoodEntryViewModel", "Setting date... $date")
+        _date.value = date
+        loadFoodEntries()
+    }
 
-    private var _overallNutrients = mutableStateOf(NutrientSummary(0.0, 0.0, 0.0, 0.0))
+    private val emptyNutrientSummary = NutrientSummary(
+        energy = Constants.EnergyUnit.entries.associateWith { 0.0 },
+        fats = Constants.MacroWeightUnit.entries.associateWith { 0.0 },
+        carbs = Constants.MacroWeightUnit.entries.associateWith { 0.0 },
+        protein = Constants.MacroWeightUnit.entries.associateWith { 0.0 },
+    )
+
+    private var _overallNutrients = mutableStateOf(emptyNutrientSummary)
     val overallNutrients get() = _overallNutrients.value
     val setOverallNutrients: (NutrientSummary) -> Unit = { _overallNutrients.value = it }
 
@@ -64,70 +81,137 @@ class FoodEntryViewModel(
 
     private var _currentAmount = mutableStateOf("100")
     val currentAmount get() = _currentAmount.value
-    val setCurrentAmount: (String) -> Unit = { _currentAmount.value = it }
 
-    private suspend fun calculateNutrients(foodEntries: List<FoodEntry>): NutrientSummary {
+    fun setCurrentAmount(value: String, weightUnit: Constants.WeightUnit? = Constants.WeightUnit.G) {
+        _currentAmount.value = ConversionUtils.convertWeight(
+            value = value.toDouble(),
+            weightUnit = weightUnit,
+            toGrams = true,
+        ).toString()
+    }
+
+    private suspend fun calculateNutrientsForEntries(
+        entries: List<FoodEntry>,
+        getFood: suspend (FoodEntry) -> Food?,
+    ): NutrientSummary {
         var calories = 0.0
         var fats = 0.0
         var carbs = 0.0
         var protein = 0.0
 
-        foodEntries.forEach { log ->
-            val food = fetchFoodById(log.foodId)
-            food?.calories?.let { calories += it * (log.amount / 100) }
-            food?.fat?.let { fats += it * (log.amount / 100) }
-            food?.carbs?.let { carbs += it * (log.amount / 100) }
-            food?.protein?.let { protein += it * (log.amount / 100) }
+        entries.forEach { entry ->
+            val food = getFood(entry)
+            if (food != null) {
+                val multiplier = entry.amount / 100
+                calories += food.calories.times(multiplier)
+                fats += food.fat.times(multiplier)
+                carbs += food.carbs.times(multiplier)
+                protein += food.protein.times(multiplier)
+            }
         }
-        return NutrientSummary(calories, fats, carbs, protein)
+
+        return NutrientSummary(
+            energy = Constants.EnergyUnit.entries.associateWith { energyUnit ->
+                ConversionUtils.convertEnergy(calories, energyUnit)
+            },
+            fats = Constants.MacroWeightUnit.entries.associateWith { weightUnit ->
+                ConversionUtils.convertMacroWeight(fats, weightUnit)
+            },
+            carbs = Constants.MacroWeightUnit.entries.associateWith { weightUnit ->
+                ConversionUtils.convertMacroWeight(carbs, weightUnit)
+            },
+            protein = Constants.MacroWeightUnit.entries.associateWith { weightUnit ->
+                ConversionUtils.convertMacroWeight(protein, weightUnit)
+            },
+        )
+    }
+
+    private fun combineNutrientSummaries(summaries: List<NutrientSummary>): NutrientSummary {
+        return summaries.fold(emptyNutrientSummary) { acc, summary ->
+            acc.copy(
+                energy = acc.energy + summary.energy,
+                fats = acc.fats + summary.fats,
+                carbs = acc.carbs + summary.carbs,
+                protein = acc.protein + summary.protein,
+            )
+        }
+    }
+
+    suspend fun fetchFineliFoods(ids: List<Int>): List<Food> {
+        val result = mutableListOf<Food>()
+
+        ids.forEach {
+            val singleResult = fineliRepository.getFoodById(it)
+            if (singleResult.isSuccessful() && singleResult.value != null) {
+                result.add(singleResult.value.toFood())
+            }
+        }
+
+        return result
     }
 
     fun loadFoodEntries(triggerLoading: Boolean = true) {
         if (triggerLoading) setLoading(true)
 
         viewModelScope.launch(Dispatchers.IO) {
-            val result: Result<List<FoodEntry>> = repository.getFoodEntriesByDate(_date.value)
+            val result = repository.getFoodEntriesByDate(_date.value)
+            val entries = result.value.orEmpty()
 
-            if (result.isSuccessful()) {
-                _entries.value = result.value ?: emptyList()
-
-                val nutrientSummary = result.value?.let { calculateNutrients(it) }
-                if (nutrientSummary != null) setOverallNutrients(nutrientSummary)
-
-                val newBreakfastLogs = result.value?.filter { it.meal == "BREAKFAST" } ?: emptyList()
-                val newLunchLogs = result.value?.filter { it.meal == "LUNCH" } ?: emptyList()
-                val newDinnerLogs = result.value?.filter { it.meal == "DINNER" } ?: emptyList()
-                val newSnacksLogs = result.value?.filter {
-                    it.meal == "SNACKS" || (it.meal != "BREAKFAST"
-                            && it.meal != "LUNCH"
-                            && it.meal != "DINNER")
-                } ?: emptyList()
-
-                _breakfastEntries.value = newBreakfastLogs.map {
-                    FoodEntryFood(it, fetchFoodById(it.foodId) ?: emptyFood.copy())
-                }
-                _lunchEntries.value = newLunchLogs.map {
-                    FoodEntryFood(it, fetchFoodById(it.foodId) ?: emptyFood.copy())
-                }
-                _dinnerEntries.value = newDinnerLogs.map {
-                    FoodEntryFood(it, fetchFoodById(it.foodId) ?: emptyFood.copy())
-                }
-                _snacksEntries.value = newSnacksLogs.map {
-                    FoodEntryFood(it, fetchFoodById(it.foodId) ?: emptyFood.copy())
-                }
-
-                val newMealNutrients = MealType.entries.associateWith { mealType ->
-                    when (mealType) {
-                        MealType.BREAKFAST -> calculateNutrients(newBreakfastLogs)
-                        MealType.LUNCH -> calculateNutrients(newLunchLogs)
-                        MealType.DINNER -> calculateNutrients(newDinnerLogs)
-                        MealType.SNACKS -> calculateNutrients(newSnacksLogs)
-                    }
-                }
-                setNutrients(newMealNutrients)
-            } else {
-                showAlert("Error occurred in loading logs (${result.errorCode}).")
+            if (!result.isSuccessful()) {
+                Log.d("FoodEntryViewModel", "result: $result")
+                showAlert("Error occured in loading food entries (${result.errorCode}")
+                if (triggerLoading) setLoading(false)
+                return@launch
             }
+
+            val (fineliEntries, dbEntries) = entries.partition { it.fineliId != null }
+            _entries.value = dbEntries
+
+            val fineliFoods = fetchFineliFoods(fineliEntries.mapNotNull { it.fineliId })
+
+            suspend fun FoodEntry.toFoodEntryFood(): FoodEntryFood {
+                val food = when {
+                    this.fineliId != null -> fineliFoods.find { it.fineliId == this.fineliId } ?: emptyFood
+                    else -> fetchFoodById(this.foodId) ?: emptyFood
+                }
+                return FoodEntryFood(foodEntry = this, food = food)
+            }
+
+            val entriesByMeal = entries.groupBy { it.meal }
+
+            val dbNutrientsByMeal = MealType.entries.associateWith { mealType ->
+                val mealEntries = entriesByMeal[mealType]?.filter { it.fineliId == null }.orEmpty()
+                calculateNutrientsForEntries(mealEntries) { fetchFoodById(it.foodId) }
+            }
+
+            val fineliNutrientsByMeal = MealType.entries.associateWith { mealType ->
+                val mealEntries = entriesByMeal[mealType]?.filter { it.fineliId != null }.orEmpty()
+                calculateNutrientsForEntries(mealEntries) { entry ->
+                    fineliFoods.find { it.fineliId == entry.fineliId }
+                }
+            }
+
+            val mealNutrients = MealType.entries.associateWith { mealType ->
+                combineNutrientSummaries(listOf(
+                    dbNutrientsByMeal[mealType] ?: emptyNutrientSummary,
+                    fineliNutrientsByMeal[mealType] ?: emptyNutrientSummary,
+                ))
+            }
+            setNutrients(mealNutrients)
+
+            _breakfastEntries.value = entriesByMeal[MealType.BREAKFAST]?.map { it.toFoodEntryFood() } ?: emptyList()
+            _lunchEntries.value = entriesByMeal[MealType.LUNCH]?.map { it.toFoodEntryFood() } ?: emptyList()
+            _dinnerEntries.value = entriesByMeal[MealType.DINNER]?.map { it.toFoodEntryFood() } ?: emptyList()
+            _snacksEntries.value = entriesByMeal[MealType.SNACKS]?.map { it.toFoodEntryFood() } ?: emptyList()
+
+            val overallNutrients = combineNutrientSummaries(listOf(
+                calculateNutrientsForEntries(dbEntries) { fetchFoodById(it.foodId) },
+                calculateNutrientsForEntries(fineliEntries) { entry ->
+                    fineliFoods.find { it.fineliId == entry.fineliId }
+                }
+            ))
+            setOverallNutrients(overallNutrients)
+
             if (triggerLoading) setLoading(false)
         }
     }
@@ -152,6 +236,8 @@ class FoodEntryViewModel(
         setLoading(true)
 
         viewModelScope.launch(Dispatchers.IO) {
+            Log.d("FoodEntryViewModel", "Saving new entry: $foodEntry")
+
             val result = repository.saveFoodEntry(foodEntry)
             if (result.isSuccessful()) {
                 showAlert("Log saved!", AlertType.INFO)

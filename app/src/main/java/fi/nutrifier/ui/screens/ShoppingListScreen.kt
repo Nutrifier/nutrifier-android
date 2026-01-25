@@ -8,13 +8,12 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import fi.nutrifier.ui.components.buttons.ProfileButton
 import fi.nutrifier.ui.components.navigation.NavBar
 import fi.nutrifier.ui.components.inputs.ShoppingListItemForm
 import fi.nutrifier.ui.components.layout.ShoppingListItemRow
@@ -27,18 +26,16 @@ import fi.nutrifier.viewmodels.ViewModelWrapper
 fun ShoppingListScreen(
     navController: NavController,
     viewModels: ViewModelWrapper,
-    snackbarHostState: SnackbarHostState,
 ) {
     BaseScreen(
         topBar = { TopBar(
             title = "Shopping List",
-            navController = navController,
+            actionButton = { ProfileButton(navController) }
         )},
         bottomBar = { NavBar(navController, "shopping_list") },
         screen = Constants.Screen.SHOPPING_LIST,
         viewModels,
         navController,
-        snackbarHostState,
     ) {
         Column {
             if (viewModels.shopping.items.isEmpty()) {

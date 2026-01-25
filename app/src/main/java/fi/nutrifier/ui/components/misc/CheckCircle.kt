@@ -27,8 +27,8 @@ fun CheckCircle(checked: Boolean = true) {
         contentAlignment = Alignment.Center,
         modifier = Modifier
             .clip(CircleShape)
-            .height(24.dp)
-            .width(24.dp)
+            .height(20.dp)
+            .width(20.dp)
             .background(
                 if (checked) MaterialTheme.colorScheme.tertiary
                 else MaterialTheme.colorScheme.outline
@@ -36,7 +36,7 @@ fun CheckCircle(checked: Boolean = true) {
             .border(
                 width = 1.dp,
                 color =
-                    if (checked) MaterialTheme.colorScheme.outline
+                    if (checked) MaterialTheme.colorScheme.tertiary
                     else MaterialTheme.colorScheme.surface,
                 shape = CircleShape
             )

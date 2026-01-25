@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.MenuBook
+import androidx.compose.material.icons.filled.Analytics
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -42,16 +43,16 @@ fun NavBar(navController: NavController, selected: String) {
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 NavButton(
-                    selected = selected == "discover",
-                    onClick = { navController.navigate("discover") },
-                    iconVector = Icons.Filled.Dashboard,
-                    text = "Discover"
-                )
-                NavButton(
                     selected = selected == "logs",
                     onClick = { navController.navigate("logs") },
                     iconVector = Icons.Filled.Restaurant,
                     text = "Logs"
+                )
+                NavButton(
+                    selected = selected == "dashboard",
+                    onClick = { navController.navigate("dashboard") },
+                    iconVector = Icons.Filled.Analytics,
+                    text = "Dashboard"
                 )
                 NavButton(
                     selected = selected == "cookbook",

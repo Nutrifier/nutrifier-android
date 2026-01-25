@@ -1,15 +1,9 @@
 package fi.nutrifier.viewmodels
 
-import android.app.Application
 import android.content.SharedPreferences
 import android.util.Log
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
-import androidx.security.crypto.EncryptedSharedPreferences
-import fi.nutrifier.BuildConfig
 import fi.nutrifier.models.database.AuthRequest
-import fi.nutrifier.models.database.User
 import fi.nutrifier.repositories.database.AuthRepository
 import fi.nutrifier.utils.AlertType
 import fi.nutrifier.utils.SharedPreferencesManager
@@ -19,10 +13,6 @@ class AuthViewModel(
     private val repository: AuthRepository,
     encryptedSharedPreferences: SharedPreferences,
 ): BaseViewModel(encryptedSharedPreferences) {
-
-    init {
-        setLoading(true)
-    }
 
     // TODO: Add check that the auth token isn't expired
     suspend fun checkAuthToken(): Boolean {
@@ -48,8 +38,9 @@ class AuthViewModel(
         }
     }
 
-    fun register(authRequest: AuthRequest, callback: () -> Unit) {
+    fun register(authRequest: AuthRequest, callback: (token: String) -> Unit) {
         setLoading(true)
+
         viewModelScope.launch {
             try {
                 // Calling the api for auth token
@@ -59,18 +50,15 @@ class AuthViewModel(
 
                     showAlert("Registeration successful!", AlertType.INFO)
 
+                    Log.d("Register", "Register token: ${response.value.token}")
+
                     // Saving the token to SharedPrefs
                     SharedPreferencesManager.saveAuthToken(
                         encryptedSharedPreferences,
                         response.value.token,
                     )
 
-                    /*
-                    // Saving the user to SharedPrefs
-                    val user = User(response.value.userId, response.value.userEmail)
-                    SharedPreferencesManager.saveUser(encryptedSharedPreferences, user)
-                    */
-                    callback()
+                    callback(response.value.token)
                 } else {
                     Log.d("AuthViewModel", "Ongelma rekisteröitymisessä: ${response.message} (${response.errorCode}).")
                     showAlert("Error occurred in registering (${response.errorCode}).")
@@ -82,8 +70,9 @@ class AuthViewModel(
         }
     }
 
-    fun login(authRequest: AuthRequest, callback: () -> Unit) {
+    fun login(authRequest: AuthRequest, callback: (token: String) -> Unit) {
         setLoading(true)
+
         viewModelScope.launch {
             try {
                 // Calling the api for auth token
@@ -93,7 +82,7 @@ class AuthViewModel(
                 if (response.isSuccessful() && response.value != null) {
                     Log.d("RegisterResponse", response.value.toString())
 
-                    showAlert("Log in successful!", AlertType.INFO)
+                    Log.d("Login", "Login token: ${response.value.token}")
 
                     // Saving the token to SharedPrefs
                     SharedPreferencesManager.saveAuthToken(
@@ -101,7 +90,7 @@ class AuthViewModel(
                         response.value.token,
                     )
 
-                    callback()
+                    callback(response.value.token)
                 } else {
                     Log.d("AuthViewModel", "Ongelma kirjautumisessa: ${response.message} (${response.errorCode}).")
                     showAlert("Error occurred in logging in (${response.errorCode}).")

@@ -12,7 +12,7 @@ interface FineliService {
         @Query("q") query: String,
     ): Response<List<FineliResponse>>
 
-    @GET("api/foods/{id}")
+    @GET("fineli/api/v1/foods/{id}")
     suspend fun getFoodById(
         @Path("id") id: Int,
     ): Response<FineliResponse>

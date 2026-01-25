@@ -17,12 +17,14 @@ interface RecipeService {
     suspend fun getRandomRecipes(
         @Query("apiKey") apiKey: String,
         @Query("include-tags") includeTags: String,
+        @Query("includeNutrition") includeNutrition: Boolean,
         @Query("number") number: Int,
     ): Response<SpoonacularResponse>
 
     @GET("recipes/{id}/information")
     suspend fun getRecipeInformation(
         @Path("id") id: Int,
+        @Query("includeNutrition") includeNutrition: Boolean,
         @Query("apiKey") apiKey: String
     ): Response<SpoonacularRecipe>
 

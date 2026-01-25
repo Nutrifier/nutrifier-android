@@ -22,6 +22,6 @@ fun MockButton(onClick: () -> Unit) {
             .background(color = MaterialTheme.colorScheme.surface)
             .height(44.dp)
     ) {
-        Text(text = "MOCK MENU")
+        Text(text = "DEV MENU")
     }
 }

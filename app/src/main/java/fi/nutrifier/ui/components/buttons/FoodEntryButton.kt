@@ -19,17 +19,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import fi.nutrifier.models.database.FoodEntryFood
+import fi.nutrifier.utils.ConversionUtils
+import fi.nutrifier.utils.FormattingUtils
+import fi.nutrifier.viewmodels.UserViewModel
 
 @Composable
-fun FoodEntryButton(foodEntryFood: FoodEntryFood, onClick: () -> Unit, onDelete: () -> Unit) {
-    val calories = (foodEntryFood.food.calories * (foodEntryFood.foodEntry.amount / 100)).toInt()
-    val carbs = (foodEntryFood.food.carbs * (foodEntryFood.foodEntry.amount / 100)).toInt()
-    val protein = (foodEntryFood.food.protein * (foodEntryFood.foodEntry.amount / 100)).toInt()
-    val fat = (foodEntryFood.food.fat * (foodEntryFood.foodEntry.amount / 100)).toInt()
-
-    val calorieString = "$calories kcal"
-    val nutrientString = "${carbs}/${protein}/${fat}"
-
+fun FoodEntryButton(userViewModel: UserViewModel, foodEntryFood: FoodEntryFood, onClick: () -> Unit, onDelete: () -> Unit) {
     Row {
         TextButton(
             onClick = { onClick() },
@@ -53,20 +48,31 @@ fun FoodEntryButton(foodEntryFood: FoodEntryFood, onClick: () -> Unit, onDelete:
                         maxLines = 1,
                     )
                     Text(
-                        text = "${foodEntryFood.food.barcode}, ${foodEntryFood.foodEntry.amount.toInt()} g",
+                        text = "${ConversionUtils.convertWeight(
+                            value = foodEntryFood.foodEntry.amount,
+                            weightUnit = userViewModel.settings?.weightUnit,
+                        ).toInt()} ${userViewModel.settings?.weightUnit?.displayName ?: "g"}",
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.outline,
                     )
                 }
                 Column(modifier = Modifier.weight(0.3f), horizontalAlignment = Alignment.End) {
                     Text(
-                        text = calorieString,
+                        text = FormattingUtils.generateEnergyString(
+                            energy = foodEntryFood.food.calories * (foodEntryFood.foodEntry.amount / 100),
+                            userViewModel = userViewModel,
+                        ),
                         style = MaterialTheme.typography.titleMedium,
                         overflow = TextOverflow.Clip,
                         maxLines = 1,
                     )
                     Text(
-                        text = nutrientString,
+                        text = FormattingUtils.generateMacroString(
+                            fats = foodEntryFood.food.fat * (foodEntryFood.foodEntry.amount / 100),
+                            carbs = foodEntryFood.food.carbs * (foodEntryFood.foodEntry.amount / 100),
+                            protein = foodEntryFood.food.protein * (foodEntryFood.foodEntry.amount / 100),
+                            userViewModel = userViewModel,
+                        ),
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.outline,
                     )

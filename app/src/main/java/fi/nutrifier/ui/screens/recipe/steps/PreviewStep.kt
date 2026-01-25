@@ -1,4 +1,4 @@
-package fi.nutrifier.ui.screens.recipe
+package fi.nutrifier.ui.screens.recipe.steps
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
@@ -26,6 +26,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import fi.nutrifier.ui.screens.recipe.RecipeScreen
 import fi.nutrifier.viewmodels.ViewModelWrapper
 
 
@@ -41,7 +42,6 @@ internal fun PreviewStep(
     viewModels: ViewModelWrapper,
     handleAllowNextChange: (Boolean) -> Unit,
     navController: NavController,
-    snackbarHostState: SnackbarHostState,
 ) {
     var showPreview by remember { mutableStateOf(false) }
 
@@ -131,7 +131,7 @@ internal fun PreviewStep(
                 .clip(RoundedCornerShape(8.dp))
                 .border(2.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(8.dp))
         ) {
-            RecipeScreen(navController, viewModels, snackbarHostState, isPreview = true)
+            RecipeScreen(navController, viewModels, isPreview = true)
         }
     }
 }

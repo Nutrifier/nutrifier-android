@@ -21,6 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
@@ -77,7 +78,6 @@ fun TodaysSpecialButton(
             } else {
                 RecipeImage(painter = painterResource(id = R.drawable.meal))
             }
-
             // Adding shadow with box composable for better text readability
             Box(
                 modifier = Modifier
@@ -109,13 +109,13 @@ fun TodaysSpecialButton(
                         2 -> "Dinner"
                         else -> "Snack"
                     },
-                    style = MaterialTheme.typography.bodySmall
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color(255, 255, 255) // Always white on images
                 )
                 Text(
-                    text = recipe.title ?: "Loading...",
-                    style = TextStyle(
-                        fontSize = 20.sp
-                    )
+                    text = recipe.title,
+                    style = TextStyle(fontSize = 20.sp),
+                    color = Color(255, 255, 255) // Always white on images
                 )
             }
             if (loading && !imageError) {

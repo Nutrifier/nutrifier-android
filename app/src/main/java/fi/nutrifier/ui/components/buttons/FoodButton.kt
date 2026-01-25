@@ -14,16 +14,17 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import fi.nutrifier.models.database.Food
 import fi.nutrifier.ui.components.misc.Tag
+import fi.nutrifier.ui.components.misc.TextTag
+import fi.nutrifier.utils.ConversionUtils
+import fi.nutrifier.utils.FormattingUtils
+import fi.nutrifier.viewmodels.UserViewModel
 import kotlin.math.roundToInt
 
 @Composable
-fun FoodButton(food: Food, onClick: () -> Unit) {
-    val nutrientString = "${food.carbs.roundToInt()} / ${food.protein.roundToInt()} / ${food.fat.roundToInt()}"
-
+fun FoodButton(userViewModel: UserViewModel, food: Food, onClick: () -> Unit) {
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         TextButton(
             onClick = { onClick() },
@@ -39,16 +40,24 @@ fun FoodButton(food: Food, onClick: () -> Unit) {
                 ) {
                     Text(text = food.name, style = MaterialTheme.typography.titleMedium)
                     Spacer(Modifier.padding(vertical = 4.dp))
-                    if (food.fineliId != null) Tag("Fineli")
+                    if (food.fineliId != null) TextTag("Fineli")
                 }
                 Column(horizontalAlignment = Alignment.End) {
                     Text(
-                        text = "${food.calories.roundToInt()} kcal",
+                        text = "${ConversionUtils.convertEnergy(
+                            food.calories,
+                            userViewModel.user?.settings?.energyUnit
+                        ).roundToInt()} ${userViewModel.user?.settings?.energyUnit?.displayName ?: "kcal"}",
                         style = MaterialTheme.typography.titleMedium
                     )
                     Spacer(Modifier.padding(vertical = 2.dp))
                     Text(
-                        text = nutrientString,
+                        text = FormattingUtils.generateMacroString(
+                            fats = food.fat,
+                            carbs = food.carbs,
+                            protein = food.protein,
+                            userViewModel = userViewModel,
+                        ),
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.outline,
                     )
@@ -56,16 +65,4 @@ fun FoodButton(food: Food, onClick: () -> Unit) {
             }
         }
     }
-}
-
-@Preview(name = "Regular food")
-@Composable
-fun FoodButtonRegularPreview() {
-    FoodButton(Food("Kana", "", 1, 120.0, 1.0, 2.0, 3.0, "1", "3")) { }
-}
-
-@Preview(name = "Fineli food")
-@Composable
-fun FoodButtonFineliPreview() {
-    FoodButton(Food("Riisi", "", 1, 120.0, 1.0, 2.0, 3.0, "1", "3", fineliId = 1)) { }
 }

@@ -24,12 +24,12 @@ open class BaseViewModel(
         _loading.value = isLoading
     }
 
-    protected suspend fun showAlert(message: String, type: AlertType? = AlertType.ERROR) {
+    suspend fun showAlert(message: String, type: AlertType? = AlertType.ERROR) {
         _alert.emit(Alert(message, type))
     }
 
     fun getUserId(): String {
         return SharedPreferencesManager.getUser(encryptedSharedPreferences)?.id
-            ?: "ff9bd4c4-8292-49ad-8b56-9c638051212e"
+            ?: "00000000-0000-0000-0000-000000000000"
     }
 }

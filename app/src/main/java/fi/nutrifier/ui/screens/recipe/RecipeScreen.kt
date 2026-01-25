@@ -1,5 +1,6 @@
 package fi.nutrifier.ui.screens.recipe
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -53,6 +54,8 @@ import fi.nutrifier.ui.components.dialogs.DeleteDialog
 import fi.nutrifier.ui.components.layout.IngredientRow
 import fi.nutrifier.ui.components.layout.InstructionRow
 import fi.nutrifier.ui.components.inputs.NumberCounter
+import fi.nutrifier.ui.components.inputs.NutrientInputRow
+import fi.nutrifier.ui.components.layout.nutrient.NutrientRow
 import fi.nutrifier.ui.components.misc.RecipeImage
 import fi.nutrifier.ui.components.misc.UserFeedbackMessage
 import fi.nutrifier.utils.Alert
@@ -72,7 +75,6 @@ import java.util.UUID
 fun RecipeScreen(
     navController: NavController,
     viewModels: ViewModelWrapper,
-    snackbarHostState: SnackbarHostState,
     isPreview: Boolean = false,
 ) {
     val recipe by viewModels.inspection.recipe
@@ -264,7 +266,7 @@ fun RecipeScreen(
                 Spacer(modifier = Modifier.height(8.dp))
                 recipe.ingredients.forEachIndexed { index, ingredient ->
                     IngredientRow(index, ingredient, viewModels)
-                    Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
                 }
                 Spacer(modifier = Modifier.height(24.dp))
             }
@@ -274,7 +276,7 @@ fun RecipeScreen(
                 Text("Instructions", style = MaterialTheme.typography.headlineMedium)
                 if (showServingsChangedNotice) {
                     Spacer(modifier = Modifier.height(8.dp))
-                    UserFeedbackMessage("Serving size changed", type = AlertType.WARNING)
+                    UserFeedbackMessage("Serving size changed and instructions are not updated accordingly. Instructions may include some serving size specific instructions.", type = AlertType.WARNING)
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 recipe.instructions.forEachIndexed { index, instruction ->
@@ -283,6 +285,23 @@ fun RecipeScreen(
                 }
                 Spacer(modifier = Modifier.height(24.dp))
             }
+
+            /* === NUTRITION SECTION === */
+            if (recipe.nutrition?.nutrients?.isNotEmpty() == true) {
+                Text("Nutrition", style = MaterialTheme.typography.headlineMedium)
+                Spacer(modifier = Modifier.height(8.dp))
+                recipe.nutrition?.nutrients?.forEachIndexed { index, info ->
+                    NutrientInputRow(
+                        text = info.name,
+                        value = info.amount.toString(),
+                        suffixText = info.unit,
+                        editable = false,
+                        showConnectingLine = true,
+                    )
+                }
+                Spacer(modifier = Modifier.height(24.dp))
+            }
+            // TODO: Add call to action to subscribe to premium for nutritional information
         }
     }
 }

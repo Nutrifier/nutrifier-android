@@ -1,6 +1,7 @@
 package fi.nutrifier.repositories.database
 
 import android.content.SharedPreferences
+import android.util.Log
 import fi.nutrifier.models.database.User
 import fi.nutrifier.models.database.UserSettings
 import fi.nutrifier.services.database.RetrofitInstance
@@ -9,11 +10,11 @@ import fi.nutrifier.utils.SharedPreferencesManager
 
 class UserRepository(private val encryptedPrefs: SharedPreferences) {
     private val service = RetrofitInstance().userService
-    private val token: String? = SharedPreferencesManager.getAuthToken(encryptedPrefs)
 
-    suspend fun getUser(): Result<User> {
+    suspend fun getUser(token: String? = null): Result<User> {
+        val savedToken: String? = SharedPreferencesManager.getAuthToken(encryptedPrefs)
         return try {
-            val response = service.getUser("Bearer $token")
+            val response = service.getUser("Bearer ${token ?: savedToken}")
             if (response.isSuccessful) {
                 Result.success(response.body())
             }
@@ -24,8 +25,11 @@ class UserRepository(private val encryptedPrefs: SharedPreferences) {
     }
 
     suspend fun updateSettings(updatedSettings: UserSettings): Result<UserSettings> {
+        val savedToken: String? = SharedPreferencesManager.getAuthToken(encryptedPrefs)
         return try {
-            val response = service.updateSettings(updatedSettings,"Bearer $token")
+            Log.d("UserRepository", "updating settings: $updatedSettings token: $savedToken")
+
+            val response = service.updateSettings(updatedSettings,"Bearer $savedToken")
             if (response.isSuccessful) {
                 Result.success(response.body())
             }

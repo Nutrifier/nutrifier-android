@@ -17,6 +17,11 @@ object ValidatorUtils {
         return amount in 1..999
     }
     fun ingredientUnit(unit: String): Boolean {
-        return unit in Constants.INGREDIENT_UNITS
+        try {
+            Constants.IngredientUnit.valueOf(unit)
+            return true
+        } catch (e: Exception) {
+            return false
+        }
     }
 }

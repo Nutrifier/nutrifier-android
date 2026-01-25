@@ -1,4 +1,4 @@
-package fi.nutrifier.ui.screens.recipe
+package fi.nutrifier.ui.screens.recipe.steps
 
 import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult

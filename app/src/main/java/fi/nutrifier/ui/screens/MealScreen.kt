@@ -1,5 +1,6 @@
 package fi.nutrifier.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -32,8 +33,9 @@ import fi.nutrifier.ui.components.buttons.AddButton
 import fi.nutrifier.ui.components.buttons.BackButton
 import fi.nutrifier.ui.components.buttons.FoodEntryButton
 import fi.nutrifier.ui.components.layout.MealNutrients
-import fi.nutrifier.ui.components.layout.NutrientColumn
+import fi.nutrifier.ui.components.layout.nutrient.NutrientColumn
 import fi.nutrifier.ui.components.layout.TopBar
+import fi.nutrifier.ui.components.misc.EmptyFoodEntryList
 import fi.nutrifier.utils.Constants
 import fi.nutrifier.utils.FormattingUtils.toLowerCaseCapitalizeFirst
 import fi.nutrifier.viewmodels.ViewModelWrapper
@@ -43,7 +45,6 @@ import kotlinx.coroutines.flow.collectLatest
 fun MealScreen(
     navController: NavController,
     viewModels: ViewModelWrapper,
-    snackbarHostState: SnackbarHostState,
 ) {
     var foodEntries: List<FoodEntryFood> by remember { mutableStateOf(emptyList()) }
     val isLoading by viewModels.foodEntry.loading.collectAsState()
@@ -61,15 +62,7 @@ fun MealScreen(
             MealType.DINNER -> viewModels.foodEntry.dinnerEntries
             else -> viewModels.foodEntry.snacksEntries
         }
-    }
-
-    LaunchedEffect(true) {
-        viewModels.foodEntry.alert.collectLatest {
-            snackbarHostState.showSnackbar(
-                message = it.message,
-                withDismissAction = true
-            )
-        }
+        Log.d("MealScreen", foodEntries.toString())
     }
 
     BaseScreen(
@@ -78,7 +71,6 @@ fun MealScreen(
         screen = Constants.Screen.MEAL,
         viewModels,
         navController,
-        snackbarHostState,
         floatingActionButton = { AddButton { navController.navigate("add_food") }
     }) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomEnd) {
@@ -89,31 +81,20 @@ fun MealScreen(
                         style = MaterialTheme.typography.headlineLarge,
                     )
                     viewModels.foodEntry.nutrients[viewModels.foodEntry.selectedMeal]?.let {
-                        NutrientColumn("Calories", it.calories, suffix = "kcal")
+                        NutrientColumn(
+                            nutrient = "Energy",
+                            value = it.energy[viewModels.user.settings?.energyUnit ?: Constants.EnergyUnit.KCAL] ?: 0.0,
+                            suffix = viewModels.user.settings?.energyUnit?.displayName ?: "kcal",
+                        )
                     }
                 }
                 Spacer(modifier = Modifier.padding(vertical = 8.dp))
                 viewModels.foodEntry.nutrients[viewModels.foodEntry.selectedMeal]?.let {
-                    MealNutrients(it.carbs, it.protein, it.fats)
+                    MealNutrients(viewModels.user, it.carbs, it.protein, it.fats)
                 }
                 Spacer(modifier = Modifier.padding(vertical = 16.dp))
 
                 Box {
-                    LazyColumn {
-                        items(foodEntries) {
-                            FoodEntryButton(it,
-                                onClick = {
-                                    viewModels.foods.setSelectedFood(it.food)
-                                    viewModels.foodEntry.setSelectedFoodEntry(it.foodEntry)
-                                    viewModels.foodEntry.setCurrentAmount(it.foodEntry.amount.toString())
-                                    navController.navigate("food_editor/UPDATE")
-                                },
-                                onDelete = {
-                                    it.foodEntry.id?.let { logId -> viewModels.foodEntry.deleteFoodEntry(logId) }
-                                }
-                            )
-                        }
-                    }
                     if (isLoading) {
                         Box(
                             contentAlignment = Alignment.Center,
@@ -122,6 +103,29 @@ fun MealScreen(
                                 .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.5f)),
                         ) {
                             CircularProgressIndicator()
+                        }
+                    } else if (foodEntries.isEmpty()) {
+                        EmptyFoodEntryList()
+                    } else {
+                        LazyColumn {
+                            items(foodEntries) {
+                                FoodEntryButton(
+                                    userViewModel = viewModels.user,
+                                    foodEntryFood = it,
+                                    onClick = {
+                                        viewModels.foods.setSelectedFood(it.food)
+                                        viewModels.foodEntry.setSelectedFoodEntry(it.foodEntry)
+                                        viewModels.foodEntry.setCurrentAmount(
+                                            value = it.foodEntry.amount.toString(),
+                                            weightUnit = viewModels.user.settings?.weightUnit,
+                                        )
+                                        navController.navigate("food_editor/EDIT_DETAILS")
+                                    },
+                                    onDelete = {
+                                        it.foodEntry.id?.let { logId -> viewModels.foodEntry.deleteFoodEntry(logId) }
+                                    }
+                                )
+                            }
                         }
                     }
                 }

@@ -6,8 +6,10 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -26,6 +28,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
@@ -38,14 +41,18 @@ fun Section(
 ) {
     var isExpanded by remember { mutableStateOf(true) }
 
+    fun onClick() { if (isCollapsible) isExpanded = !isExpanded }
+
     Column {
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().clickable { onClick() },
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            Column {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
                 if (title != null) {
-                    Text(title, style = MaterialTheme.typography.titleMedium)
+                    Text(title, style = MaterialTheme.typography.headlineMedium)
                 }
                 if (subtitle != null) {
                     Text(
@@ -56,7 +63,7 @@ fun Section(
                 }
             }
             if (isCollapsible) {
-                IconButton({ isExpanded = !isExpanded }) {
+                IconButton({ onClick() }) {
                     if (isExpanded) {
                         Icon(Icons.Rounded.KeyboardArrowUp, "Collapse dropdown")
                     } else {
@@ -72,8 +79,9 @@ fun Section(
         ) {
             Column(
                 modifier = Modifier.padding(start = 4.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
+                Spacer(modifier = Modifier.height(16.dp))
                 content()
                 Spacer(modifier = Modifier.height(24.dp))
             }

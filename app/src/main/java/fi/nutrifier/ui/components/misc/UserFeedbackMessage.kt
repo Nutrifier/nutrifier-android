@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.ErrorOutline
 import androidx.compose.material.icons.rounded.WarningAmber
 import androidx.compose.material3.Icon
@@ -16,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import fi.nutrifier.ui.theme.LocalExtraColors
 import fi.nutrifier.utils.AlertType
 
 @Composable
@@ -27,7 +29,8 @@ fun UserFeedbackMessage(
     when (type) {
         AlertType.ERROR -> Error(message, modifier)
         AlertType.WARNING -> Warning(message, modifier)
-        AlertType.INFO -> Default(message, modifier)
+        AlertType.SUCCESS -> Success(message, modifier)
+        else -> Default(message, modifier)
     }
 }
 
@@ -35,6 +38,8 @@ fun UserFeedbackMessage(
 private fun Default(message: String, modifier: Modifier) {
     Surface(
         shape = RoundedCornerShape(6.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
         shadowElevation = 8.dp,
         modifier = modifier,
     ) {
@@ -52,8 +57,8 @@ private fun Default(message: String, modifier: Modifier) {
 private fun Error(message: String, modifier: Modifier) {
     Surface(
         shape = RoundedCornerShape(6.dp),
-        color = MaterialTheme.colorScheme.error,
-        contentColor = MaterialTheme.colorScheme.errorContainer,
+        color = MaterialTheme.colorScheme.errorContainer,
+        contentColor = MaterialTheme.colorScheme.onErrorContainer,
         shadowElevation = 8.dp,
         modifier = modifier,
     ) {
@@ -75,8 +80,8 @@ private fun Error(message: String, modifier: Modifier) {
 private fun Warning(message: String, modifier: Modifier) {
     Surface(
         shape = RoundedCornerShape(6.dp),
-        color = MaterialTheme.colorScheme.primaryContainer,
-        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+        color = LocalExtraColors.current.warningContainer,
+        contentColor = LocalExtraColors.current.onWarningContainer,
         shadowElevation = 8.dp,
         modifier = modifier,
     ) {
@@ -87,6 +92,29 @@ private fun Warning(message: String, modifier: Modifier) {
             Icon(
                 imageVector = Icons.Rounded.WarningAmber,
                 contentDescription = "warning",
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(message, style = MaterialTheme.typography.labelLarge)
+        }
+    }
+}
+
+@Composable
+private fun Success(message: String, modifier: Modifier) {
+    Surface(
+        shape = RoundedCornerShape(6.dp),
+        color = LocalExtraColors.current.successContainer,
+        contentColor = LocalExtraColors.current.onSuccessContainer,
+        shadowElevation = 8.dp,
+        modifier = modifier,
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp),
+        ) {
+            Icon(
+                imageVector = Icons.Rounded.CheckCircle,
+                contentDescription = "Success",
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(message, style = MaterialTheme.typography.labelLarge)

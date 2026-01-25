@@ -17,22 +17,31 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import fi.nutrifier.models.database.MealType
+import fi.nutrifier.utils.Constants
+import fi.nutrifier.utils.ConversionUtils
+import fi.nutrifier.utils.FormattingUtils
 import fi.nutrifier.utils.FormattingUtils.toLowerCaseCapitalizeFirst
-import fi.nutrifier.viewmodels.FoodEntryViewModel
+import fi.nutrifier.viewmodels.ViewModelWrapper
 
 @Composable
 fun MealButton(
     mealType: MealType,
-    viewModel: FoodEntryViewModel,
+    viewModels: ViewModelWrapper,
     onClick: () -> Unit,
 ) {
-    val nutrientString = viewModel.nutrients.entries.find { it.key == mealType }?.value?.let {
-        "${it.calories.toInt()} kcal (${it.fats.toInt()}/${it.carbs.toInt()}/${it.protein.toInt()})"
+    val nutrientString = viewModels.foodEntry.nutrients.entries.find { it.key == mealType }?.value?.let {
+        FormattingUtils.generateEnergyMacroString(
+            energy = it.energy[viewModels.user.settings?.energyUnit ?: Constants.EnergyUnit.KCAL] ?: 0.0,
+            fats = it.fats[viewModels.user.settings?.macroWeightUnit ?: Constants.MacroWeightUnit.G] ?: 0.0,
+            carbs = it.carbs[viewModels.user.settings?.macroWeightUnit ?: Constants.MacroWeightUnit.G] ?: 0.0,
+            protein = it.protein[viewModels.user.settings?.macroWeightUnit ?: Constants.MacroWeightUnit.G] ?: 0.0,
+            userViewModel = viewModels.user,
+        )
     } ?: "Loading..."
 
     TextButton(
         onClick = { onClick() },
-        modifier = Modifier.padding(8.dp, 4.dp),
+        modifier = Modifier.padding(horizontal = 8.dp),
         shape = RoundedCornerShape(4.dp),
     ) {
         Row(
