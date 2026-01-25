@@ -31,7 +31,11 @@ import androidx.navigation.NavController
 import fi.nutrifier.ui.components.buttons.BackButton
 import fi.nutrifier.ui.components.misc.StepIndicator
 import fi.nutrifier.ui.components.layout.TopBar
-import fi.nutrifier.ui.screens.Screen
+import fi.nutrifier.ui.screens.BaseScreen
+import fi.nutrifier.ui.screens.recipe.steps.IngredientsStep
+import fi.nutrifier.ui.screens.recipe.steps.InstructionsStep
+import fi.nutrifier.ui.screens.recipe.steps.PreviewStep
+import fi.nutrifier.ui.screens.recipe.steps.TitleStep
 import fi.nutrifier.utils.Constants
 import fi.nutrifier.viewmodels.RecipeUnderInspectionViewModel
 import fi.nutrifier.viewmodels.ViewModelWrapper
@@ -45,7 +49,6 @@ import fi.nutrifier.viewmodels.ViewModelWrapper
 fun RecipeEditorScreen(
     navController: NavController,
     viewModels: ViewModelWrapper,
-    snackbarHostState: SnackbarHostState,
 ) {
     val viewModel: RecipeUnderInspectionViewModel = viewModels.inspection
 
@@ -82,7 +85,7 @@ fun RecipeEditorScreen(
         allowNext = newValue
     }
 
-    Screen(
+    BaseScreen(
         topBar = { TopBar(subtitle = { BackButton(navController) }) },
         bottomBar = {
             Row(
@@ -122,7 +125,6 @@ fun RecipeEditorScreen(
         screen = Constants.Screen.RECIPE_EDIT,
         viewModels,
         navController,
-        snackbarHostState,
     ) {
         Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
             Column(modifier = Modifier.padding(horizontal = 16.dp)) {
@@ -139,7 +141,11 @@ fun RecipeEditorScreen(
                     0 -> TitleStep(viewModel, ::handleAllowNextChange, ::handleStepChange)
                     1 -> IngredientsStep(viewModel, ::handleAllowNextChange)
                     2 -> InstructionsStep(viewModel, ::handleAllowNextChange)
-                    3 -> PreviewStep(viewModels, ::handleAllowNextChange, navController, snackbarHostState)
+                    3 -> PreviewStep(
+                        viewModels,
+                        ::handleAllowNextChange,
+                        navController
+                    )
                 }
             }
         }

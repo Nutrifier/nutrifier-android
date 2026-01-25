@@ -1,9 +1,13 @@
 package fi.nutrifier.ui.components.inputs
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -20,6 +24,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -37,66 +42,104 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun Dropdown(value: String, dropdownItems: @Composable () -> Unit) {
+fun <T> Dropdown(
+    value: T?,
+    items: List<T>,
+    modifier: Modifier = Modifier,
+    isSearchable: Boolean = false,
+    labelMapper: (T) -> String,
+    onItemClick: (item: T) -> Unit,
+) {
+    // TODO: Implement search functionality
+
     var isExpanded by remember { mutableStateOf(false) }
 
-    Column(modifier = Modifier.width(140.dp)) {
+    fun onClick() { isExpanded = !isExpanded }
+    fun onItemClickInner(item: T) {
+        onItemClick(item)
+        isExpanded = false
+    }
+
+    val shape = if (isExpanded) {
+        RoundedCornerShape(
+            topStart = 8.dp,
+            topEnd = 8.dp,
+            bottomStart = 0.dp,
+            bottomEnd = 0.dp,
+        )
+    } else {
+        RoundedCornerShape(8.dp)
+    }
+
+    Surface(
+        shape = shape,
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        modifier = modifier.height(48.dp),
+        onClick = { onClick() },
+    ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier
-                .clip(RoundedCornerShape(4.dp))
-                .background(MaterialTheme.colorScheme.surface)
-                .padding(start = 8.dp)
+                .fillMaxWidth()
+                .padding(start = 16.dp)
         ) {
-            BasicTextField(
-                value = value,
-                onValueChange = { },
-                cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
-                textStyle = TextStyle(fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface),
-                readOnly = true,
-                singleLine = true,
-            )
+            if (isSearchable) {
+                BasicTextField(
+                    value = if (value != null) labelMapper(value) else "Select a value",
+                    onValueChange = { },
+                    cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
+                    textStyle = TextStyle(fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface),
+                    readOnly = true,
+                    singleLine = true,
+                    modifier = Modifier.weight(1f)
+                )
+            } else {
+                Text(if (value != null) labelMapper(value) else "Select a value")
+            }
             IconButton(
-                onClick = { isExpanded = !isExpanded },
-                modifier = Modifier
-                    .height(32.dp)
-                    .width(32.dp),
+                onClick = { onClick() },
+                modifier = Modifier.size(32.dp),
             ) {
-                if (isExpanded) {
-                    Icon(
-                        imageVector = Icons.Rounded.KeyboardArrowUp,
-                        contentDescription = "Close dropdown",
-                        modifier = Modifier.size(16.dp)
-                    )
-                } else {
-                    Icon(
-                        imageVector = Icons.Rounded.KeyboardArrowDown,
-                        contentDescription = "Open dropdown",
-                        modifier = Modifier.size(16.dp)
-                    )
-                }
+                Icon(
+                    imageVector =
+                        if (isExpanded) Icons.Rounded.KeyboardArrowUp
+                        else Icons.Rounded.KeyboardArrowDown,
+                    contentDescription =
+                        if (isExpanded) "Close dropdown"
+                        else "Open dropdown",
+                    modifier = Modifier.size(16.dp)
+                )
             }
         }
         DropdownMenu(
             expanded = isExpanded,
             onDismissRequest = { isExpanded = false },
-            modifier = Modifier
-                .width(140.dp)
-                .background(MaterialTheme.colorScheme.surface)
+            modifier = modifier
+                .clip(RoundedCornerShape(4.dp))
+                .background(MaterialTheme.colorScheme.surfaceVariant),
         ) {
-            dropdownItems()
+            items.forEach {
+                Box(
+                    contentAlignment = Alignment.CenterStart,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(44.dp)
+                        .background(
+                            if (value == it) MaterialTheme.colorScheme.surface
+                            else MaterialTheme.colorScheme.surfaceVariant
+                        )
+                        .clickable { onItemClickInner(it) }
+                        .padding(horizontal = 16.dp)
+                ) {
+                    Text(
+                        text = labelMapper(it),
+                        color =
+                            if (value == it) MaterialTheme.colorScheme.outline
+                            else MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
         }
-    }
-}
-
-@Preview
-@Composable
-fun DropdownPreview() {
-    Dropdown("value") {
-        DropdownMenuItem(text = { Text("Maintain weight") }, { })
-        DropdownMenuItem(text = { Text("Loose weight") }, { })
-        DropdownMenuItem(text = { Text("Gain weight") }, { })
-        DropdownMenuItem(text = { Text("Just for fun") }, { })
     }
 }

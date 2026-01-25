@@ -15,7 +15,6 @@ interface FoodEntryService {
     @GET("api/food-entries/by-date")
     suspend fun getFoodEntriesByDateAndUser(
         @Query("date") date: String,
-        @Query("userId") userId: String,
         @Header("Authorization") authHeader: String,
     ): Response<List<FoodEntry>>
 

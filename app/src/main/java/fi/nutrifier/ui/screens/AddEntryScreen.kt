@@ -1,4 +1,4 @@
-package fi.nutrifier.ui.screens.food
+package fi.nutrifier.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.ScrollableDefaults
@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -24,6 +25,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,35 +37,27 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import fi.nutrifier.ui.components.buttons.BackButton
 import fi.nutrifier.ui.components.buttons.BarcodeButton
-import fi.nutrifier.ui.components.layout.TopBar
-import fi.nutrifier.viewmodels.ViewModelWrapper
-import fi.nutrifier.ui.components.inputs.CustomSearchBar
 import fi.nutrifier.ui.components.buttons.FoodButton
 import fi.nutrifier.ui.components.inputs.CancelSaveOption
+import fi.nutrifier.ui.components.inputs.CustomSearchBar
+import fi.nutrifier.ui.components.layout.TopBar
 import fi.nutrifier.ui.components.misc.ItemDivider
-import fi.nutrifier.ui.screens.Screen
 import fi.nutrifier.utils.Constants
+import fi.nutrifier.viewmodels.ViewModelWrapper
 import kotlinx.coroutines.flow.collectLatest
 
 @Composable
-fun AddFoodScreen(
+fun AddEntryScreen(
     navController: NavController,
     viewModels: ViewModelWrapper,
-    snackbarHostState: SnackbarHostState,
     barcodeQuery: String? = ""
 ) {
     var showResult by remember { mutableStateOf(false) }
     val listState = rememberLazyListState()
+    val isLoading by viewModels.foodEntry.loading.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModels.foods.loadFoods()
-    }
-
-    LaunchedEffect(viewModels.foodEntry.alert) {
-        viewModels.foodEntry.alert?.let {
-            snackbarHostState.showSnackbar(it.message)
-            viewModels.foodEntry.clearAlert()
-        }
     }
 
     LaunchedEffect(listState) {
@@ -74,20 +68,20 @@ fun AddFoodScreen(
                 val lastVisibleItemIndex = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index
                 if (lastVisibleItemIndex != null
                     && lastVisibleItemIndex >= viewModels.foods.foods.size - 5
-                    && !viewModels.foodEntry.loading
+                    && isLoading
                 ) {
                     viewModels.foods.loadMoreFoods()
                 }
             }
     }
 
-    Screen(
-        topBar = { TopBar(subtitle = { BackButton(navController) })},
+    BaseScreen(
+        topBar = { TopBar(subtitle = { BackButton(navController) }) },
         bottomBar = {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier
+                modifier = Modifier.Companion
                     .fillMaxWidth()
                     .padding(24.dp)
             ) {
@@ -99,15 +93,15 @@ fun AddFoodScreen(
         screen = Constants.Screen.FOOD_ADD,
         viewModels,
         navController,
-        snackbarHostState,
     ) {
         Column(modifier = Modifier.padding(horizontal = 16.dp)) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Text("Add foods", style = MaterialTheme.typography.headlineLarge)
                 Row {
-                    TextButton(onClick = { navController.navigate("food_editor/ADD") }) {
+                    TextButton(onClick = { navController.navigate("food_editor/CREATE") }) {
                         Icon(imageVector = Icons.Filled.AddCircle, contentDescription = "Add")
-                        Text(text = "Add food")
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(text = "Create food")
                     }
                 }
             }
@@ -136,15 +130,15 @@ fun AddFoodScreen(
                     itemsIndexed(
                         viewModels.foods.foods,
                         key = { index, food -> food.id ?: 0 }
-                    ) {index, food ->
-                        FoodButton(food) {
+                    ) { index, food ->
+                        FoodButton(viewModels.user, food) {
                             viewModels.foods.setSelectedFood(food)
-                            navController.navigate("food_editor/EDIT")
+                            navController.navigate("food_editor/EDIT_AMOUNT")
                         }
                         if (index < viewModels.foods.foods.size - 1) ItemDivider()
                     }
                 }
-                if (viewModels.foodEntry.loading) {
+                if (isLoading) {
                     Box(
                         contentAlignment = Alignment.Center,
                         modifier = Modifier

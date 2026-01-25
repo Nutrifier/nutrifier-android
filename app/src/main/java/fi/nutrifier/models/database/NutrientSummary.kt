@@ -1,8 +1,10 @@
 package fi.nutrifier.models.database
 
+import fi.nutrifier.utils.Constants
+
 data class NutrientSummary(
-    val calories: Double,
-    val fats: Double,
-    val carbs: Double,
-    val protein: Double,
+    val energy: Map<Constants.EnergyUnit, Double>,
+    val fats: Map<Constants.MacroWeightUnit, Double>,
+    val carbs: Map<Constants.MacroWeightUnit, Double>,
+    val protein: Map<Constants.MacroWeightUnit, Double>,
 )

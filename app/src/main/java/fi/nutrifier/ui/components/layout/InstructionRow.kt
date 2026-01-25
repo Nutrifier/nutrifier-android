@@ -64,7 +64,7 @@ fun InstructionRow(
                     else {
                         Text(
                             text = "${instruction.number}",
-                            color = MaterialTheme.colorScheme.secondary,
+                            color = MaterialTheme.colorScheme.primary,
                             style = MaterialTheme.typography.headlineMedium
                         )
                     }
@@ -74,7 +74,6 @@ fun InstructionRow(
                     text = instruction.text,
                     modifier = Modifier.padding(top = 2.dp),
                     style = MaterialTheme.typography.bodyLarge,
-                    textDecoration = if (isDone) TextDecoration.LineThrough else null,
                     color = if (isDone) {
                         MaterialTheme.colorScheme.outline
                     } else {

@@ -4,6 +4,7 @@ enum class AlertType {
     ERROR,
     WARNING,
     INFO,
+    SUCCESS,
 }
 
 data class Alert(

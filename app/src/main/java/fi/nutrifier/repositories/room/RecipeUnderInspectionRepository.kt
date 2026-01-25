@@ -16,12 +16,13 @@ class RecipeUnderInspectionRepository {
      * @param recipeId The ID of the recipe to fetch.
      * @return The fetched [fi.nutrifier.models.database.SpoonacularRecipe] if successful, or null if the request fails.
      */
-    suspend fun fetchRecipe(recipeId: Int): SpoonacularRecipe? {
+    suspend fun fetchRecipe(recipeId: Int, hasPremium: Boolean = false): SpoonacularRecipe? {
         val response = RetrofitInstance().recipeService.getRecipeInformation(
             apiKey = BuildConfig.API_KEY,
             id = recipeId,
+            includeNutrition = hasPremium,
         )
-        Log.d("RecipeFetchResponse", "Response: $response")
+        Log.d("RecipeFetchResponse", "Response: ${response.body()}")
         if (response.isSuccessful) {
             return response.body()
         }

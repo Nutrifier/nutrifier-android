@@ -1,5 +1,9 @@
 package fi.nutrifier.viewmodels
 
+import fi.nutrifier.utils.Alert
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.merge
+
 /**
  * Data class representing a wrapper for various view models related to recipe management.
  *
@@ -23,4 +27,19 @@ data class ViewModelWrapper (
     val authViewModel: AuthViewModel,
     val barcode: BarcodeScannerViewModel,
     val foods: FoodsViewModel,
-)
+    val user: UserViewModel,
+) {
+    val alerts: Flow<Alert> = merge(
+        favourite.alert,
+        personal.alert,
+        inspection.alert,
+        search.alert,
+        specials.alert,
+        shopping.alert,
+        foodEntry.alert,
+        authViewModel.alert,
+        barcode.alert,
+        foods.alert,
+        user.alert,
+    )
+}

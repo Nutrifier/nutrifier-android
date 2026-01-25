@@ -14,12 +14,10 @@ class FoodEntryRepository(private val encryptedPrefs: SharedPreferences) {
 
     suspend fun getFoodEntriesByDate(date: LocalDate): Result<List<FoodEntry>> {
         val token: String? = SharedPreferencesManager.getAuthToken(encryptedPrefs)
-        val userId: String? = SharedPreferencesManager.getUser(encryptedPrefs)?.id
 
         return try {
             val response = service.getFoodEntriesByDateAndUser(
                 date.toString(),
-                userId ?: BuildConfig.APP_UUID,
                 "Bearer $token"
             )
             if (response.isSuccessful && response.body() != null) Result.success(response.body())

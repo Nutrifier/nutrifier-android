@@ -1,16 +1,16 @@
 package fi.nutrifier.utils
 
 import android.util.Log
-import fi.nutrifier.BuildConfig
 import fi.nutrifier.models.room.FavouriteRecipe
 import fi.nutrifier.models.database.Food
+import fi.nutrifier.models.database.Nutrition
 import fi.nutrifier.models.other.Fraction
 import fi.nutrifier.models.room.PersonalRecipe
 import fi.nutrifier.models.database.Recipe
 import java.util.UUID
 
 object ConversionUtils {
-    val emptyRecipe = Recipe(-1, "", "", 1, emptyList(), emptyList())
+    val emptyRecipe = Recipe(-1, "", "", 1, emptyList(), emptyList(), Nutrition(emptyList()))
     val emptyFood = Food("","",0,0.0,0.0,0.0,0.0, UUID.randomUUID().toString(), UUID.randomUUID().toString())
 
     /**
@@ -48,8 +48,7 @@ object ConversionUtils {
      * @param number The number to convert.
      * @return The converted fraction or formatted number.
      */
-    fun convertToFraction(number: Float): String {
-        Log.d("FractionCreation", "Creating fraction for: $number")
+    fun convertToFraction(number: Float): List<String> {
         val decimal = number - number.toInt()
         val fractionRanges = listOf(
             Fraction(0.24f..0.26f, "1/4"),
@@ -62,14 +61,14 @@ object ConversionUtils {
             fractionRanges.forEach {
                 if (decimal in it.range) {
                     if (number.toInt() >= 1) {
-                        return "${number.toInt()} ${it.fraction}"
+                        return listOf(number.toInt().toString(), it.fraction)
                     } else {
-                        return it.fraction
+                        return listOf(it.fraction)
                     }
                 }
             }
         }
-        return formatFloatToString(number)
+        return listOf(formatFloatToString(number))
     }
 
     private fun formatFloatToString(number: Float): String {
@@ -89,5 +88,44 @@ object ConversionUtils {
             return result.replace(",", ".").toDouble()
         }
         return 0.0
+    }
+
+    fun convertEnergy(value: Double, energyUnit: Constants.EnergyUnit? = Constants.EnergyUnit.KCAL, toKcal: Boolean = false): Double {
+        return when (energyUnit) {
+            Constants.EnergyUnit.KJ ->
+                if (toKcal) value / Constants.KCAL_TO_KJ_MULTIPLIER
+                else value * Constants.KCAL_TO_KJ_MULTIPLIER
+            else -> value
+        }
+    }
+
+    // Used to only convert food entry weights
+    fun convertWeight(
+        value: Double,
+        weightUnit: Constants.WeightUnit? = Constants.WeightUnit.G,
+        toGrams: Boolean = false,
+    ): Double {
+        return when (weightUnit) {
+            Constants.WeightUnit.LB ->
+                if (toGrams) value * Constants.GRAM_TO_LB_DIVIDER
+                else value / Constants.GRAM_TO_LB_DIVIDER
+            Constants.WeightUnit.OZ ->
+                if (toGrams) value * Constants.GRAM_TO_OZ_DIVIDER
+                else value / Constants.GRAM_TO_OZ_DIVIDER
+            else -> value
+        }
+    }
+
+    fun convertMacroWeight(
+        value: Double,
+        weightUnit: Constants.MacroWeightUnit? = Constants.MacroWeightUnit.G,
+        toGrams: Boolean = false,
+    ): Double {
+        return when (weightUnit) {
+            Constants.MacroWeightUnit.OZ ->
+                if (toGrams) value * Constants.GRAM_TO_OZ_DIVIDER
+                else value / Constants.GRAM_TO_OZ_DIVIDER
+            else -> value
+        }
     }
 }

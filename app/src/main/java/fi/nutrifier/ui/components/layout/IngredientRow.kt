@@ -1,27 +1,20 @@
 package fi.nutrifier.ui.components.layout
 
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.AddShoppingCart
-import androidx.compose.material3.DismissDirection
-import androidx.compose.material3.DismissValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SwipeToDismiss
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberDismissState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -32,10 +25,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import fi.nutrifier.models.database.Ingredient
-import fi.nutrifier.models.room.ShoppingListItem
-import fi.nutrifier.ui.components.misc.SwipeBackgroundElement
 import fi.nutrifier.ui.components.buttons.RemoveButton
 import fi.nutrifier.utils.ConversionUtils.convertToFraction
+import fi.nutrifier.utils.FormattingUtils
 import fi.nutrifier.viewmodels.ViewModelWrapper
 
 /**
@@ -46,7 +38,6 @@ import fi.nutrifier.viewmodels.ViewModelWrapper
  * @param ingredient The ingredient to display.
  * @param handleDelete An optional lambda function to handle the deletion of the ingredient.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun IngredientRow(
     index: Int,
@@ -54,11 +45,15 @@ fun IngredientRow(
     viewModels: ViewModelWrapper? = null,
     handleDelete: ((Int) -> Unit)? = null,
 ) {
-    val amountWithFraction: String = convertToFraction(ingredient.amount)
+    val unitsToIgnoreFraction = listOf("g", "ml")
+    val amountWithFraction: List<String> = if (!unitsToIgnoreFraction.any { ingredient.unit.lowercase() == it }) {
+        convertToFraction(ingredient.amount)
+    } else listOf(FormattingUtils.roundUp(ingredient.amount.toDouble()).toString())
     var showSwipe by remember { mutableStateOf(true) }
-    val swipeState = rememberDismissState()
+    //val swipeState = rememberDismissState()
     var iconSize by remember { mutableFloatStateOf(1f) }
 
+            /*
     if (viewModels != null) {
         LaunchedEffect(swipeState.currentValue) {
             Log.d("Ingredient", "${swipeState.currentValue}")
@@ -72,45 +67,44 @@ fun IngredientRow(
                         note = "${ingredient.amount} ${ingredient.unit}"
                     )
                 )
-            }
         }
 
         LaunchedEffect(swipeState.progress) {
             iconSize += swipeState.progress * 15
         }
     }
+            }*/
 
     AnimatedVisibility(showSwipe, exit = fadeOut(spring())) {
-        SwipeToDismiss(
-            state = swipeState,
-            background = { SwipeBackgroundElement(swipeState, Icons.Rounded.AddShoppingCart) },
-            directions = if (viewModels != null) setOf(DismissDirection.StartToEnd) else setOf(),
-            dismissContent = {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(4.dp))
-                        .fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.background)
-                ) {
-                    Text(
-                        text = "$amountWithFraction ${ingredient.unit}",
-                        style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier
-                            .width(104.dp)
-                            .padding(horizontal = 8.dp),
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = ingredient.name,
-                        style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier.weight(1f),
-                    )
-                    if (handleDelete != null) {
-                        RemoveButton(index, handleDelete)
-                    }
-                }
-            },
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier
+                .clip(RoundedCornerShape(4.dp))
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.background)
+        ) {
+            Row(
+                verticalAlignment = Alignment.Bottom,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Text(
+                    text = amountWithFraction[0],
+                    style = MaterialTheme.typography.titleMedium,
+                )
+                Text(
+                    text = "${if (amountWithFraction.size > 1) "${amountWithFraction[1]} " else ""}${ingredient.unit.lowercase()}",
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+            }
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = ingredient.name,
+                style = MaterialTheme.typography.titleMedium,
+            )
+            if (handleDelete != null) {
+                RemoveButton(index, handleDelete)
+            }
+        }
     }
 }

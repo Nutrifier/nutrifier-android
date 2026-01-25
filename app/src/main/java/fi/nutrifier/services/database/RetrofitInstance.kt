@@ -49,4 +49,5 @@ class RetrofitInstance {
     val foodService: FoodService = retrofitDatabase.create(FoodService::class.java)
     val authService: AuthService = retrofitDatabase.create(AuthService::class.java)
     val fineliService: FineliService = retrofitFineli.create(FineliService::class.java)
+    val userService: UserService = retrofitDatabase.create(UserService::class.java)
 }

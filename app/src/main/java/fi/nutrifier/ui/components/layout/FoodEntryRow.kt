@@ -20,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import fi.nutrifier.models.database.Food
 import fi.nutrifier.models.database.FoodEntry
+import fi.nutrifier.ui.components.layout.nutrient.NutrientRow
 import fi.nutrifier.viewmodels.FoodEntryViewModel
 
 /**
@@ -40,7 +41,7 @@ fun FoodEntryRow(foodEntry: FoodEntry, viewModel: FoodEntryViewModel) {
     ) {
         Column {
             Text(food?.name ?: "Loading...", style = MaterialTheme.typography.titleLarge,)
-            NutrientRow(food = food)
+            //NutrientRow(food = food)
         }
         Row {
             Text(text = "${foodEntry.amount}")

@@ -27,6 +27,7 @@ data class SpoonacularRecipe(
     val license: String,
     val sourceName: String,
     val sourceUrl: String,
+    val nutrition: SpoonacularNutrition,
     val extendedIngredients: List<SpoonacularIngredient>,
     val analyzedInstructions: List<SpoonacularInstruction>,
 ){
@@ -44,6 +45,9 @@ data class SpoonacularRecipe(
                 servings = this.servings,
                 ingredients = this.extendedIngredients.toIngredientList(),
                 instructions = this.analyzedInstructions.toInstructionList(),
+                nutrition = if (this.nutrition != null && this.nutrition.nutrients != null) {
+                    Nutrition(this.nutrition.nutrients.toNutritionList())
+                } else null
             )
         } else {
             return emptyRecipe.copy(
@@ -105,6 +109,30 @@ private fun List<SpoonacularInstruction>.toInstructionList(): List<Instruction> 
 }
 
 /**
+ * Extension function to convert Spoonacular nutrition to Nutrition.
+ *
+ * @return The Nutrition object.
+ */
+private fun List<SpoonacularNutrient>.toNutritionList(): List<Nutrient> {
+    val newNutrients = mutableListOf<Nutrient>()
+    this.forEach { nutrient ->
+        newNutrients.add(
+            Nutrient(
+                name = nutrient.name,
+                amount = if (nutrient.amount != null) {
+                    nutrient.amount.toFloat()
+                } else 0f,
+                unit = nutrient.unit,
+                percentOfDailyNeeds = if (nutrient.percentageOfDailyNeeds != null) {
+                    nutrient.percentageOfDailyNeeds.toFloat()
+                } else 0f,
+            )
+        )
+    }
+    return newNutrients
+}
+
+/**
  * Data class representing a Spoonacular ingredient.
  *
  * @property measures The measures for the ingredient.
@@ -124,6 +152,29 @@ data class SpoonacularIngredient(
 data class SpoonacularInstruction(
     val name: String,
     val steps: List<Step>
+)
+
+data class SpoonacularNutrition(
+    val nutrients: List<SpoonacularNutrient>,
+)
+
+/**
+ * Represents a nutrient as returned by the Spoonacular API.
+ *
+ * Each nutrient contains its name, the amount present in the ingredient or food,
+ * the unit of measurement, and the percentage of the recommended daily intake
+ * it provides.
+ *
+ * @property name The name of the nutrient (e.g., "Protein", "Vitamin C").
+ * @property amount The quantity of the nutrient in the given food item.
+ * @property unit The unit of measurement for [amount] (e.g., "g", "mg", "IU").
+ * @property percentageOfDailyNeeds The percentage of the recommended daily intake that this amount represents.
+ */
+data class SpoonacularNutrient(
+    val name: String,
+    val amount: Number,
+    val unit: String,
+    val percentageOfDailyNeeds: Number,
 )
 
 /**

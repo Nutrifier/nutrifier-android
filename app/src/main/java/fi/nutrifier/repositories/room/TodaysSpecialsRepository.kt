@@ -20,8 +20,9 @@ class TodaysSpecialsRepository(private val prefs: SharedPreferences) {
      * @return A [RepositoryResponseHandler] containing either the list of today's specials on success
      * or an error message on failure.
      */
-    suspend fun getTodaysSpecials(): RepositoryResponseHandler<List<FavouriteRecipe>> {
+    suspend fun getTodaysSpecials(hasPremium: Boolean = false): RepositoryResponseHandler<List<FavouriteRecipe>> {
         val isLoaded = SharedPreferencesManager.isTodaysSpecialsLoaded(prefs)
+
         if (isLoaded) {
             val newRecipes = SharedPreferencesManager.getTodaysSpecials(prefs)
             return if (newRecipes != null) {
@@ -31,7 +32,12 @@ class TodaysSpecialsRepository(private val prefs: SharedPreferences) {
             }
         } else {
             val newRecipes = MealType.entries.map {
-                val response = RetrofitInstance().recipeService.getRandomRecipes(BuildConfig.API_KEY, it.toString().lowercase(), 1)
+                val response = RetrofitInstance().recipeService.getRandomRecipes(
+                    apiKey = BuildConfig.API_KEY,
+                    includeTags = it.toString().lowercase(),
+                    includeNutrition = hasPremium,
+                    number = 1,
+                )
                 if (response.isSuccessful) {
                     response.body()?.recipes?.get(0)?.toSavable()
                 } else {

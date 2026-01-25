@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.ErrorOutline
 import androidx.compose.material.icons.rounded.WarningAmber
 import androidx.compose.material3.Icon
@@ -16,50 +17,50 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import fi.nutrifier.ui.theme.LocalExtraColors
+import fi.nutrifier.utils.AlertType
 
-/**
- * Composable function that displays a user feedback message based on the provided type.
- *
- * @param message The message to display.
- * @param type The type of feedback message. Defaults to "default".
- */
 @Composable
-fun UserFeedbackMessage(message: String, type: String = "default") {
+fun UserFeedbackMessage(
+    message: String,
+    modifier: Modifier = Modifier,
+    type: AlertType = AlertType.INFO,
+) {
     when (type) {
-        "error" -> Error(message)
-        "warning" -> Warning(message)
-        "default" -> Default(message)
+        AlertType.ERROR -> Error(message, modifier)
+        AlertType.WARNING -> Warning(message, modifier)
+        AlertType.SUCCESS -> Success(message, modifier)
+        else -> Default(message, modifier)
     }
 }
 
-/**
- * Composable function that displays a default user feedback message.
- *
- * @param message The message to display.
- */
 @Composable
-private fun Default(message: String) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp),
-    ) {
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(message, style = MaterialTheme.typography.labelLarge)
-    }
-}
-
-/**
- * Composable function that displays an error user feedback message.
- *
- * @param message The message to display.
- */
-@Composable
-private fun Error(message: String) {
+private fun Default(message: String, modifier: Modifier) {
     Surface(
         shape = RoundedCornerShape(6.dp),
-        color = MaterialTheme.colorScheme.error,
-        contentColor = MaterialTheme.colorScheme.errorContainer,
-        shadowElevation = 8.dp
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+        shadowElevation = 8.dp,
+        modifier = modifier,
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp),
+        ) {
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(message, style = MaterialTheme.typography.labelLarge)
+        }
+    }
+}
+
+@Composable
+private fun Error(message: String, modifier: Modifier) {
+    Surface(
+        shape = RoundedCornerShape(6.dp),
+        color = MaterialTheme.colorScheme.errorContainer,
+        contentColor = MaterialTheme.colorScheme.onErrorContainer,
+        shadowElevation = 8.dp,
+        modifier = modifier,
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -75,18 +76,14 @@ private fun Error(message: String) {
     }
 }
 
-/**
- * Composable function that displays a warning user feedback message.
- *
- * @param message The message to display.
- */
 @Composable
-private fun Warning(message: String) {
+private fun Warning(message: String, modifier: Modifier) {
     Surface(
         shape = RoundedCornerShape(6.dp),
-        color = MaterialTheme.colorScheme.primaryContainer,
-        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-        shadowElevation = 8.dp
+        color = LocalExtraColors.current.warningContainer,
+        contentColor = LocalExtraColors.current.onWarningContainer,
+        shadowElevation = 8.dp,
+        modifier = modifier,
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -95,6 +92,29 @@ private fun Warning(message: String) {
             Icon(
                 imageVector = Icons.Rounded.WarningAmber,
                 contentDescription = "warning",
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(message, style = MaterialTheme.typography.labelLarge)
+        }
+    }
+}
+
+@Composable
+private fun Success(message: String, modifier: Modifier) {
+    Surface(
+        shape = RoundedCornerShape(6.dp),
+        color = LocalExtraColors.current.successContainer,
+        contentColor = LocalExtraColors.current.onSuccessContainer,
+        shadowElevation = 8.dp,
+        modifier = modifier,
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp),
+        ) {
+            Icon(
+                imageVector = Icons.Rounded.CheckCircle,
+                contentDescription = "Success",
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(message, style = MaterialTheme.typography.labelLarge)

@@ -1,6 +1,5 @@
 package fi.nutrifier.ui.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -9,72 +8,71 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
-import androidx.compose.ui.graphics.toArgb
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalView
-import androidx.core.view.WindowCompat
+
+val themeColorsInUse = Blue2ThemeColors
 
 private val lightScheme = lightColorScheme(
-    primary = primaryLight,
-    onPrimary = onPrimaryLight,
-    primaryContainer = primaryContainerLight,
-    onPrimaryContainer = onPrimaryContainerLight,
-    secondary = secondaryLight,
-    onSecondary = onSecondaryLight,
-    secondaryContainer = secondaryContainerLight,
-    onSecondaryContainer = onSecondaryContainerLight,
-    tertiary = tertiaryLight,
-    onTertiary = onTertiaryLight,
-    tertiaryContainer = tertiaryContainerLight,
-    onTertiaryContainer = onTertiaryContainerLight,
-    error = errorLight,
-    onError = onErrorLight,
-    errorContainer = errorContainerLight,
-    onErrorContainer = onErrorContainerLight,
-    background = backgroundLight,
-    onBackground = onBackgroundLight,
-    surface = surfaceLight,
-    onSurface = onSurfaceLight,
-    surfaceVariant = surfaceVariantLight,
-    onSurfaceVariant = onSurfaceVariantLight,
-    outline = outlineLight,
-    outlineVariant = outlineVariantLight,
-    scrim = scrimLight,
-    inverseSurface = inverseSurfaceLight,
-    inverseOnSurface = inverseOnSurfaceLight,
-    inversePrimary = inversePrimaryLight,
+    primary = themeColorsInUse.primaryLight,
+    onPrimary = themeColorsInUse.onPrimaryLight,
+    primaryContainer = themeColorsInUse.primaryContainerLight,
+    onPrimaryContainer = themeColorsInUse.onPrimaryContainerLight,
+    secondary = themeColorsInUse.secondaryLight,
+    onSecondary = themeColorsInUse.onSecondaryLight,
+    secondaryContainer = themeColorsInUse.secondaryContainerLight,
+    onSecondaryContainer = themeColorsInUse.onSecondaryContainerLight,
+    tertiary = themeColorsInUse.tertiaryLight,
+    onTertiary = themeColorsInUse.onTertiaryLight,
+    tertiaryContainer = themeColorsInUse.tertiaryContainerLight,
+    onTertiaryContainer = themeColorsInUse.onTertiaryContainerLight,
+    error = themeColorsInUse.errorLight,
+    onError = themeColorsInUse.onErrorLight,
+    errorContainer = themeColorsInUse.errorContainerLight,
+    onErrorContainer = themeColorsInUse.onErrorContainerLight,
+    background = themeColorsInUse.backgroundLight,
+    onBackground = themeColorsInUse.onBackgroundLight,
+    surface = themeColorsInUse.surfaceLight,
+    onSurface = themeColorsInUse.onSurfaceLight,
+    surfaceVariant = themeColorsInUse.surfaceVariantLight,
+    onSurfaceVariant = themeColorsInUse.onSurfaceVariantLight,
+    outline = themeColorsInUse.outlineLight,
+    outlineVariant = themeColorsInUse.outlineVariantLight,
+    scrim = themeColorsInUse.scrimLight,
+    inverseSurface = themeColorsInUse.inverseSurfaceLight,
+    inverseOnSurface = themeColorsInUse.inverseOnSurfaceLight,
+    inversePrimary = themeColorsInUse.inversePrimaryLight,
 )
 
 private val darkScheme = darkColorScheme(
-    primary = primaryDark,
-    onPrimary = onPrimaryDark,
-    primaryContainer = primaryContainerDark,
-    onPrimaryContainer = onPrimaryContainerDark,
-    secondary = secondaryDark,
-    onSecondary = onSecondaryDark,
-    secondaryContainer = secondaryContainerDark,
-    onSecondaryContainer = onSecondaryContainerDark,
-    tertiary = tertiaryDark,
-    onTertiary = onTertiaryDark,
-    tertiaryContainer = tertiaryContainerDark,
-    onTertiaryContainer = onTertiaryContainerDark,
-    error = errorDark,
-    onError = onErrorDark,
-    errorContainer = errorContainerDark,
-    onErrorContainer = onErrorContainerDark,
-    background = backgroundDark,
-    onBackground = onBackgroundDark,
-    surface = surfaceDark,
-    onSurface = onSurfaceDark,
-    surfaceVariant = surfaceVariantDark,
-    onSurfaceVariant = onSurfaceVariantDark,
-    outline = outlineDark,
-    outlineVariant = outlineVariantDark,
-    scrim = scrimDark,
-    inverseSurface = inverseSurfaceDark,
-    inverseOnSurface = inverseOnSurfaceDark,
-    inversePrimary = inversePrimaryDark,
+    primary = themeColorsInUse.primaryDark,
+    onPrimary = themeColorsInUse.onPrimaryDark,
+    primaryContainer = themeColorsInUse.primaryContainerDark,
+    onPrimaryContainer = themeColorsInUse.onPrimaryContainerDark,
+    secondary = themeColorsInUse.secondaryDark,
+    onSecondary = themeColorsInUse.onSecondaryDark,
+    secondaryContainer = themeColorsInUse.secondaryContainerDark,
+    onSecondaryContainer = themeColorsInUse.onSecondaryContainerDark,
+    tertiary = themeColorsInUse.tertiaryDark,
+    onTertiary = themeColorsInUse.onTertiaryDark,
+    tertiaryContainer = themeColorsInUse.tertiaryContainerDark,
+    onTertiaryContainer = themeColorsInUse.onTertiaryContainerDark,
+    error = themeColorsInUse.errorDark,
+    onError = themeColorsInUse.onErrorDark,
+    errorContainer = themeColorsInUse.errorContainerDark,
+    onErrorContainer = themeColorsInUse.onErrorContainerDark,
+    background = themeColorsInUse.backgroundDark,
+    onBackground = themeColorsInUse.onBackgroundDark,
+    surface = themeColorsInUse.surfaceDark,
+    onSurface = themeColorsInUse.onSurfaceDark,
+    surfaceVariant = themeColorsInUse.surfaceVariantDark,
+    onSurfaceVariant = themeColorsInUse.onSurfaceVariantDark,
+    outline = themeColorsInUse.outlineDark,
+    outlineVariant = themeColorsInUse.outlineVariantDark,
+    scrim = themeColorsInUse.scrimDark,
+    inverseSurface = themeColorsInUse.inverseSurfaceDark,
+    inverseOnSurface = themeColorsInUse.inverseOnSurfaceDark,
+    inversePrimary = themeColorsInUse.inversePrimaryDark,
 )
 
 @Composable
@@ -93,18 +91,46 @@ fun RecipeAppTheme(
         darkTheme -> darkScheme
         else -> lightScheme
     }
+
+    /*
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = colorScheme.primary.toArgb()
+            window.statusBarColor = colorScheme.surface.toArgb()
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = darkTheme
         }
+    }*/
+
+    val extraColors = if (darkTheme) {
+        ExtraColors(
+            success = successDark,
+            onSuccess = onSuccessDark,
+            successContainer = successContainerDark,
+            onSuccessContainer = onSuccessContainerDark,
+            warning = warningDark,
+            onWarning = onWarningDark,
+            warningContainer = warningContainerDark,
+            onWarningContainer = onWarningContainerDark,
+        )
+    } else {
+        ExtraColors(
+            success = successLight,
+            onSuccess = onSuccessLight,
+            successContainer = successContainerLight,
+            onSuccessContainer = onSuccessContainerLight,
+            warning = warningLight,
+            onWarning = onWarningLight,
+            warningContainer = warningContainerLight,
+            onWarningContainer = onWarningContainerLight,
+        )
     }
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography,
-        content = content
-    )
+    CompositionLocalProvider(LocalExtraColors provides extraColors) {
+        MaterialTheme(
+            colorScheme = colorScheme,
+            typography = Typography,
+            content = content
+        )
+    }
 }

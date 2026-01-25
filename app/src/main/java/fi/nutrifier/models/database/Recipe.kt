@@ -1,9 +1,7 @@
 package fi.nutrifier.models.database
 
-import fi.nutrifier.BuildConfig
 import fi.nutrifier.models.room.FavouriteRecipe
 import fi.nutrifier.models.room.PersonalRecipe
-import java.util.UUID
 
 /**
  * Represents a recipe, which can be either a personal recipe or a favorite recipe.
@@ -14,6 +12,7 @@ import java.util.UUID
  * @property servings The number of servings the recipe yields.
  * @property ingredients The list of ingredients required for the recipe.
  * @property instructions The list of instructions to prepare the recipe.
+ * @property nutrition The list of nutritional information about the recipe.
  * @property isPersonalRecipe Flag indicating whether the recipe is a personal recipe.
  */
 data class Recipe(
@@ -23,6 +22,7 @@ data class Recipe(
     val servings: Int,
     val ingredients: List<Ingredient>,
     val instructions: List<Instruction>,
+    val nutrition: Nutrition?,
     val isPersonalRecipe: Boolean = false,
 ){
     fun toPersonal(): PersonalRecipe {
@@ -57,4 +57,23 @@ data class Ingredient(
 data class Instruction(
     val number: Int,
     val text: String,
+)
+
+data class Nutrition(
+    val nutrients: List<Nutrient>
+)
+
+/**
+ * Represents a nutrient or nutritional value for a food item.
+ *
+ * @property name The name of the nutrient (e.g., "Protein", "Vitamin C").
+ * @property amount The quantity of the nutrient present.
+ * @property unit The unit of measurement for [amount] (e.g., "g", "mg", "IU").
+ * @property percentOfDailyNeeds The percentage of the recommended daily intake that this nutrient provides.
+ */
+data class Nutrient(
+    val name: String,
+    val amount: Float,
+    val unit: String,
+    val percentOfDailyNeeds: Float,
 )

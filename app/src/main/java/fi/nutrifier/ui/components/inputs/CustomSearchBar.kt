@@ -120,6 +120,7 @@ fun CustomSearchBar(
                 keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Search),
                 cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
                 textStyle = TextStyle(fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface),
+                modifier = Modifier.fillMaxWidth()
             )
         }
         if (suffix != null) suffix()
