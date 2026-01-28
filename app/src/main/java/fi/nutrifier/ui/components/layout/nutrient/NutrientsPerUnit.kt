@@ -17,29 +17,25 @@ import fi.nutrifier.viewmodels.ViewModelWrapper
 
 @Composable
 fun NutrientsPerUnit(viewModels: ViewModelWrapper) {
-    val energy = FormattingUtils.roundUp(
-        ConversionUtils.convertEnergy(
-            value = viewModels.foods.selectedFood?.food?.calories ?: 0.0,
-            energyUnit = viewModels.user.settings?.energyUnit,
-        )
+    val energy = ConversionUtils.convertEnergy(
+        value = viewModels.foods.selectedFood?.food?.calories ?: 0.0,
+        energyUnit = viewModels.user.settings?.energyUnit,
+        roundUp = true,
     )
-    val fats = FormattingUtils.roundUp(
-        ConversionUtils.convertMacroWeight(
-            value = viewModels.foods.selectedFood?.food?.fat ?: 0.0,
-            weightUnit = viewModels.user.settings?.macroWeightUnit,
-        )
+    val fats = ConversionUtils.convertMacroWeight(
+        value = viewModels.foods.selectedFood?.food?.fat ?: 0.0,
+        weightUnit = viewModels.user.settings?.macroWeightUnit,
+        roundUp = true,
     )
-    val carbs = FormattingUtils.roundUp(
-        ConversionUtils.convertMacroWeight(
-            value = viewModels.foods.selectedFood?.food?.carbs ?: 0.0,
-            weightUnit = viewModels.user.settings?.macroWeightUnit,
-        )
+    val carbs = ConversionUtils.convertMacroWeight(
+        value = viewModels.foods.selectedFood?.food?.carbs ?: 0.0,
+        weightUnit = viewModels.user.settings?.macroWeightUnit,
+        roundUp = true,
     )
-    val protein = FormattingUtils.roundUp(
-        ConversionUtils.convertMacroWeight(
-            value = viewModels.foods.selectedFood?.food?.protein ?: 0.0,
-            weightUnit = viewModels.user.settings?.macroWeightUnit,
-        )
+    val protein = ConversionUtils.convertMacroWeight(
+        value = viewModels.foods.selectedFood?.food?.protein ?: 0.0,
+        weightUnit = viewModels.user.settings?.macroWeightUnit,
+        roundUp = true,
     )
     val pev = FormattingUtils.roundUp(viewModels.foods.selectedFood?.pev)
 

@@ -1,5 +1,6 @@
 package fi.nutrifier.ui.screens.food.modes
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -33,7 +34,7 @@ import fi.nutrifier.utils.FormattingUtils
 import fi.nutrifier.viewmodels.ViewModelWrapper
 
 @Composable
-internal fun EditMode(viewModels: ViewModelWrapper, setDisplayedCurrentAmount: (String) -> Unit) {
+internal fun EditMode(viewModels: ViewModelWrapper, foodMode: Constants.FoodMode) {
     val emptyNutrientSummary = NutrientSummary(
         energy = Constants.EnergyUnit.entries.associateWith { 0.0 },
         fats = Constants.MacroWeightUnit.entries.associateWith { 0.0 },
@@ -41,31 +42,30 @@ internal fun EditMode(viewModels: ViewModelWrapper, setDisplayedCurrentAmount: (
         protein = Constants.MacroWeightUnit.entries.associateWith { 0.0 },
     )
     var calculatedNutrientSummary by remember { mutableStateOf(emptyNutrientSummary) }
-    val multiplier = (viewModels.foodEntry.currentAmount.toDouble() / 100)
+    val multiplier = (viewModels.foodEntry.currentAmount / 100)
 
     LaunchedEffect(viewModels.user.settings?.weightUnit) {
-        when (viewModels.user.settings?.weightUnit) {
-            Constants.WeightUnit.OZ -> {
-                viewModels.foodEntry.setCurrentAmount(
-                    ConversionUtils.convertWeight(1.0, Constants.WeightUnit.OZ, true).toString()
-                )
+        if (foodMode == Constants.FoodMode.CREATE_ENTRY) {
+            when (viewModels.user.settings?.weightUnit) {
+                Constants.WeightUnit.OZ -> {
+                    viewModels.foodEntry.setCurrentAmount(
+                        ConversionUtils.convertWeight(1.0, Constants.WeightUnit.OZ, true)
+                    )
+                }
+                Constants.WeightUnit.LB -> {
+                    viewModels.foodEntry.setCurrentAmount(
+                        ConversionUtils.convertWeight(1.0, Constants.WeightUnit.LB, true)
+                    )
+                }
+                else -> {
+                    viewModels.foodEntry.setCurrentAmount(100.0)
+                }
             }
-            Constants.WeightUnit.LB -> {
-                viewModels.foodEntry.setCurrentAmount(
-                    ConversionUtils.convertWeight(1.0, Constants.WeightUnit.LB, true).toString()
-                )
-            }
-            else -> viewModels.foodEntry.setCurrentAmount("100")
         }
     }
 
     LaunchedEffect(viewModels.foodEntry.currentAmount) {
-        if (viewModels.foods.selectedFood != null && viewModels.foodEntry.currentAmount.isNotEmpty()) {
-            setDisplayedCurrentAmount(ConversionUtils.convertWeight(
-                value = viewModels.foodEntry.currentAmount.toDouble(),
-                weightUnit = viewModels.user.settings?.weightUnit,
-            ).toString())
-
+        if (viewModels.foods.selectedFood != null) {
             val caloriesMapped = Constants.EnergyUnit.entries.associateWith { energyUnit ->
                 ConversionUtils.convertEnergy(
                     value = viewModels.foods.selectedFood!!.food!!.calories * multiplier,
@@ -130,10 +130,12 @@ internal fun EditMode(viewModels: ViewModelWrapper, setDisplayedCurrentAmount: (
                 )
                 if (IS_DEV) {
                     calculatedNutrientSummary.energy.forEach { (energyUnit, value) ->
-                        Text(
-                            text = "${FormattingUtils.roundUp(value)} ${energyUnit.displayName}",
-                            color = MaterialTheme.colorScheme.outline,
-                        )
+                        if (energyUnit != viewModels.user.settings?.energyUnit) {
+                            Text(
+                                text = "${FormattingUtils.roundUp(value)} ${energyUnit.displayName}",
+                                color = MaterialTheme.colorScheme.outline,
+                            )
+                        }
                     }
                 }
             }
@@ -172,10 +174,12 @@ internal fun EditMode(viewModels: ViewModelWrapper, setDisplayedCurrentAmount: (
                 nutrients.forEach { nutrient ->
                     Column(modifier = Modifier.weight(1f)) {
                         nutrient.forEach { (weightUnit, value) ->
-                            Text(
-                                text = "${FormattingUtils.roundUp(value)} ${weightUnit.displayName}",
-                                color = MaterialTheme.colorScheme.outline,
-                            )
+                            if (weightUnit != viewModels.user.settings?.macroWeightUnit) {
+                                Text(
+                                    text = "${FormattingUtils.roundUp(value)} ${weightUnit.displayName}",
+                                    color = MaterialTheme.colorScheme.outline,
+                                )
+                            }
                         }
 
                     }
@@ -184,5 +188,6 @@ internal fun EditMode(viewModels: ViewModelWrapper, setDisplayedCurrentAmount: (
         }
         Spacer(modifier = Modifier.padding(vertical = 24.dp))
         NutrientsPerUnit(viewModels)
+        Spacer(modifier = Modifier.padding(vertical = 80.dp))
     }
 }

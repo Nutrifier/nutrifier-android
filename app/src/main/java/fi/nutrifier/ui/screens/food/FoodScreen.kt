@@ -2,10 +2,12 @@ package fi.nutrifier.ui.screens.food
 
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -30,9 +32,9 @@ import fi.nutrifier.ui.screens.food.modes.EditMode
 import fi.nutrifier.ui.screens.food.modes.ViewMode
 import fi.nutrifier.utils.Alert
 import fi.nutrifier.utils.Constants
+import fi.nutrifier.utils.Constants.IS_DEV
 import fi.nutrifier.utils.ConversionUtils
 import fi.nutrifier.utils.FormattingUtils
-import kotlinx.coroutines.flow.collectLatest
 import java.time.LocalTime
 
 /**
@@ -46,99 +48,144 @@ fun FoodScreen(
     viewModels: ViewModelWrapper,
     mode: String,
 ) {
-    val isLoading by viewModels.specials.loading.collectAsState()
+    val isLoading by viewModels.foods.loading.collectAsState()
     var showDialog by remember { mutableStateOf<Alert?>(null) }
     var displayedCurrentAmount by remember { mutableStateOf("") }
+    val foodMode = Constants.FoodMode.valueOf(mode)
+
+
+    LaunchedEffect(viewModels.foods.selectedFood, foodMode) {
+        when (foodMode) {
+            Constants.FoodMode.CREATE_ENTRY -> {
+                displayedCurrentAmount = when (viewModels.user.settings?.weightUnit) {
+                    Constants.WeightUnit.LB -> "1"
+                    Constants.WeightUnit.OZ -> "1"
+                    else -> "100"
+                }
+            }
+            Constants.FoodMode.EDIT_AMOUNT -> {
+                displayedCurrentAmount = viewModels.foodEntry.currentAmount.toString()
+            }
+            else -> null
+        }
+    }
+
+    fun onAmountChange(input: String) {
+        displayedCurrentAmount = input
+
+        val value = input.toDoubleOrNull() ?: return
+
+        val grams = ConversionUtils.convertWeight(
+            value = value,
+            weightUnit = viewModels.user.settings?.weightUnit,
+            toGrams = true,
+        )
+
+        viewModels.foodEntry.setCurrentAmount(grams)
+    }
+
+    fun onCreateFood() {
+        viewModels.foods.savableFood?.let {
+            viewModels.foods.saveFood(it)
+            navController.navigateUp()
+        }
+    }
+
+    fun onCreateEntry() {
+        viewModels.foods.selectedFood?.let {
+            val foodEntry = it.food?.id?.let { it1 ->
+                FoodEntry(
+                    date = viewModels.foodEntry.date.toString(),
+                    // TODO: Make time changeable
+                    time = FormattingUtils.formatLocalTimeToString(
+                        LocalTime.now()
+                    ),
+                    meal = viewModels.foodEntry.selectedMeal ?: MealType.SNACKS,
+                    userId = viewModels.foodEntry.getUserId(),
+                    foodId = it1,
+                    amount = viewModels.foodEntry.currentAmount, // Should never be anything than grams
+                    fineliId = it.food.fineliId,
+                )
+            }
+            if (foodEntry != null) {
+                viewModels.foodEntry.saveFoodEntry(foodEntry)
+                navController.navigateUp()
+            }
+        }
+    }
+
+    fun onEditAmount() {
+        val updatedLog = viewModels.foodEntry.selectedFoodEntry?.copy(
+            amount = viewModels.foodEntry.currentAmount,
+        )
+        if (updatedLog != null) {
+            viewModels.foodEntry.updateFoodEntry(updatedLog)
+            navController.popBackStack()
+        }
+    }
 
     BaseScreen(
         floatingActionButton = {
-            if (mode == "UPDATE") {
-                NutrientTextField(
-                    value = displayedCurrentAmount,
-                    suffixText = viewModels.user.settings?.weightUnit?.displayName ?: "g",
-                    width = 124.dp,
-                ) { input ->
-                    val grams = ConversionUtils.convertWeight(
-                        value = input.toDoubleOrNull() ?: 0.0,
-                        weightUnit = viewModels.user.settings?.weightUnit,
-                        toGrams = true,
-                    )
-                    viewModels.foodEntry.setCurrentAmount(grams.toString())
-                    displayedCurrentAmount = input
+            if (foodMode == Constants.FoodMode.CREATE_ENTRY
+                || foodMode == Constants.FoodMode.EDIT_AMOUNT
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    if (IS_DEV) {
+                        Column {
+                            Constants.WeightUnit.entries.filter { it != viewModels.user.settings?.weightUnit }.forEach {
+                                Text(
+                                    text = "${ConversionUtils.convertWeight(
+                                        value = viewModels.foodEntry.currentAmount,
+                                        weightUnit = it,
+                                        roundUp = true,
+                                    )} ${it.displayName}",
+                                    color = MaterialTheme.colorScheme.outline,
+                                )
+                            }
+                        }
+                    }
+                    NutrientTextField(
+                        value = displayedCurrentAmount,
+                        suffixText = viewModels.user.settings?.weightUnit?.displayName ?: "g",
+                        width = 124.dp,
+                        onConfirm = { if (foodMode == Constants.FoodMode.CREATE_ENTRY) {
+                            onCreateEntry()
+                        } else {
+                            onEditAmount()
+                        }}
+                    ) { onAmountChange(it) }
                 }
             } else null
         },
         topBar = { TopBar(subtitle = { BackButton(navController) }) },
         bottomBar = {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(24.dp)
-            ) {
-                when (mode) {
-                    "CREATE" ->
-                        CancelSaveOption(onClose = { navController.navigateUp() }) {
-                            viewModels.foods.savableFood?.let {
-                                viewModels.foods.saveFood(it)
-                                navController.navigateUp()
-                            }
-                        }
-                    "EDIT" ->
-                        CancelSaveOption(onClose = { navController.navigateUp() }) {
-
-                            viewModels.foods.selectedFood?.let {
-
-                                Log.d("FoodEditorScreen", "Saving: $it")
-
-                                val foodEntry = it.food?.id?.let { it1 ->
-                                    FoodEntry(
-                                        date = viewModels.foodEntry.date.toString(),
-                                        // TODO: Make time changeable
-                                        time = FormattingUtils.formatLocalTimeToString(
-                                            LocalTime.now()
-                                        ),
-                                        meal = viewModels.foodEntry.selectedMeal ?: MealType.SNACKS,
-                                        userId = viewModels.foodEntry.getUserId(),
-                                        foodId = it1,
-                                        amount = ConversionUtils.convertWeight(
-                                            value = viewModels.foodEntry.currentAmount.toDouble(),
-                                            weightUnit = viewModels.user.settings?.weightUnit,
-                                            toGrams = true,
-                                        ),
-                                        fineliId = it.food.fineliId,
-                                    )
-                                }
-                                if (foodEntry != null) {
-                                    viewModels.foodEntry.saveFoodEntry(foodEntry)
-                                    repeat(2) { navController.popBackStack() }
-                                }
-                            }
-                        }
-                    "UPDATE" ->
-                        CancelSaveOption(onClose = { navController.navigateUp() }) {
-                            val newAmount = viewModels.foodEntry.currentAmount.toDoubleOrNull()
-                            if (newAmount != null) {
-                                val updatedLog = viewModels.foodEntry.selectedFoodEntry?.copy(amount = newAmount)
-                                if (updatedLog != null) {
-                                    viewModels.foodEntry.updateFoodEntry(updatedLog)
-                                    navController.popBackStack()
-                                }
-                            }
-                        }
-                    else -> null
+            when (foodMode) {
+                Constants.FoodMode.CREATE -> {
+                    CancelSaveOption(onClose = { navController.navigateUp() }) {
+                        onCreateFood()
+                    }
                 }
+                Constants.FoodMode.CREATE_ENTRY -> {
+                    CancelSaveOption(onClose = { navController.navigateUp() }) {
+                        onCreateEntry()
+                    }
+                }
+                Constants.FoodMode.EDIT_AMOUNT -> {
+                    CancelSaveOption(onClose = { navController.navigateUp() }) {
+                        onEditAmount()
+                    }
+                }
+                else -> null
             }
         },
         screen = Constants.Screen.FOOD_EDIT,
         viewModels = viewModels,
         navController = navController,
     ) {
-        when (mode) {
-            "CREATE" -> CreateMode(navController, viewModels)
-            "EDIT_DETAILS" -> EditMode(viewModels) { displayedCurrentAmount = it }
-            "EDIT_AMOUNT" -> EditMode(viewModels) { displayedCurrentAmount = it }
+        when (foodMode) {
+            Constants.FoodMode.CREATE -> CreateMode(navController, viewModels)
+            Constants.FoodMode.CREATE_ENTRY -> EditMode(viewModels, foodMode)
+            Constants.FoodMode.EDIT_AMOUNT -> EditMode(viewModels, foodMode)
             else -> ViewMode(navController, viewModels)
         }
     }

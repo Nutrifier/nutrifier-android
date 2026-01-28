@@ -2,6 +2,8 @@ package fi.nutrifier.ui.components.buttons
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -19,6 +21,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import fi.nutrifier.models.database.FoodEntryFood
+import fi.nutrifier.utils.Constants
+import fi.nutrifier.utils.Constants.IS_DEV
 import fi.nutrifier.utils.ConversionUtils
 import fi.nutrifier.utils.FormattingUtils
 import fi.nutrifier.viewmodels.UserViewModel
@@ -30,6 +34,7 @@ fun FoodEntryButton(userViewModel: UserViewModel, foodEntryFood: FoodEntryFood, 
             onClick = { onClick() },
             modifier = Modifier.fillMaxWidth().weight(0.9f),
             shape = RoundedCornerShape(4.dp),
+            contentPadding = PaddingValues(horizontal = 2.dp, vertical = 8.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.background,
                 contentColor = MaterialTheme.colorScheme.onBackground,
@@ -47,14 +52,32 @@ fun FoodEntryButton(userViewModel: UserViewModel, foodEntryFood: FoodEntryFood, 
                         overflow = TextOverflow.Ellipsis,
                         maxLines = 1,
                     )
-                    Text(
-                        text = "${ConversionUtils.convertWeight(
-                            value = foodEntryFood.foodEntry.amount,
-                            weightUnit = userViewModel.settings?.weightUnit,
-                        ).toInt()} ${userViewModel.settings?.weightUnit?.displayName ?: "g"}",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.outline,
-                    )
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        val converted =
+                        Text(
+                            text = "${ConversionUtils.convertWeight(
+                                value = foodEntryFood.foodEntry.amount,
+                                weightUnit = userViewModel.settings?.weightUnit,
+                                roundUp = true,
+                            )} ${userViewModel.settings?.weightUnit?.displayName ?: "g"}",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.outline,
+                        )
+                        if (IS_DEV) {
+                            Constants.WeightUnit.entries.filter { it != userViewModel.settings?.weightUnit }.forEach {
+                                Text(
+                                    text = "${ConversionUtils.convertWeight(
+                                        value = foodEntryFood.foodEntry.amount,
+                                        weightUnit = it,
+                                        roundUp = true,
+                                    )} ${it.displayName}",
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = MaterialTheme.colorScheme.outline,
+                                )
+                            }
+
+                        }
+                    }
                 }
                 Column(modifier = Modifier.weight(0.3f), horizontalAlignment = Alignment.End) {
                     Text(

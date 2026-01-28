@@ -90,13 +90,19 @@ object ConversionUtils {
         return 0.0
     }
 
-    fun convertEnergy(value: Double, energyUnit: Constants.EnergyUnit? = Constants.EnergyUnit.KCAL, toKcal: Boolean = false): Double {
-        return when (energyUnit) {
+    fun convertEnergy(
+        value: Double,
+        energyUnit: Constants.EnergyUnit? = Constants.EnergyUnit.KCAL,
+        toKcal: Boolean = false,
+        roundUp: Boolean = false,
+    ): Double {
+        val converted = when (energyUnit) {
             Constants.EnergyUnit.KJ ->
                 if (toKcal) value / Constants.KCAL_TO_KJ_MULTIPLIER
                 else value * Constants.KCAL_TO_KJ_MULTIPLIER
             else -> value
         }
+        return if (roundUp) FormattingUtils.roundUp(converted) else converted
     }
 
     // Used to only convert food entry weights
@@ -104,8 +110,9 @@ object ConversionUtils {
         value: Double,
         weightUnit: Constants.WeightUnit? = Constants.WeightUnit.G,
         toGrams: Boolean = false,
+        roundUp: Boolean = false,
     ): Double {
-        return when (weightUnit) {
+        val converted = when (weightUnit) {
             Constants.WeightUnit.LB ->
                 if (toGrams) value * Constants.GRAM_TO_LB_DIVIDER
                 else value / Constants.GRAM_TO_LB_DIVIDER
@@ -114,18 +121,21 @@ object ConversionUtils {
                 else value / Constants.GRAM_TO_OZ_DIVIDER
             else -> value
         }
+        return if (roundUp) FormattingUtils.roundUp(converted) else converted
     }
 
     fun convertMacroWeight(
         value: Double,
         weightUnit: Constants.MacroWeightUnit? = Constants.MacroWeightUnit.G,
         toGrams: Boolean = false,
+        roundUp: Boolean = false,
     ): Double {
-        return when (weightUnit) {
+        val converted = when (weightUnit) {
             Constants.MacroWeightUnit.OZ ->
                 if (toGrams) value * Constants.GRAM_TO_OZ_DIVIDER
                 else value / Constants.GRAM_TO_OZ_DIVIDER
             else -> value
         }
+        return if (roundUp) FormattingUtils.roundUp(converted) else converted
     }
 }

@@ -20,7 +20,6 @@ import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -98,7 +97,7 @@ fun AddEntryScreen(
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Text("Add foods", style = MaterialTheme.typography.headlineLarge)
                 Row {
-                    TextButton(onClick = { navController.navigate("food_editor/CREATE") }) {
+                    TextButton(onClick = { navController.navigate("food_editor/${Constants.FoodMode.CREATE}") }) {
                         Icon(imageVector = Icons.Filled.AddCircle, contentDescription = "Add")
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(text = "Create food")
@@ -133,7 +132,7 @@ fun AddEntryScreen(
                     ) { index, food ->
                         FoodButton(viewModels.user, food) {
                             viewModels.foods.setSelectedFood(food)
-                            navController.navigate("food_editor/EDIT_AMOUNT")
+                            navController.navigate("food_editor/${Constants.FoodMode.CREATE_ENTRY}")
                         }
                         if (index < viewModels.foods.foods.size - 1) ItemDivider()
                     }
