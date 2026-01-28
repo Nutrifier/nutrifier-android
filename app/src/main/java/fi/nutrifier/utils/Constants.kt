@@ -122,5 +122,12 @@ object Constants {
         FULL_CIRCLE("Full circle"),
         LINE("Line"),
     }
+
+    enum class FoodMode(val displayName: String) {
+        CREATE("Create"),
+        EDIT_AMOUNT("Edit amount"),
+        CREATE_ENTRY("Create entry"),
+        VIEW("View")
+    }
 }
 

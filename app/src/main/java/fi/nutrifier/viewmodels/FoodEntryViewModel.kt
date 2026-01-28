@@ -68,6 +68,7 @@ class FoodEntryViewModel(
 
     suspend fun fetchFoodById(id: String): Food?  {
         val result = foodRepository.getFoodById(id)
+        Log.d("FoodEntryViewModel", "fetchFoodById $result")
         return if (result.isSuccessful()) result.value else null
     }
 
@@ -79,15 +80,11 @@ class FoodEntryViewModel(
     val selectedFoodEntry get() = _selectedFoodEntry.value
     val setSelectedFoodEntry: (FoodEntry?) -> Unit = { _selectedFoodEntry.value = it }
 
-    private var _currentAmount = mutableStateOf("100")
+    private var _currentAmount = mutableStateOf(100.0)
     val currentAmount get() = _currentAmount.value
 
-    fun setCurrentAmount(value: String, weightUnit: Constants.WeightUnit? = Constants.WeightUnit.G) {
-        _currentAmount.value = ConversionUtils.convertWeight(
-            value = value.toDouble(),
-            weightUnit = weightUnit,
-            toGrams = true,
-        ).toString()
+    fun setCurrentAmount(value: Double) {
+        _currentAmount.value = value
     }
 
     private suspend fun calculateNutrientsForEntries(
@@ -110,9 +107,9 @@ class FoodEntryViewModel(
             }
         }
 
-        return NutrientSummary(
+        val result = NutrientSummary(
             energy = Constants.EnergyUnit.entries.associateWith { energyUnit ->
-                ConversionUtils.convertEnergy(calories, energyUnit)
+                ConversionUtils.convertEnergy(fats, energyUnit)
             },
             fats = Constants.MacroWeightUnit.entries.associateWith { weightUnit ->
                 ConversionUtils.convertMacroWeight(fats, weightUnit)
@@ -124,17 +121,22 @@ class FoodEntryViewModel(
                 ConversionUtils.convertMacroWeight(protein, weightUnit)
             },
         )
+        return result
+    }
+
+    private fun <K> sumMaps(maps: List<Map<K, Double>>): Map<K, Double> {
+        return maps.flatMap { it.entries }.groupBy { it.key }.mapValues { (_, entries) ->
+            entries.sumOf { it.value }
+        }
     }
 
     private fun combineNutrientSummaries(summaries: List<NutrientSummary>): NutrientSummary {
-        return summaries.fold(emptyNutrientSummary) { acc, summary ->
-            acc.copy(
-                energy = acc.energy + summary.energy,
-                fats = acc.fats + summary.fats,
-                carbs = acc.carbs + summary.carbs,
-                protein = acc.protein + summary.protein,
-            )
-        }
+        return NutrientSummary(
+            energy = sumMaps(summaries.map { it.energy }),
+            fats = sumMaps(summaries.map { it.fats }),
+            carbs = sumMaps(summaries.map { it.carbs }),
+            protein = sumMaps(summaries.map { it.protein }),
+        )
     }
 
     suspend fun fetchFineliFoods(ids: List<Int>): List<Food> {
@@ -158,7 +160,6 @@ class FoodEntryViewModel(
             val entries = result.value.orEmpty()
 
             if (!result.isSuccessful()) {
-                Log.d("FoodEntryViewModel", "result: $result")
                 showAlert("Error occured in loading food entries (${result.errorCode}")
                 if (triggerLoading) setLoading(false)
                 return@launch
@@ -192,10 +193,11 @@ class FoodEntryViewModel(
             }
 
             val mealNutrients = MealType.entries.associateWith { mealType ->
-                combineNutrientSummaries(listOf(
+                val listOfNutrientsByMeal = listOf(
                     dbNutrientsByMeal[mealType] ?: emptyNutrientSummary,
                     fineliNutrientsByMeal[mealType] ?: emptyNutrientSummary,
-                ))
+                )
+                combineNutrientSummaries(listOfNutrientsByMeal)
             }
             setNutrients(mealNutrients)
 

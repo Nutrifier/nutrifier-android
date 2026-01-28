@@ -26,8 +26,8 @@ android {
         applicationId = "fi.nutrifier"
         minSdk = 26
         targetSdk = 34
-        versionCode = 5
-        versionName = "1.0.0"
+        versionCode = 13
+        versionName = "1.1.7-beta"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

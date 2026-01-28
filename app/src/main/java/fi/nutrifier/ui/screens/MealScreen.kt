@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -37,9 +38,13 @@ import fi.nutrifier.ui.components.layout.nutrient.NutrientColumn
 import fi.nutrifier.ui.components.layout.TopBar
 import fi.nutrifier.ui.components.misc.EmptyFoodEntryList
 import fi.nutrifier.utils.Constants
+import fi.nutrifier.utils.Constants.IS_DEV
+import fi.nutrifier.utils.FormattingUtils
 import fi.nutrifier.utils.FormattingUtils.toLowerCaseCapitalizeFirst
 import fi.nutrifier.viewmodels.ViewModelWrapper
 import kotlinx.coroutines.flow.collectLatest
+import kotlin.collections.component1
+import kotlin.collections.component2
 
 @Composable
 fun MealScreen(
@@ -62,7 +67,7 @@ fun MealScreen(
             MealType.DINNER -> viewModels.foodEntry.dinnerEntries
             else -> viewModels.foodEntry.snacksEntries
         }
-        Log.d("MealScreen", foodEntries.toString())
+        //Log.d("MealScreen", foodEntries.toString())
     }
 
     BaseScreen(
@@ -80,12 +85,22 @@ fun MealScreen(
                         toLowerCaseCapitalizeFirst(viewModels.foodEntry.selectedMeal.toString()),
                         style = MaterialTheme.typography.headlineLarge,
                     )
-                    viewModels.foodEntry.nutrients[viewModels.foodEntry.selectedMeal]?.let {
-                        NutrientColumn(
-                            nutrient = "Energy",
-                            value = it.energy[viewModels.user.settings?.energyUnit ?: Constants.EnergyUnit.KCAL] ?: 0.0,
-                            suffix = viewModels.user.settings?.energyUnit?.displayName ?: "kcal",
-                        )
+                    Column {
+                        viewModels.foodEntry.nutrients[viewModels.foodEntry.selectedMeal]?.let {
+                            NutrientColumn(
+                                nutrient = "Energy",
+                                value = it.energy[viewModels.user.settings?.energyUnit ?: Constants.EnergyUnit.KCAL] ?: 0.0,
+                                suffix = viewModels.user.settings?.energyUnit?.displayName ?: "kcal",
+                            )
+                            if (IS_DEV) {
+                                Constants.EnergyUnit.entries.filter{ it2 -> it2 != viewModels.user.settings?.energyUnit }.forEach { energyUnit ->
+                                    Text(
+                                        text = "${FormattingUtils.roundUp(it.energy[energyUnit])} ${energyUnit.displayName}",
+                                        color = MaterialTheme.colorScheme.outline,
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
                 Spacer(modifier = Modifier.padding(vertical = 8.dp))
@@ -115,11 +130,8 @@ fun MealScreen(
                                     onClick = {
                                         viewModels.foods.setSelectedFood(it.food)
                                         viewModels.foodEntry.setSelectedFoodEntry(it.foodEntry)
-                                        viewModels.foodEntry.setCurrentAmount(
-                                            value = it.foodEntry.amount.toString(),
-                                            weightUnit = viewModels.user.settings?.weightUnit,
-                                        )
-                                        navController.navigate("food_editor/EDIT_DETAILS")
+                                        viewModels.foodEntry.setCurrentAmount(it.foodEntry.amount)
+                                        navController.navigate("food_editor/${Constants.FoodMode.EDIT_AMOUNT}")
                                     },
                                     onDelete = {
                                         it.foodEntry.id?.let { logId -> viewModels.foodEntry.deleteFoodEntry(logId) }

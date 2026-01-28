@@ -1,15 +1,19 @@
 package fi.nutrifier.ui.components.inputs
 
+import android.util.Log
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -21,6 +25,7 @@ fun NutrientTextField(
     width: Dp = 96.dp,
     keyboardType: KeyboardType = KeyboardType.Number,
     editable: Boolean = true,
+    onConfirm: (() -> Unit)? = null,
     onChange: ((String) -> Unit)? = null,
 ) {
     if (editable) {
@@ -28,7 +33,13 @@ fun NutrientTextField(
             value = value,
             onValueChange = { if (onChange != null) { onChange(it) } },
             singleLine = true,
-            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = keyboardType),
+            keyboardOptions = KeyboardOptions.Default.copy(
+                keyboardType = keyboardType,
+                imeAction = ImeAction.Done,
+            ),
+            keyboardActions = KeyboardActions(
+                onDone = { if (onConfirm != null) onConfirm() }
+            ),
             colors = TextFieldDefaults.colors(
                 unfocusedContainerColor = MaterialTheme.colorScheme.surface
             ),
