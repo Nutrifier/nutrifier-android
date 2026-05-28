@@ -1,11 +1,7 @@
 package fi.nutrifier.ui.screens.food
 
-import android.util.Log
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -16,24 +12,22 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import fi.nutrifier.models.database.FoodEntry
-import fi.nutrifier.models.database.MealType
+import fi.nutrifier.models.database.FoodEntryRequest
 import fi.nutrifier.ui.components.buttons.BackButton
+import fi.nutrifier.ui.components.inputs.ActionButtons
 import fi.nutrifier.ui.components.layout.TopBar
 import fi.nutrifier.viewmodels.ViewModelWrapper
-import fi.nutrifier.ui.components.inputs.CancelSaveOption
 import fi.nutrifier.ui.components.inputs.NutrientTextField
 import fi.nutrifier.ui.screens.BaseScreen
 import fi.nutrifier.ui.screens.food.modes.CreateMode
 import fi.nutrifier.ui.screens.food.modes.EditMode
 import fi.nutrifier.ui.screens.food.modes.ViewMode
 import fi.nutrifier.utils.Alert
-import fi.nutrifier.utils.Constants
 import fi.nutrifier.utils.Constants.IS_DEV
 import fi.nutrifier.utils.ConversionUtils
+import fi.nutrifier.utils.Enums
 import fi.nutrifier.utils.FormattingUtils
 import java.time.LocalTime
 
@@ -51,19 +45,19 @@ fun FoodScreen(
     val isLoading by viewModels.foods.loading.collectAsState()
     var showDialog by remember { mutableStateOf<Alert?>(null) }
     var displayedCurrentAmount by remember { mutableStateOf("") }
-    val foodMode = Constants.FoodMode.valueOf(mode)
-
+    val foodMode = Enums.FoodMode.valueOf(mode)
+    val selectedDate by viewModels.foodEntry.selectedDate
 
     LaunchedEffect(viewModels.foods.selectedFood, foodMode) {
         when (foodMode) {
-            Constants.FoodMode.CREATE_ENTRY -> {
-                displayedCurrentAmount = when (viewModels.user.settings?.weightUnit) {
-                    Constants.WeightUnit.LB -> "1"
-                    Constants.WeightUnit.OZ -> "1"
+            Enums.FoodMode.CREATE_ENTRY -> {
+                displayedCurrentAmount = when (viewModels.settings.settings?.weightUnit) {
+                    Enums.FoodWeightUnit.POUNDS -> "1"
+                    Enums.FoodWeightUnit.OUNCES -> "1"
                     else -> "100"
                 }
             }
-            Constants.FoodMode.EDIT_AMOUNT -> {
+            Enums.FoodMode.EDIT_AMOUNT -> {
                 displayedCurrentAmount = viewModels.foodEntry.currentAmount.toString()
             }
             else -> null
@@ -76,8 +70,8 @@ fun FoodScreen(
         val value = input.toDoubleOrNull() ?: return
 
         val grams = ConversionUtils.convertWeight(
-            value = value,
-            weightUnit = viewModels.user.settings?.weightUnit,
+            weight = value,
+            foodWeightUnit = viewModels.settings.settings?.weightUnit,
             toGrams = true,
         )
 
@@ -92,26 +86,21 @@ fun FoodScreen(
     }
 
     fun onCreateEntry() {
-        viewModels.foods.selectedFood?.let {
-            val foodEntry = it.food?.id?.let { it1 ->
-                FoodEntry(
-                    date = viewModels.foodEntry.date.toString(),
-                    // TODO: Make time changeable
-                    time = FormattingUtils.formatLocalTimeToString(
-                        LocalTime.now()
-                    ),
-                    meal = viewModels.foodEntry.selectedMeal ?: MealType.SNACKS,
-                    userId = viewModels.foodEntry.getUserId(),
-                    foodId = it1,
-                    amount = viewModels.foodEntry.currentAmount, // Should never be anything than grams
-                    fineliId = it.food.fineliId,
-                )
-            }
-            if (foodEntry != null) {
-                viewModels.foodEntry.saveFoodEntry(foodEntry)
-                navController.navigateUp()
-            }
-        }
+        val food = viewModels.foods.selectedFood?.food ?: return
+
+        val foodEntryRequest = FoodEntryRequest(
+            amount = viewModels.foodEntry.currentAmount, // Should never be anything than grams
+            date = selectedDate.toString(),
+            // TODO: Make time changeable
+            time = FormattingUtils.formatLocalTimeToStringExcludeNanoSeconds(LocalTime.now()),
+            mealType = viewModels.foodEntry.selectedMeal ?: Enums.MealType.SNACKS,
+            unit = viewModels.settings.settings?.weightUnit ?: Enums.FoodWeightUnit.GRAMS,
+            fineliId = food.fineliId,
+            foodId =  if (food.fineliId != null) null else food.id
+        )
+
+        viewModels.foodEntry.saveFoodEntry(foodEntryRequest)
+        navController.navigateUp()
     }
 
     fun onEditAmount() {
@@ -126,17 +115,17 @@ fun FoodScreen(
 
     BaseScreen(
         floatingActionButton = {
-            if (foodMode == Constants.FoodMode.CREATE_ENTRY
-                || foodMode == Constants.FoodMode.EDIT_AMOUNT
+            if (foodMode == Enums.FoodMode.CREATE_ENTRY
+                || foodMode == Enums.FoodMode.EDIT_AMOUNT
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     if (IS_DEV) {
                         Column {
-                            Constants.WeightUnit.entries.filter { it != viewModels.user.settings?.weightUnit }.forEach {
+                            Enums.FoodWeightUnit.entries.filter { it != viewModels.settings.settings?.weightUnit }.forEach {
                                 Text(
                                     text = "${ConversionUtils.convertWeight(
-                                        value = viewModels.foodEntry.currentAmount,
-                                        weightUnit = it,
+                                        weight = viewModels.foodEntry.currentAmount,
+                                        foodWeightUnit = it,
                                         roundUp = true,
                                     )} ${it.displayName}",
                                     color = MaterialTheme.colorScheme.outline,
@@ -146,9 +135,9 @@ fun FoodScreen(
                     }
                     NutrientTextField(
                         value = displayedCurrentAmount,
-                        suffixText = viewModels.user.settings?.weightUnit?.displayName ?: "g",
+                        suffixText = viewModels.settings.settings?.weightUnit?.displayName ?: "g",
                         width = 124.dp,
-                        onConfirm = { if (foodMode == Constants.FoodMode.CREATE_ENTRY) {
+                        onConfirm = { if (foodMode == Enums.FoodMode.CREATE_ENTRY) {
                             onCreateEntry()
                         } else {
                             onEditAmount()
@@ -160,32 +149,35 @@ fun FoodScreen(
         topBar = { TopBar(subtitle = { BackButton(navController) }) },
         bottomBar = {
             when (foodMode) {
-                Constants.FoodMode.CREATE -> {
-                    CancelSaveOption(onClose = { navController.navigateUp() }) {
-                        onCreateFood()
-                    }
+                Enums.FoodMode.CREATE -> {
+                    ActionButtons(
+                        onSecondaryAction = { navController.navigateUp() },
+                        onPrimaryAction = { onCreateFood() },
+                    )
                 }
-                Constants.FoodMode.CREATE_ENTRY -> {
-                    CancelSaveOption(onClose = { navController.navigateUp() }) {
-                        onCreateEntry()
-                    }
+                Enums.FoodMode.CREATE_ENTRY -> {
+                    ActionButtons(
+                        onSecondaryAction = { navController.navigateUp() },
+                        onPrimaryAction = { onCreateEntry() },
+                    )
                 }
-                Constants.FoodMode.EDIT_AMOUNT -> {
-                    CancelSaveOption(onClose = { navController.navigateUp() }) {
-                        onEditAmount()
-                    }
+                Enums.FoodMode.EDIT_AMOUNT -> {
+                    ActionButtons(
+                        onSecondaryAction = { navController.navigateUp() },
+                        onPrimaryAction = { onEditAmount() },
+                    )
                 }
                 else -> null
             }
         },
-        screen = Constants.Screen.FOOD_EDIT,
+        screen = Enums.Screen.FOOD_EDIT,
         viewModels = viewModels,
         navController = navController,
     ) {
         when (foodMode) {
-            Constants.FoodMode.CREATE -> CreateMode(navController, viewModels)
-            Constants.FoodMode.CREATE_ENTRY -> EditMode(viewModels, foodMode)
-            Constants.FoodMode.EDIT_AMOUNT -> EditMode(viewModels, foodMode)
+            Enums.FoodMode.CREATE -> CreateMode(navController, viewModels)
+            Enums.FoodMode.CREATE_ENTRY -> EditMode(viewModels, foodMode)
+            Enums.FoodMode.EDIT_AMOUNT -> EditMode(viewModels, foodMode)
             else -> ViewMode(navController, viewModels)
         }
     }

@@ -12,39 +12,39 @@ import androidx.compose.ui.unit.dp
 import fi.nutrifier.ui.components.inputs.Dropdown
 import fi.nutrifier.ui.components.inputs.NumberCounter
 import fi.nutrifier.ui.components.misc.LabeledComponent
-import fi.nutrifier.utils.Constants
+import fi.nutrifier.utils.Enums
 import fi.nutrifier.viewmodels.ViewModelWrapper
 
 @Composable
 internal fun TrackingSection(viewModels: ViewModelWrapper) {
     Section("Tracking", "Set specific tracking tools and helpers.") {
-        LabeledComponent("Diet:") {
+        LabeledComponent(label = "Diet:") {
             Dropdown(
-                value = viewModels.user.settings?.diet,
-                items = Constants.Diet.entries.toList(),
+                value = viewModels.settings.settings?.diet,
+                items = Enums.Diet.entries.toList(),
                 modifier = Modifier.width(180.dp),
-                labelMapper = { it.displayName }
+                labelMapper = { it.name }
             ) {
-                val updatedSettings = viewModels.user.settings?.copy(diet =
-                    Constants.Diet.valueOf(it.name))
-                if (updatedSettings != null) viewModels.user.updateSettings(updatedSettings)
+                val updatedSettings = viewModels.settings.settings?.copy(diet =
+                    Enums.Diet.valueOf(it.name))
+                if (updatedSettings != null) viewModels.settings.updateSettings(updatedSettings)
             }
         }
-        LabeledComponent("Time between meals") {
+        LabeledComponent(label = "Time between meals") {
             NumberCounter(
-                value = viewModels.user.settings?.timeBetweenMeals ?: 3,
+                value = viewModels.settings.settings?.timeBetweenMeals?.toDouble() ?: 3.0,
                 onNumberChange = {
-                    val updatedSettings = viewModels.user.settings?.copy(timeBetweenMeals = it.toInt())
-                    if (updatedSettings != null) viewModels.user.updateSettings(updatedSettings)
+                    val updatedSettings = viewModels.settings.settings?.copy(timeBetweenMeals = it.toInt())
+                    if (updatedSettings != null) viewModels.settings.updateSettings(updatedSettings)
                 },
             )
         }
         Row(
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Switch(viewModels.user.settings?.proteinEfficiencyEnabled ?: true, onCheckedChange = {
-                val updatedSettings = viewModels.user.settings?.copy(proteinEfficiencyEnabled = it)
-                if (updatedSettings != null) viewModels.user.updateSettings(updatedSettings)
+            Switch(viewModels.settings.settings?.proteinEfficiencyEnabled ?: true, onCheckedChange = {
+                val updatedSettings = viewModels.settings.settings?.copy(proteinEfficiencyEnabled = it)
+                if (updatedSettings != null) viewModels.settings.updateSettings(updatedSettings)
             })
             Spacer(modifier = Modifier.width(8.dp))
             Text("Show protein efficiency values")

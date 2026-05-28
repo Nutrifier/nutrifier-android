@@ -21,7 +21,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
@@ -32,7 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import fi.nutrifier.R
-import fi.nutrifier.models.database.Recipe
+import fi.nutrifier.models.room.Recipe
 import fi.nutrifier.ui.components.misc.RecipeImage
 import fi.nutrifier.viewmodels.RecipeUnderInspectionViewModel
 

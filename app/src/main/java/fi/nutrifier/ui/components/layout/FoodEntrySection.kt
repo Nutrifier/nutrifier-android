@@ -14,7 +14,7 @@ fun FoodEntrySection(
     foodEntries: List<FoodEntry>,
     viewModels: ViewModelWrapper,
 ) {
-    TitledContainer(title) {
+    TitledContainer(title = title) {
         if (foodEntries.isEmpty()) {
             Text(
                 text = "No foods logged.",

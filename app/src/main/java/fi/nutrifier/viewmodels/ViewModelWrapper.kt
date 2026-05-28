@@ -27,7 +27,12 @@ data class ViewModelWrapper (
     val authViewModel: AuthViewModel,
     val barcode: BarcodeScannerViewModel,
     val foods: FoodsViewModel,
-    val user: UserViewModel,
+    val user: UserSessionViewModel,
+    val settings: SettingsViewModel,
+    val goals: GoalsViewModel,
+    val profile: ProfileViewModel,
+    val weight: WeightViewModel,
+    val analytics: AnalyticsViewModel
 ) {
     val alerts: Flow<Alert> = merge(
         favourite.alert,
@@ -41,5 +46,10 @@ data class ViewModelWrapper (
         barcode.alert,
         foods.alert,
         user.alert,
+        settings.alert,
+        goals.alert,
+        profile.alert,
+        weight.alert,
+        analytics.alert
     )
 }

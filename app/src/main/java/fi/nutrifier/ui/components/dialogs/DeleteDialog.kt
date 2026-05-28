@@ -1,28 +1,9 @@
 package fi.nutrifier.ui.components.dialogs
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
+import fi.nutrifier.ui.components.inputs.ActionButtons
 import fi.nutrifier.viewmodels.ViewModelWrapper
 
 /**
@@ -37,6 +18,7 @@ import fi.nutrifier.viewmodels.ViewModelWrapper
 fun DeleteDialog(
     navController: NavController,
     viewModels: ViewModelWrapper,
+    isVisible: Boolean,
     exitDialog: () -> Unit
 ) {
     fun handleDelete() {
@@ -45,32 +27,19 @@ fun DeleteDialog(
         navController.navigate("cookbook")
     }
 
-    Dialog(onDismissRequest = { exitDialog() }) {
-        Column(
-            modifier = Modifier
-                .clip(RoundedCornerShape(8.dp))
-                .background(MaterialTheme.colorScheme.surface)
-                .padding(24.dp)
-        ) {
-            Text(
-                text = "Are you sure you want to delete this recipe?",
-                style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 24.sp)
-                )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text("This action cannot be undone!")
-            Spacer(modifier = Modifier.height(16.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
-            ) {
-                TextButton(onClick = { exitDialog() }) {
-                    Text("Cancel")
-                }
-                Spacer(modifier = Modifier.width(8.dp))
-                Button(onClick = { handleDelete() }) {
-                    Text("Delete")
-                }
-            }
+    NutrifierDialog(
+        isVisible = isVisible,
+        onDismiss = { exitDialog() },
+        title = "Are you sure you want to delete this recipe?",
+        actionButtons = {
+            ActionButtons(
+                onSecondaryAction = { exitDialog() },
+                onPrimaryAction = { handleDelete() },
+                secondaryActionButtonText = "Cancel",
+                primaryActionButtonText = "Delete",
+            )
         }
+    ) {
+        Text("This action cannot be undone!")
     }
 }

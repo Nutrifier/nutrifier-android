@@ -73,7 +73,7 @@ fun <T> Dropdown(
 
     Surface(
         shape = shape,
-        color = MaterialTheme.colorScheme.surfaceVariant,
+        color = MaterialTheme.colorScheme.surface,
         modifier = modifier.height(48.dp),
         onClick = { onClick() },
     ) {
@@ -89,13 +89,27 @@ fun <T> Dropdown(
                     value = if (value != null) labelMapper(value) else "Select a value",
                     onValueChange = { },
                     cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
-                    textStyle = TextStyle(fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface),
+                    textStyle = TextStyle(
+                        fontSize = 16.sp,
+                        color = if (value != null) {
+                            MaterialTheme.colorScheme.onSurface
+                        } else {
+                            MaterialTheme.colorScheme.outline
+                        },
+                    ),
                     readOnly = true,
                     singleLine = true,
                     modifier = Modifier.weight(1f)
                 )
             } else {
-                Text(if (value != null) labelMapper(value) else "Select a value")
+                Text(
+                    text = if (value != null) labelMapper(value) else "Select a value",
+                    color = if (value != null) {
+                        MaterialTheme.colorScheme.onSurface
+                    } else {
+                        MaterialTheme.colorScheme.outline
+                    },
+                )
             }
             IconButton(
                 onClick = { onClick() },

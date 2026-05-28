@@ -3,7 +3,7 @@ package fi.nutrifier.viewmodels
 import android.content.SharedPreferences
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.viewModelScope
-import fi.nutrifier.models.database.Recipe
+import fi.nutrifier.models.room.Recipe
 import fi.nutrifier.models.room.FavouriteRecipe
 import fi.nutrifier.repositories.room.TodaysSpecialsRepository
 import fi.nutrifier.utils.ConversionUtils.toRecipe

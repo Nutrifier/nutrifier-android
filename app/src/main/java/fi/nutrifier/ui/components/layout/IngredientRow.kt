@@ -8,10 +8,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,7 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import fi.nutrifier.models.database.Ingredient
+import fi.nutrifier.models.room.RecipeIngredient
 import fi.nutrifier.ui.components.buttons.RemoveButton
 import fi.nutrifier.utils.ConversionUtils.convertToFraction
 import fi.nutrifier.utils.FormattingUtils
@@ -41,13 +39,15 @@ import fi.nutrifier.viewmodels.ViewModelWrapper
 @Composable
 fun IngredientRow(
     index: Int,
-    ingredient: Ingredient,
+    ingredient: RecipeIngredient,
     viewModels: ViewModelWrapper? = null,
     handleDelete: ((Int) -> Unit)? = null,
 ) {
     val unitsToIgnoreFraction = listOf("g", "ml")
-    val amountWithFraction: List<String> = if (!unitsToIgnoreFraction.any { ingredient.unit.lowercase() == it }) {
-        convertToFraction(ingredient.amount)
+    val amountWithFraction: List<String> = if (!unitsToIgnoreFraction.any {
+        ingredient.unit.displayName.lowercase() == it
+    }) {
+        convertToFraction(ingredient.amount.toDouble())
     } else listOf(FormattingUtils.roundUp(ingredient.amount.toDouble()).toString())
     var showSwipe by remember { mutableStateOf(true) }
     //val swipeState = rememberDismissState()
@@ -93,7 +93,7 @@ fun IngredientRow(
                     style = MaterialTheme.typography.titleMedium,
                 )
                 Text(
-                    text = "${if (amountWithFraction.size > 1) "${amountWithFraction[1]} " else ""}${ingredient.unit.lowercase()}",
+                    text = "${if (amountWithFraction.size > 1) "${amountWithFraction[1]} " else ""}${ingredient.unit.displayName}",
                     style = MaterialTheme.typography.bodyMedium,
                 )
             }

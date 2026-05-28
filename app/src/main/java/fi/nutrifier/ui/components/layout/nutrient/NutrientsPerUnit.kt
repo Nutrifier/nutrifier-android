@@ -12,29 +12,31 @@ import androidx.compose.ui.unit.dp
 import fi.nutrifier.ui.components.inputs.NutrientInputRow
 import fi.nutrifier.ui.components.layout.TitledContainer
 import fi.nutrifier.utils.ConversionUtils
+import fi.nutrifier.utils.Enums
 import fi.nutrifier.utils.FormattingUtils
 import fi.nutrifier.viewmodels.ViewModelWrapper
+import javax.crypto.Mac
 
 @Composable
 fun NutrientsPerUnit(viewModels: ViewModelWrapper) {
     val energy = ConversionUtils.convertEnergy(
-        value = viewModels.foods.selectedFood?.food?.calories ?: 0.0,
-        energyUnit = viewModels.user.settings?.energyUnit,
+        energy = viewModels.foods.selectedFood?.food?.calories ?: 0.0,
+        energyUnit = viewModels.settings.settings?.energyUnit,
         roundUp = true,
     )
     val fats = ConversionUtils.convertMacroWeight(
         value = viewModels.foods.selectedFood?.food?.fat ?: 0.0,
-        weightUnit = viewModels.user.settings?.macroWeightUnit,
+        weightUnit = Enums.MacroWeightUnit.GRAMS,
         roundUp = true,
     )
     val carbs = ConversionUtils.convertMacroWeight(
         value = viewModels.foods.selectedFood?.food?.carbs ?: 0.0,
-        weightUnit = viewModels.user.settings?.macroWeightUnit,
+        weightUnit = Enums.MacroWeightUnit.GRAMS,
         roundUp = true,
     )
     val protein = ConversionUtils.convertMacroWeight(
         value = viewModels.foods.selectedFood?.food?.protein ?: 0.0,
-        weightUnit = viewModels.user.settings?.macroWeightUnit,
+        weightUnit = Enums.MacroWeightUnit.GRAMS,
         roundUp = true,
     )
     val pev = FormattingUtils.roundUp(viewModels.foods.selectedFood?.pev)
@@ -51,29 +53,29 @@ fun NutrientsPerUnit(viewModels: ViewModelWrapper) {
             NutrientInputRow(
                 text = "Energy",
                 value = energy.toString(),
-                suffixText = viewModels.user.settings?.energyUnit?.displayName ?: "kcal",
+                suffixText = viewModels.settings.settings?.energyUnit?.displayName ?: "kcal",
                 width = 120.dp,
                 editable = false
             )
             NutrientInputRow(
                 text = "Fat",
                 value = fats.toString(),
-                suffixText = viewModels.user.settings?.macroWeightUnit?.displayName ?: "g",
+                suffixText = "g",
                 editable = false
             )
             NutrientInputRow(
                 text = "Carbohydrates",
                 value = carbs.toString(),
-                suffixText = viewModels.user.settings?.macroWeightUnit?.displayName ?: "g",
+                suffixText = "g",
                 editable = false
             )
             NutrientInputRow(
                 text = "Protein",
                 value = protein.toString(),
-                suffixText = viewModels.user.settings?.macroWeightUnit?.displayName ?: "g",
+                suffixText = "g",
                 editable = false
             )
-            if (viewModels.user.settings?.proteinEfficiencyEnabled == true) {
+            if (viewModels.settings.settings?.proteinEfficiencyEnabled == true) {
                 HorizontalDivider(
                     Modifier,
                     DividerDefaults.Thickness,

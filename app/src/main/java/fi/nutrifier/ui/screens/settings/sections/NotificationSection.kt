@@ -18,9 +18,9 @@ internal fun NotificationSection(viewModels: ViewModelWrapper) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Switch(viewModels.user.settings?.mealReminderEnabled ?: true, onCheckedChange = {
-                val updatedSettings = viewModels.user.settings?.copy(mealReminderEnabled = it)
-                if (updatedSettings != null) viewModels.user.updateSettings(updatedSettings)
+            Switch(viewModels.settings.settings?.mealReminderEnabled ?: true, onCheckedChange = {
+                val updatedSettings = viewModels.settings.settings?.copy(mealReminderEnabled = it)
+                if (updatedSettings != null) viewModels.settings.updateSettings(updatedSettings)
             })
             Spacer(modifier = Modifier.width(8.dp))
             Text("Meal reminders")
@@ -28,9 +28,9 @@ internal fun NotificationSection(viewModels: ViewModelWrapper) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Switch(viewModels.user.settings?.motivationMessagesEnabled ?: true, onCheckedChange = {
-                val updatedSettings = viewModels.user.settings?.copy(motivationMessagesEnabled = it)
-                if (updatedSettings != null) viewModels.user.updateSettings(updatedSettings)
+            Switch(viewModels.settings.settings?.motivationMessagesEnabled ?: true, onCheckedChange = {
+                val updatedSettings = viewModels.settings.settings?.copy(motivationMessagesEnabled = it)
+                if (updatedSettings != null) viewModels.settings.updateSettings(updatedSettings)
             })
             Spacer(modifier = Modifier.width(8.dp))
             Text("Motivation messages")
@@ -38,9 +38,9 @@ internal fun NotificationSection(viewModels: ViewModelWrapper) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Switch(viewModels.user.settings?.weighInReminderEnabled ?: true, onCheckedChange = {
-                val updatedSettings = viewModels.user.settings?.copy(weighInReminderEnabled = it)
-                if (updatedSettings != null) viewModels.user.updateSettings(updatedSettings)
+            Switch(viewModels.settings.settings?.weighInReminderEnabled ?: true, onCheckedChange = {
+                val updatedSettings = viewModels.settings.settings?.copy(weighInReminderEnabled = it)
+                if (updatedSettings != null) viewModels.settings.updateSettings(updatedSettings)
             })
             Spacer(modifier = Modifier.width(8.dp))
             Text("Weigh in reminders")

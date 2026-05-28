@@ -1,14 +1,11 @@
 package fi.nutrifier.ui.components.layout
 
-import android.widget.ToggleButton
+import android.util.Log
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Switch
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -16,76 +13,166 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import fi.nutrifier.models.database.NutrientSummary
 import fi.nutrifier.ui.components.layout.nutrient.progress.indicator.NutrientProgressIndicator
 import fi.nutrifier.ui.components.switches.NutrientModeSwitch
-import fi.nutrifier.utils.Constants
-import fi.nutrifier.viewmodels.UserViewModel
+import fi.nutrifier.utils.ConversionUtils
+import fi.nutrifier.utils.Enums
+import fi.nutrifier.viewmodels.ViewModelWrapper
+import java.time.LocalDate
 
 @Composable
-fun NutrientProgressSection(userViewModel: UserViewModel, nutrientSummary: NutrientSummary) {
+fun NutrientProgressSection(viewModels: ViewModelWrapper) {
     var showMacros by remember { mutableStateOf(false) }
-    val isLineMode = userViewModel.settings?.nutrientDisplayMode == Constants.NutrientDisplayMode.LINE
+    val isLineMode = viewModels.settings.settings?.nutrientDisplayMode == Enums.NutrientDisplayMode.LINE
 
-    Box(
-        modifier = Modifier.fillMaxWidth(),
-        contentAlignment = Alignment.TopEnd,
-    ) {
-        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-            Box(modifier = Modifier.align(Alignment.CenterStart).padding(start = 12.dp,
-                top = if (isLineMode) 132.dp else 80.dp)) {
-                NutrientProgressIndicator(
-                    userViewModel = userViewModel,
-                    value = nutrientSummary.fats[userViewModel.settings?.macroWeightUnit ?: Constants.MacroWeightUnit.G] ?: 0.0,
-                    max = 50,
-                    title = "Fats",
-                    color = MaterialTheme.colorScheme.errorContainer,
-                    size = "small",
-                    suffix = userViewModel.settings?.macroWeightUnit?.displayName ?: "g",
-                )
-            }
-            Box(modifier = Modifier.align(Alignment.BottomCenter).padding(
-                top = if (isLineMode) 132.dp else 156.dp
-            )) {
-                NutrientProgressIndicator(
-                    userViewModel = userViewModel,
-                    value = nutrientSummary.carbs[userViewModel.settings?.macroWeightUnit ?: Constants.MacroWeightUnit.G] ?: 0.0,
-                    max = 180,
-                    title = "Carbohydrates",
-                    color = MaterialTheme.colorScheme.primary,
-                    size = "small",
-                    suffix = userViewModel.settings?.macroWeightUnit?.displayName ?: "g",
-                )
-            }
-            Box(modifier = Modifier.align(Alignment.CenterEnd).padding(end = 12.dp,
-                top = if (isLineMode) 132.dp else 80.dp
-            )) {
-                NutrientProgressIndicator(
-                    userViewModel = userViewModel,
-                    value = nutrientSummary.protein[userViewModel.settings?.macroWeightUnit ?: Constants.MacroWeightUnit.G] ?: 0.0,
-                    max = 150,
-                    title = "Protein",
-                    color = MaterialTheme.colorScheme.tertiary,
-                    size = "small",
-                    suffix = userViewModel.settings?.macroWeightUnit?.displayName ?: "g",
-                )
-            }
-            if (isLineMode) {
-                Spacer(modifier = Modifier.size(24.dp))
-            }
-            Box(modifier = Modifier.align(Alignment.TopCenter)) {
-                NutrientProgressIndicator(
-                    userViewModel = userViewModel,
-                    value = nutrientSummary.energy[userViewModel.settings?.energyUnit ?: Constants.EnergyUnit.KCAL] ?: 0.0,
-                    max = 1500,
-                    title = "Energy",
-                    color = MaterialTheme.colorScheme.secondary,
-                    suffix = userViewModel.settings?.energyUnit?.displayName ?: "kcal",
-                    onClick = { showMacros = !showMacros }
-                )
-            }
+    fun determineValueToShow(nutrition: Enums.Nutrition): Double {
+        return when (nutrition) {
+            Enums.Nutrition.CALORIES ->
+                if (viewModels.foodEntry.summary?.caloriesConsumed != null) {
+                    ConversionUtils.convertEnergy(
+                        energy = viewModels.foodEntry.summary!!.caloriesConsumed,
+                        energyUnit = viewModels.settings.settings?.energyUnit,
+                    )
+                } else 0.0
+            Enums.Nutrition.FAT ->
+                viewModels.foodEntry.summary?.fatConsumed ?: 0.0
+            Enums.Nutrition.CARBS ->
+                viewModels.foodEntry.summary?.carbsConsumed ?: 0.0
+            else ->
+                viewModels.foodEntry.summary?.proteinConsumed ?: 0.0
         }
-        NutrientModeSwitch(userViewModel)
+    }
+
+    // If max value has a value for overall nutrient, we use that - else current goal period
+    fun determineMaxValueToUse(nutrition: Enums.Nutrition): Double {
+        if (viewModels.foodEntry.summary == null && viewModels.goals.goals == null) return 0.0
+
+        val isInPast = LocalDate.now().isAfter(viewModels.foodEntry.selectedDate.value)
+
+        val useDailySummaryValue = when (nutrition) {
+            Enums.Nutrition.CALORIES -> if (viewModels.foodEntry.summary?.calorieTarget != null && isInPast) {
+                Log.d("NutrientProgressSection", "Using summary: ${viewModels.foodEntry.summary?.calorieTarget}")
+                viewModels.foodEntry.summary!!.calorieTarget
+            } else {
+                Log.d("NutrientProgressSection", "Using goal: ${viewModels.goals.goals?.dailyCalorieTarget ?: 1.0}")
+                viewModels.goals.goals?.dailyCalorieTarget ?: 1.0
+            }
+            Enums.Nutrition.FAT -> if (viewModels.foodEntry.summary?.fatTarget != null && isInPast) {
+                viewModels.foodEntry.summary!!.fatTarget
+            } else viewModels.goals.goals?.dailyFatTarget ?: 1.0
+            Enums.Nutrition.CARBS -> if (viewModels.foodEntry.summary?.carbTarget != null && isInPast) {
+                viewModels.foodEntry.summary!!.carbTarget
+            } else viewModels.goals.goals?.dailyCalorieTarget ?: 1.0
+            Enums.Nutrition.PROTEIN -> if (viewModels.foodEntry.summary?.proteinTarget != null && isInPast) {
+                viewModels.foodEntry.summary!!.proteinTarget
+            } else viewModels.goals.goals?.dailyProteinTarget ?: 1.0
+        }
+
+        // TODO: First use dailySummary target values, then goal targets
+        return when (nutrition) {
+            Enums.Nutrition.CALORIES ->
+                ConversionUtils.convertEnergy(
+                    energy = useDailySummaryValue,
+                    energyUnit = viewModels.settings.settings?.energyUnit
+                )
+            Enums.Nutrition.FAT -> viewModels.goals.goals?.dailyFatTarget ?: 1.0
+            Enums.Nutrition.CARBS -> viewModels.goals.goals?.dailyCarbTarget ?: 1.0
+            else -> viewModels.goals.goals?.dailyProteinTarget ?: 1.0
+        }
+    }
+
+    BoxWithConstraints(
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        val radius = maxWidth * 0.10f
+        val centerYOffset = if (isLineMode) maxHeight * 0.20f else maxHeight * 0.16f
+
+        Box(modifier = Modifier.align(Alignment.TopCenter)) {
+            NutrientProgressIndicator(
+                settingsViewModel = viewModels.settings,
+                value = determineValueToShow(Enums.Nutrition.CALORIES),
+                max = determineMaxValueToUse(Enums.Nutrition.CALORIES),
+                title = "Energy",
+                color = MaterialTheme.colorScheme.secondary,
+                valueColor = if (viewModels.foodEntry.summary?.caloriesConsumed == null) {
+                    MaterialTheme.colorScheme.outline
+                } else {
+                    MaterialTheme.colorScheme.onBackground
+                },
+                maxColor = if (viewModels.foodEntry.summary == null && viewModels.goals.currentGoalPeriod == null) {
+                    MaterialTheme.colorScheme.outline
+                } else {
+                    MaterialTheme.colorScheme.onBackground
+                },
+                suffix = viewModels.settings.settings?.energyUnit?.displayName ?: "kcal",
+                onClick = { showMacros = !showMacros }
+            )
+        }
+        Box(modifier = Modifier.align(Alignment.CenterStart).padding(start = radius, top = centerYOffset)) {
+            NutrientProgressIndicator(
+                settingsViewModel = viewModels.settings,
+                value = determineValueToShow(Enums.Nutrition.FAT),
+                max = determineMaxValueToUse(Enums.Nutrition.FAT),
+                title = "Fats",
+                color = MaterialTheme.colorScheme.errorContainer,
+                valueColor = if (viewModels.foodEntry.summary?.caloriesConsumed == null) {
+                    MaterialTheme.colorScheme.outline
+                } else {
+                    MaterialTheme.colorScheme.onBackground
+                },
+                maxColor = if (viewModels.foodEntry.summary == null && viewModels.goals.currentGoalPeriod == null) {
+                    MaterialTheme.colorScheme.outline
+                } else {
+                    MaterialTheme.colorScheme.onBackground
+                },
+                size = Enums.IndicatorSize.SMALL,
+                suffix = "g",
+            )
+        }
+        Box(modifier = Modifier.align(Alignment.BottomCenter).padding(top = if (isLineMode) centerYOffset else radius * 2 + centerYOffset )) {
+            NutrientProgressIndicator(
+                settingsViewModel = viewModels.settings,
+                value = determineValueToShow(Enums.Nutrition.CARBS),
+                max = determineMaxValueToUse(Enums.Nutrition.CARBS),
+                title = "Carbohydrates",
+                color = MaterialTheme.colorScheme.primary,
+                valueColor = if (viewModels.foodEntry.summary?.caloriesConsumed == null) {
+                    MaterialTheme.colorScheme.outline
+                } else {
+                    MaterialTheme.colorScheme.onBackground
+                },
+                maxColor = if (viewModels.foodEntry.summary == null && viewModels.goals.currentGoalPeriod == null) {
+                    MaterialTheme.colorScheme.outline
+                } else {
+                    MaterialTheme.colorScheme.onBackground
+                },
+                size = Enums.IndicatorSize.SMALL,
+                suffix = "g",
+            )
+        }
+        Box(modifier = Modifier.align(Alignment.CenterEnd).padding(end = radius, top = centerYOffset)) {
+            NutrientProgressIndicator(
+                settingsViewModel = viewModels.settings,
+                value = determineValueToShow(Enums.Nutrition.PROTEIN),
+                max = determineMaxValueToUse(Enums.Nutrition.PROTEIN),
+                title = "Protein",
+                color = MaterialTheme.colorScheme.tertiary,
+                valueColor = if (viewModels.foodEntry.summary?.caloriesConsumed == null) {
+                    MaterialTheme.colorScheme.outline
+                } else {
+                    MaterialTheme.colorScheme.onBackground
+                },
+                maxColor = if (viewModels.foodEntry.summary == null && viewModels.goals.currentGoalPeriod == null) {
+                    MaterialTheme.colorScheme.outline
+                } else {
+                    MaterialTheme.colorScheme.onBackground
+                },
+                size = Enums.IndicatorSize.SMALL,
+                suffix = "g",
+            )
+        }
+        Box(modifier = Modifier.align(Alignment.TopEnd)) {
+            NutrientModeSwitch(viewModels.settings)
+        }
     }
 }

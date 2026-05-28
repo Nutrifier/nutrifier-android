@@ -6,11 +6,14 @@ data class Result<T>(
     val message: String? = null,
 ){
     companion object {
-        fun <T> success(result: T?): Result<T> {
-            return if (result != null) Result(value = result) else Result()
+        fun <T> success(value: T?): Result<T> {
+            return if (value != null) Result(value = value) else Result()
         }
-        fun <T> fail(result: Int, message: String? = null): Result<T> {
-            return Result(errorCode = result)
+        fun <T> fail(errorCode: Int, message: String? = null): Result<T> {
+            return Result(
+                errorCode = errorCode,
+                message = message,
+            )
         }
     }
 

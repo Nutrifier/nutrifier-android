@@ -1,6 +1,8 @@
 package fi.nutrifier.ui.screens
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -14,17 +16,18 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import fi.nutrifier.ui.components.buttons.MockButton
 import fi.nutrifier.ui.components.dialogs.DevDialog
-import fi.nutrifier.utils.Constants
 import fi.nutrifier.utils.Constants.IS_DEV
+import fi.nutrifier.utils.Enums
 import fi.nutrifier.viewmodels.ViewModelWrapper
 
 @Composable
 fun BaseScreen(
     topBar: @Composable () -> Unit,
     bottomBar: @Composable () -> Unit,
-    screen: Constants.Screen,
+    screen: Enums.Screen,
     viewModels: ViewModelWrapper,
     navController: NavController,
+    padding: PaddingValues? = null,
     floatingActionButton: (@Composable () -> Unit)? = null,
     content: @Composable () -> Unit,
 ) {
@@ -33,6 +36,7 @@ fun BaseScreen(
     Scaffold(
         topBar = { Column { topBar() }},
         bottomBar = { Column { bottomBar() }},
+        modifier = Modifier.imePadding(),
         floatingActionButton = {
             Column(horizontalAlignment = Alignment.End) {
                 if (IS_DEV) MockButton { showMockDialog = true }
@@ -40,10 +44,10 @@ fun BaseScreen(
             }
         },
     ) {
-        Column(Modifier.padding(it).padding(horizontal = 24.dp)) {
+        Column(modifier = Modifier.padding(padding ?: it).padding(horizontal = 24.dp)) {
             content()
-            if (showMockDialog) {
-                DevDialog(screen, viewModels, navController) { showMockDialog = false }
+            DevDialog(screen, viewModels, navController, showMockDialog) {
+                showMockDialog = false
             }
         }
     }

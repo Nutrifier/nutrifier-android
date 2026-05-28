@@ -1,15 +1,14 @@
 package fi.nutrifier.models.database
 
-import fi.nutrifier.utils.Constants
+import fi.nutrifier.utils.Enums
 
 data class UserSettings(
-    val weightUnit: Constants.WeightUnit,
-    val macroWeightUnit: Constants.MacroWeightUnit,
-    val energyUnit: Constants.EnergyUnit,
-    val nutrientDisplayMode: Constants.NutrientDisplayMode,
-    val language: Constants.Language,
+    val weightUnit: Enums.FoodWeightUnit,
+    val energyUnit: Enums.EnergyUnit,
+    val nutrientDisplayMode: Enums.NutrientDisplayMode,
+    val language: Enums.Language,
     val timeBetweenMeals: Int,
-    val diet: Constants.Diet,
+    val diet: Enums.Diet,
     val weekStartsOn: Int,
     val proteinEfficiencyEnabled: Boolean,
     val mealReminderEnabled: Boolean,

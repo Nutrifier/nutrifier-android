@@ -4,6 +4,7 @@ import android.content.SharedPreferences
 import android.util.Log
 import androidx.lifecycle.viewModelScope
 import fi.nutrifier.models.database.AuthRequest
+import fi.nutrifier.models.database.RegisterRequest
 import fi.nutrifier.repositories.database.AuthRepository
 import fi.nutrifier.utils.AlertType
 import fi.nutrifier.utils.SharedPreferencesManager
@@ -38,13 +39,16 @@ class AuthViewModel(
         }
     }
 
-    fun register(authRequest: AuthRequest, callback: (token: String) -> Unit) {
+    fun register(registerRequest: RegisterRequest, callback: (token: String) -> Unit) {
         setLoading(true)
+        Log.d("AuthViewModel", "register 1")
 
         viewModelScope.launch {
             try {
                 // Calling the api for auth token
-                val response = repository.register(authRequest)
+                Log.d("AuthViewModel", "register 2")
+
+                val response = repository.register(registerRequest)
                 if (response.isSuccessful() && response.value != null) {
                     Log.d("RegisterResponse", response.value.toString())
 
@@ -65,6 +69,8 @@ class AuthViewModel(
                 }
                 setLoading(false)
             } catch (e: Exception) {
+                Log.d("AuthViewModel", "register error $e")
+
                 showAlert("Error: ${e.localizedMessage}")
             }
         }

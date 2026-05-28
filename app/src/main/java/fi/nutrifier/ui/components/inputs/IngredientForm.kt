@@ -23,7 +23,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -31,8 +31,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import fi.nutrifier.models.database.Ingredient
-import fi.nutrifier.utils.Constants
+import fi.nutrifier.models.room.RecipeIngredient
+import fi.nutrifier.utils.Enums
 import fi.nutrifier.utils.ValidatorUtils
 
 /**
@@ -43,10 +43,10 @@ import fi.nutrifier.utils.ValidatorUtils
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun IngredientForm(addIngredient: (Ingredient) -> Unit) {
+fun IngredientForm(addIngredient: (RecipeIngredient) -> Unit) {
     var name: String by remember { mutableStateOf("") }
-    var amount: Int by remember { mutableIntStateOf(1) }
-    var unit: String by remember { mutableStateOf("") }
+    var amount: Double by remember { mutableDoubleStateOf(1.0) }
+    var unit: Enums.IngredientUnit by remember { mutableStateOf(Enums.IngredientUnit.G) }
     var nameError by remember { mutableStateOf(false) }
     var amountError by remember { mutableStateOf(false) }
     var unitError by remember { mutableStateOf(false) }
@@ -54,11 +54,10 @@ fun IngredientForm(addIngredient: (Ingredient) -> Unit) {
     fun handleIngredientSave() {
         nameError = !ValidatorUtils.ingredientName(name)
         amountError = !ValidatorUtils.ingredientAmount(amount)
-        unitError = !ValidatorUtils.ingredientUnit(unit)
 
         if (!nameError && !amountError && !unitError) {
             addIngredient(
-                Ingredient(
+                RecipeIngredient(
                     name = name,
                     unit = unit,
                     amount = amount.toFloat(),
@@ -104,8 +103,8 @@ fun IngredientForm(addIngredient: (Ingredient) -> Unit) {
     Spacer(modifier = Modifier.height(8.dp))
     NumberCounter(
         value = amount,
-        max = 1000,
-        onNumberChange = { amount = it.toInt() },
+        max = 1000.0,
+        onNumberChange = { amount = it },
         editable = true
     )
     Spacer(modifier = Modifier.height(16.dp))
@@ -125,13 +124,13 @@ fun IngredientForm(addIngredient: (Ingredient) -> Unit) {
         horizontalArrangement = Arrangement.Start,
         verticalArrangement = Arrangement.Top
     ) {
-         Constants.IngredientUnit.entries.forEach {
+        Enums.IngredientUnit.entries.forEach {
             TextButton(
                 shape = RoundedCornerShape(8.dp),
                 modifier = Modifier.height(32.dp).padding(2.dp),
                 contentPadding = PaddingValues(0.dp),
                 onClick = {
-                    unit = it.displayName
+                    unit = it
                     unitError = false
                 },
                 colors = ButtonDefaults.buttonColors(
@@ -148,8 +147,7 @@ fun IngredientForm(addIngredient: (Ingredient) -> Unit) {
                 ),
                 border = BorderStroke(
                     width = 2.dp,
-                    color =
-                    if (it == Constants.IngredientUnit.valueOf(unit)) {
+                    color = if (it == unit) {
                         MaterialTheme.colorScheme.outline
                     } else {
                         Color.Transparent

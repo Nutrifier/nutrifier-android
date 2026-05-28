@@ -33,15 +33,17 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import fi.nutrifier.models.database.Food
+import fi.nutrifier.models.database.FoodRequest
 import fi.nutrifier.ui.components.layout.TitledContainer
 import fi.nutrifier.utils.ConversionUtils
-import fi.nutrifier.utils.FormattingUtils
+import fi.nutrifier.utils.Enums
 import fi.nutrifier.viewmodels.ViewModelWrapper
 
 @Composable
 fun FoodForm(navController: NavController, viewModels: ViewModelWrapper) {
     var name by remember { mutableStateOf("") }
+    var brand by remember { mutableStateOf("") }
+    var category by remember { mutableStateOf("") }
     var barcode by remember { mutableStateOf("") }
     var servingSize by remember { mutableStateOf("100") }
     var calories by remember { mutableStateOf("") }
@@ -57,32 +59,32 @@ fun FoodForm(navController: NavController, viewModels: ViewModelWrapper) {
         viewModels.foods.setSavableFood(null)
 
         if (name.isNotEmpty() && servingSize.isNotEmpty() && calories.isNotEmpty()) {
-            val food = Food(
+            val food = FoodRequest(
                 name = name,
+                brand = brand,
+                category = category,
                 barcode = barcode,
                 servingSize = servingSize.toInt(),
                 calories = ConversionUtils.convertEnergy(
-                    value = calories.toDoubleOrNull() ?: 0.0,
-                    energyUnit = viewModels.user.settings?.energyUnit,
+                    energy = calories.toDoubleOrNull() ?: 0.0,
+                    energyUnit = viewModels.settings.settings?.energyUnit,
                     toKcal = true,
                 ),
                 fat = ConversionUtils.convertMacroWeight(
                     value = fat.toDoubleOrNull() ?: 0.0,
-                    weightUnit = viewModels.user.settings?.macroWeightUnit,
+                    weightUnit = Enums.MacroWeightUnit.GRAMS,
                     toGrams = true,
                 ),
                 carbs = ConversionUtils.convertMacroWeight(
                     value = carbs.toDoubleOrNull() ?: 0.0,
-                    weightUnit = viewModels.user.settings?.macroWeightUnit,
+                    weightUnit = Enums.MacroWeightUnit.GRAMS,
                     toGrams = true,
                 ),
                 protein = ConversionUtils.convertMacroWeight(
                     value = protein.toDoubleOrNull() ?: 0.0,
-                    weightUnit = viewModels.user.settings?.macroWeightUnit,
+                    weightUnit = Enums.MacroWeightUnit.GRAMS,
                     toGrams = true,
                 ),
-                createdBy = viewModels.foodEntry.getUserId(),
-                editedBy = viewModels.foodEntry.getUserId(),
             )
             viewModels.foods.setSavableFood(food)
         }
@@ -93,6 +95,26 @@ fun FoodForm(navController: NavController, viewModels: ViewModelWrapper) {
             value = name,
             onValueChange = { name = it },
             label = { Text("Name *") },
+            singleLine = true,
+            colors = TextFieldDefaults.colors(
+                unfocusedContainerColor = MaterialTheme.colorScheme.surface
+            ),
+        )
+        Spacer(modifier = Modifier.padding(vertical = 8.dp))
+        TextField(
+            value = brand,
+            onValueChange = { brand = it },
+            label = { Text("Brand") },
+            singleLine = true,
+            colors = TextFieldDefaults.colors(
+                unfocusedContainerColor = MaterialTheme.colorScheme.surface
+            ),
+        )
+        Spacer(modifier = Modifier.padding(vertical = 8.dp))
+        TextField(
+            value = category,
+            onValueChange = { category = it },
+            label = { Text("Category") },
             singleLine = true,
             colors = TextFieldDefaults.colors(
                 unfocusedContainerColor = MaterialTheme.colorScheme.surface
@@ -139,7 +161,7 @@ fun FoodForm(navController: NavController, viewModels: ViewModelWrapper) {
             NutrientInputRow(
                 text = "Nutrients per",
                 value = servingSize,
-                suffixText = viewModels.user.settings?.weightUnit?.displayName ?: "g",
+                suffixText = viewModels.settings.settings?.weightUnit?.displayName ?: "g",
                 width = 124.dp,
                 fillMaxWidth = false,
                 onChange = { servingSize = it },
@@ -157,28 +179,28 @@ fun FoodForm(navController: NavController, viewModels: ViewModelWrapper) {
                     text = "Energy *",
                     value = calories,
                     width = 120.dp,
-                    suffixText = viewModels.user.settings?.energyUnit?.displayName ?: "kcal",
+                    suffixText = viewModels.settings.settings?.energyUnit?.displayName ?: "kcal",
                 ) {
                     calories = it
                 }
                 NutrientInputRow(
-                    text = "Carbohydrates",
+                    text = "Carbohydrates *",
                     value = carbs,
-                    suffixText = viewModels.user.settings?.macroWeightUnit?.displayName ?: "g",
+                    suffixText = "g",
                 ) {
                     carbs = it
                 }
                 NutrientInputRow(
-                    text = "Protein",
+                    text = "Protein *",
                     value = protein,
-                    suffixText = viewModels.user.settings?.macroWeightUnit?.displayName ?: "g",
+                    suffixText = "g",
                 ) {
                     protein = it
                 }
                 NutrientInputRow(
-                    text = "Fat",
+                    text = "Fat *",
                     value = fat,
-                    suffixText = viewModels.user.settings?.macroWeightUnit?.displayName ?: "g",
+                    suffixText = "g",
                 ) {
                     fat = it
                 }

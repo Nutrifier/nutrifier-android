@@ -1,8 +1,14 @@
 package fi.nutrifier.models.database
 
 import fi.nutrifier.models.room.FavouriteRecipe
+import fi.nutrifier.models.room.Recipe
+import fi.nutrifier.models.room.RecipeIngredient
+import fi.nutrifier.models.room.RecipeInstruction
+import fi.nutrifier.models.room.RecipeNutrient
+import fi.nutrifier.models.room.RecipeNutrition
+import fi.nutrifier.utils.Constants
 import fi.nutrifier.utils.ConversionUtils.emptyRecipe
-import java.util.UUID
+import fi.nutrifier.utils.Enums
 
 /**
  * Data class representing a Spoonacular recipe.
@@ -22,7 +28,7 @@ data class SpoonacularRecipe(
     val id: Int,
     val title: String,
     val image: String,
-    val servings: Int,
+    val servings: Double,
     val readyInMinutes: Number,
     val license: String,
     val sourceName: String,
@@ -46,7 +52,7 @@ data class SpoonacularRecipe(
                 ingredients = this.extendedIngredients.toIngredientList(),
                 instructions = this.analyzedInstructions.toInstructionList(),
                 nutrition = if (this.nutrition != null && this.nutrition.nutrients != null) {
-                    Nutrition(this.nutrition.nutrients.toNutritionList())
+                    RecipeNutrition(this.nutrition.nutrients.toNutritionList())
                 } else null
             )
         } else {
@@ -78,11 +84,11 @@ data class SpoonacularRecipe(
  *
  * @return The list of Ingredients.
  */
-private fun List<SpoonacularIngredient>.toIngredientList(): List<Ingredient> {
+private fun List<SpoonacularIngredient>.toIngredientList(): List<RecipeIngredient> {
     return this.map {
-        Ingredient(
+        RecipeIngredient(
             name = it.name,
-            unit = it.measures.metric.unitShort,
+            unit = Enums.IngredientUnit.valueOf(it.measures.metric.unitShort),
             amount = it.measures.metric.amount.toFloat()
         )
     }
@@ -93,12 +99,12 @@ private fun List<SpoonacularIngredient>.toIngredientList(): List<Ingredient> {
  *
  * @return The list of Instructions.
  */
-private fun List<SpoonacularInstruction>.toInstructionList(): List<Instruction> {
-    val newInstructions = mutableListOf<Instruction>()
+private fun List<SpoonacularInstruction>.toInstructionList(): List<RecipeInstruction> {
+    val newInstructions = mutableListOf<RecipeInstruction>()
     this.forEach { instruction ->
         instruction.steps.forEach { step ->
             newInstructions.add(
-                Instruction(
+                RecipeInstruction(
                     number = step.number.toInt(),
                     text = step.step
                 )
@@ -113,11 +119,11 @@ private fun List<SpoonacularInstruction>.toInstructionList(): List<Instruction> 
  *
  * @return The Nutrition object.
  */
-private fun List<SpoonacularNutrient>.toNutritionList(): List<Nutrient> {
-    val newNutrients = mutableListOf<Nutrient>()
+private fun List<SpoonacularNutrient>.toNutritionList(): List<RecipeNutrient> {
+    val newNutrients = mutableListOf<RecipeNutrient>()
     this.forEach { nutrient ->
         newNutrients.add(
-            Nutrient(
+            RecipeNutrient(
                 name = nutrient.name,
                 amount = if (nutrient.amount != null) {
                     nutrient.amount.toFloat()

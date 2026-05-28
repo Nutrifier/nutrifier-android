@@ -1,6 +1,7 @@
 package fi.nutrifier.services.database
 
 import fi.nutrifier.models.database.FoodEntry
+import fi.nutrifier.models.database.FoodEntryRequest
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -12,26 +13,26 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface FoodEntryService {
-    @GET("api/food-entries/by-date")
+    @GET("api/v1/food-entries/by-date")
     suspend fun getFoodEntriesByDateAndUser(
         @Query("date") date: String,
         @Header("Authorization") authHeader: String,
     ): Response<List<FoodEntry>>
 
-    @POST("api/food-entries")
+    @POST("api/v1/food-entries")
     suspend fun saveFoodEntry(
-        @Body foodEntry: FoodEntry,
+        @Body foodEntryRequest: FoodEntryRequest,
         @Header("Authorization") authHeader: String,
     ): Response<FoodEntry>
 
-    @PATCH("api/food-entries/{id}")
+    @PATCH("api/v1/food-entries/{id}")
     suspend fun updateFoodEntry(
         @Path("id") id: String,
         @Body foodEntry: FoodEntry,
         @Header("Authorization") authHeader: String,
     ): Response<FoodEntry>
 
-    @DELETE("api/food-entries/{id}")
+    @DELETE("api/v1/food-entries/{id}")
     suspend fun deleteFoodEntry(
         @Path("id") id: String,
         @Header("Authorization") authHeader: String,

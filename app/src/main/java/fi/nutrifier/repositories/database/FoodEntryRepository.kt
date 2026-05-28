@@ -3,6 +3,7 @@ package fi.nutrifier.repositories.database
 import android.content.SharedPreferences
 import fi.nutrifier.BuildConfig
 import fi.nutrifier.models.database.FoodEntry
+import fi.nutrifier.models.database.FoodEntryRequest
 import fi.nutrifier.services.database.RetrofitInstance
 import fi.nutrifier.utils.Result
 import fi.nutrifier.utils.SharedPreferencesManager
@@ -27,11 +28,11 @@ class FoodEntryRepository(private val encryptedPrefs: SharedPreferences) {
         }
     }
 
-    suspend fun saveFoodEntry(foodEntry: FoodEntry): Result<Boolean> {
+    suspend fun saveFoodEntry(foodEntryRequest: FoodEntryRequest): Result<Boolean> {
         val token: String? = SharedPreferencesManager.getAuthToken(encryptedPrefs)
 
         return try {
-            val response = service.saveFoodEntry(foodEntry, "Bearer $token")
+            val response = service.saveFoodEntry(foodEntryRequest, "Bearer $token")
             if (response.isSuccessful) Result.success(true)
             else Result.fail(response.code())
         } catch (e: Exception) {

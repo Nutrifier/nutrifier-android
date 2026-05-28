@@ -1,6 +1,5 @@
 package fi.nutrifier.ui.screens.food.modes
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -27,34 +26,34 @@ import fi.nutrifier.ui.components.layout.nutrient.NutrientColumn
 import fi.nutrifier.ui.components.layout.nutrient.NutrientsPerUnit
 import fi.nutrifier.ui.components.misc.IconTag
 import fi.nutrifier.ui.components.misc.TextTag
-import fi.nutrifier.utils.Constants
 import fi.nutrifier.utils.Constants.IS_DEV
 import fi.nutrifier.utils.ConversionUtils
+import fi.nutrifier.utils.Enums
 import fi.nutrifier.utils.FormattingUtils
 import fi.nutrifier.viewmodels.ViewModelWrapper
 
 @Composable
-internal fun EditMode(viewModels: ViewModelWrapper, foodMode: Constants.FoodMode) {
+internal fun EditMode(viewModels: ViewModelWrapper, foodMode: Enums.FoodMode) {
     val emptyNutrientSummary = NutrientSummary(
-        energy = Constants.EnergyUnit.entries.associateWith { 0.0 },
-        fats = Constants.MacroWeightUnit.entries.associateWith { 0.0 },
-        carbs = Constants.MacroWeightUnit.entries.associateWith { 0.0 },
-        protein = Constants.MacroWeightUnit.entries.associateWith { 0.0 },
+        energy = Enums.EnergyUnit.entries.associateWith { 0.0 },
+        fats = Enums.MacroWeightUnit.entries.associateWith { 0.0 },
+        carbs = Enums.MacroWeightUnit.entries.associateWith { 0.0 },
+        protein = Enums.MacroWeightUnit.entries.associateWith { 0.0 },
     )
     var calculatedNutrientSummary by remember { mutableStateOf(emptyNutrientSummary) }
     val multiplier = (viewModels.foodEntry.currentAmount / 100)
 
-    LaunchedEffect(viewModels.user.settings?.weightUnit) {
-        if (foodMode == Constants.FoodMode.CREATE_ENTRY) {
-            when (viewModels.user.settings?.weightUnit) {
-                Constants.WeightUnit.OZ -> {
+    LaunchedEffect(viewModels.settings.settings?.weightUnit) {
+        if (foodMode == Enums.FoodMode.CREATE_ENTRY) {
+            when (viewModels.settings.settings?.weightUnit) {
+                Enums.FoodWeightUnit.OUNCES -> {
                     viewModels.foodEntry.setCurrentAmount(
-                        ConversionUtils.convertWeight(1.0, Constants.WeightUnit.OZ, true)
+                        ConversionUtils.convertWeight(1.0, Enums.FoodWeightUnit.OUNCES, true)
                     )
                 }
-                Constants.WeightUnit.LB -> {
+                Enums.FoodWeightUnit.POUNDS -> {
                     viewModels.foodEntry.setCurrentAmount(
-                        ConversionUtils.convertWeight(1.0, Constants.WeightUnit.LB, true)
+                        ConversionUtils.convertWeight(1.0, Enums.FoodWeightUnit.POUNDS, true)
                     )
                 }
                 else -> {
@@ -66,25 +65,25 @@ internal fun EditMode(viewModels: ViewModelWrapper, foodMode: Constants.FoodMode
 
     LaunchedEffect(viewModels.foodEntry.currentAmount) {
         if (viewModels.foods.selectedFood != null) {
-            val caloriesMapped = Constants.EnergyUnit.entries.associateWith { energyUnit ->
+            val caloriesMapped = Enums.EnergyUnit.entries.associateWith { energyUnit ->
                 ConversionUtils.convertEnergy(
-                    value = viewModels.foods.selectedFood!!.food!!.calories * multiplier,
+                    energy = viewModels.foods.selectedFood!!.food!!.calories * multiplier,
                     energyUnit = energyUnit,
                 )
             }
-            val fatsMapped = Constants.MacroWeightUnit.entries.associateWith { weightUnit ->
+            val fatsMapped = Enums.MacroWeightUnit.entries.associateWith { weightUnit ->
                 ConversionUtils.convertMacroWeight(
                     value = viewModels.foods.selectedFood!!.food!!.fat * multiplier,
                     weightUnit = weightUnit,
                 )
             }
-            val carbsMapped = Constants.MacroWeightUnit.entries.associateWith { weightUnit ->
+            val carbsMapped = Enums.MacroWeightUnit.entries.associateWith { weightUnit ->
                 ConversionUtils.convertMacroWeight(
                     value = viewModels.foods.selectedFood!!.food!!.carbs * multiplier,
                     weightUnit = weightUnit,
                 )
             }
-            val proteinMapped = Constants.MacroWeightUnit.entries.associateWith { weightUnit ->
+            val proteinMapped = Enums.MacroWeightUnit.entries.associateWith { weightUnit ->
                 ConversionUtils.convertMacroWeight(
                     value = viewModels.foods.selectedFood!!.food!!.protein * multiplier,
                     weightUnit = weightUnit,
@@ -100,17 +99,26 @@ internal fun EditMode(viewModels: ViewModelWrapper, foodMode: Constants.FoodMode
         .fillMaxWidth()
         .verticalScroll(rememberScrollState())
     ) {
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text(
-                "${viewModels.foods.selectedFood?.food?.name}",
-                style = MaterialTheme.typography.headlineLarge
-            )
-            // TODO: Add functionality to request update
-            // TODO: Add functionality to request delete
+        Column {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                Text(
+                    "${viewModels.foods.selectedFood?.food?.name}",
+                    style = MaterialTheme.typography.headlineLarge
+                )
+                // TODO: Add functionality to request update
+                // TODO: Add functionality to request delete
+            }
+            if (viewModels.foods.selectedFood?.food?.brand != null) {
+                Text(
+                    "${viewModels.foods.selectedFood?.food?.brand}",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.outline
+                )
+            }
         }
         Spacer(modifier = Modifier.height(8.dp))
         Row {
-            // TODO: Implement tags for foods an render them as a group
+            // TODO: Implement tags for foods and render them as a group
             if (viewModels.foods.selectedFood?.food?.fineliId != null) {
                 TextTag("Fineli")
             }
@@ -125,12 +133,12 @@ internal fun EditMode(viewModels: ViewModelWrapper, foodMode: Constants.FoodMode
             Column {
                 NutrientColumn(
                     nutrient = "Energy",
-                    value = calculatedNutrientSummary.energy[viewModels.user.settings?.energyUnit ?: Constants.EnergyUnit.KCAL] ?: 0.0,
-                    suffix = viewModels.user.settings?.energyUnit?.displayName ?: "kcal",
+                    value = calculatedNutrientSummary.energy[viewModels.settings.settings?.energyUnit ?: Enums.EnergyUnit.KCAL] ?: 0.0,
+                    suffix = viewModels.settings.settings?.energyUnit?.displayName ?: "kcal",
                 )
                 if (IS_DEV) {
                     calculatedNutrientSummary.energy.forEach { (energyUnit, value) ->
-                        if (energyUnit != viewModels.user.settings?.energyUnit) {
+                        if (energyUnit != viewModels.settings.settings?.energyUnit) {
                             Text(
                                 text = "${FormattingUtils.roundUp(value)} ${energyUnit.displayName}",
                                 color = MaterialTheme.colorScheme.outline,
@@ -144,23 +152,23 @@ internal fun EditMode(viewModels: ViewModelWrapper, foodMode: Constants.FoodMode
         Row {
             NutrientColumn(
                 nutrient = "Fat",
-                value = calculatedNutrientSummary.fats[viewModels.user.settings?.macroWeightUnit ?: Constants.MacroWeightUnit.G] ?: 0.0,
+                value = calculatedNutrientSummary.fats[Enums.MacroWeightUnit.GRAMS] ?: 0.0,
                 style = MaterialTheme.typography.titleLarge,
-                suffix = viewModels.user.settings?.macroWeightUnit?.displayName ?: "g",
+                suffix = "g",
                 modifier = Modifier.weight(1f),
             )
             NutrientColumn(
                 nutrient = "Carbs",
-                value = calculatedNutrientSummary.carbs[viewModels.user.settings?.macroWeightUnit ?: Constants.MacroWeightUnit.G] ?: 0.0,
+                value = calculatedNutrientSummary.carbs[Enums.MacroWeightUnit.GRAMS] ?: 0.0,
                 style = MaterialTheme.typography.titleLarge,
-                suffix = viewModels.user.settings?.macroWeightUnit?.displayName ?: "g",
+                suffix = "g",
                 modifier = Modifier.weight(1f),
             )
             NutrientColumn(
                 nutrient = "Protein",
-                value = calculatedNutrientSummary.protein[viewModels.user.settings?.macroWeightUnit ?: Constants.MacroWeightUnit.G] ?: 0.0,
+                value = calculatedNutrientSummary.protein[Enums.MacroWeightUnit.GRAMS] ?: 0.0,
                 style = MaterialTheme.typography.titleLarge,
-                suffix = viewModels.user.settings?.macroWeightUnit?.displayName ?: "g",
+                suffix = "g",
                 modifier = Modifier.weight(1f),
             )
         }
@@ -174,7 +182,7 @@ internal fun EditMode(viewModels: ViewModelWrapper, foodMode: Constants.FoodMode
                 nutrients.forEach { nutrient ->
                     Column(modifier = Modifier.weight(1f)) {
                         nutrient.forEach { (weightUnit, value) ->
-                            if (weightUnit != viewModels.user.settings?.macroWeightUnit) {
+                            if (weightUnit != Enums.MacroWeightUnit.GRAMS) {
                                 Text(
                                     text = "${FormattingUtils.roundUp(value)} ${weightUnit.displayName}",
                                     color = MaterialTheme.colorScheme.outline,

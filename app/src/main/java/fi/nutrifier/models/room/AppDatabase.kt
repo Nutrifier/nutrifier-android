@@ -6,15 +6,13 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
-import fi.nutrifier.models.database.Ingredient
-import fi.nutrifier.models.database.Instruction
 import com.google.gson.Gson
 
 /**
  * Database class representing the Room database for the Recipe App.
  * It includes two entity tables: PersonalRecipe and FavouriteRecipe.
  */
-@Database(entities = [PersonalRecipe::class, FavouriteRecipe::class], version = 2, exportSchema = false)
+@Database(entities = [PersonalRecipe::class, FavouriteRecipe::class], version = 3, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class AppDatabase: RoomDatabase() {
     abstract fun personalRecipeDao(): PersonalRecipeDao
@@ -32,7 +30,7 @@ object DatabaseProvider {
                 context = context,
                 klass = AppDatabase::class.java,
                 name = "app_db"
-            ).build()
+            ).fallbackToDestructiveMigration(false).build()
 
         }
         return INSTANCE as AppDatabase
@@ -45,23 +43,23 @@ object DatabaseProvider {
  */
 class Converters {
     @TypeConverter
-    fun fromIngredientList(value: List<Ingredient>?): String? {
+    fun fromIngredientList(value: List<RecipeIngredient>?): String? {
         return Gson().toJson(value)
     }
 
     @TypeConverter
-    fun toIngredientList(value: String?): List<Ingredient> {
-        return Gson().fromJson(value, Array<Ingredient>::class.java).toList()
+    fun toIngredientList(value: String?): List<RecipeIngredient> {
+        return Gson().fromJson(value, Array<RecipeIngredient>::class.java).toList()
 
     }
 
     @TypeConverter
-    fun fromInstructionList(value: List<Instruction>?): String? {
+    fun fromInstructionList(value: List<RecipeInstruction>?): String? {
         return Gson().toJson(value)
     }
 
     @TypeConverter
-    fun toInstructionList(value: String?): List<Instruction> {
-        return Gson().fromJson(value, Array<Instruction>::class.java).toList()
+    fun toInstructionList(value: String?): List<RecipeInstruction> {
+        return Gson().fromJson(value, Array<RecipeInstruction>::class.java).toList()
     }
 }

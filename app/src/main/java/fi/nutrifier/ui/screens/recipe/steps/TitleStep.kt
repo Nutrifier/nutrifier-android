@@ -22,6 +22,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -57,7 +58,7 @@ internal fun TitleStep(
     toNextStep: (Int) -> Unit
 ) {
     var title: String by remember { mutableStateOf(viewModel.recipe.value.title) }
-    var servings by remember { mutableIntStateOf(viewModel.recipe.value.servings) }
+    var servings by remember { mutableDoubleStateOf(viewModel.recipe.value.servings) }
     var image by remember { mutableStateOf(viewModel.recipe.value.image) }
 
     LaunchedEffect(title, servings, image) {
@@ -122,8 +123,8 @@ internal fun TitleStep(
     Spacer(modifier = Modifier.height(8.dp))
     NumberCounter(
         value = servings,
-        onNumberChange = { servings = it.toInt() },
-        max = 40
+        onNumberChange = { servings = it },
+        max = 40.0
     )
     Spacer(modifier = Modifier.height(24.dp))
 

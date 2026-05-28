@@ -23,19 +23,4 @@ class UserRepository(private val encryptedPrefs: SharedPreferences) {
             Result.fail(500, e.localizedMessage ?: "Unknown error occurred.")
         }
     }
-
-    suspend fun updateSettings(updatedSettings: UserSettings): Result<UserSettings> {
-        val savedToken: String? = SharedPreferencesManager.getAuthToken(encryptedPrefs)
-        return try {
-            Log.d("UserRepository", "updating settings: $updatedSettings token: $savedToken")
-
-            val response = service.updateSettings(updatedSettings,"Bearer $savedToken")
-            if (response.isSuccessful) {
-                Result.success(response.body())
-            }
-            else Result.fail(response.code())
-        } catch (e: Exception) {
-            Result.fail(500, e.localizedMessage ?: "Unknown error occurred.")
-        }
-    }
 }

@@ -1,7 +1,6 @@
 package fi.nutrifier.services.database
 
 import fi.nutrifier.BuildConfig
-import fi.nutrifier.services.AuthService
 import fi.nutrifier.services.FineliService
 import fi.nutrifier.services.room.RecipeService
 import okhttp3.OkHttpClient
@@ -50,4 +49,11 @@ class RetrofitInstance {
     val authService: AuthService = retrofitDatabase.create(AuthService::class.java)
     val fineliService: FineliService = retrofitFineli.create(FineliService::class.java)
     val userService: UserService = retrofitDatabase.create(UserService::class.java)
+    val goalsService: GoalsService = retrofitDatabase.create(GoalsService::class.java)
+    val profileService: ProfileService = retrofitDatabase.create(ProfileService::class.java)
+    val settingsService: SettingsService = retrofitDatabase.create(SettingsService::class.java)
+    val weightService: WeightService = retrofitDatabase.create(WeightService::class.java)
+    val dailySummaryService: DailySummaryService = retrofitDatabase.create(
+        DailySummaryService::class.java)
+    val analyticsService: AnalyticsService = retrofitDatabase.create(AnalyticsService::class.java)
 }

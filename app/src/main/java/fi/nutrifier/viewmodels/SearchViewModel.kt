@@ -1,13 +1,11 @@
 package fi.nutrifier.viewmodels
 
-import android.app.Application
 import android.content.SharedPreferences
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.viewModelScope
-import fi.nutrifier.models.database.Recipe
+import fi.nutrifier.models.room.Recipe
 import fi.nutrifier.models.database.SpoonacularRecipe
 import fi.nutrifier.repositories.database.SearchRepository
-import fi.nutrifier.repositories.room.PersonalRecipeRepository
 import fi.nutrifier.utils.ConversionUtils.emptyRecipe
 import kotlinx.coroutines.launch
 

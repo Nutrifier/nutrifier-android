@@ -1,12 +1,9 @@
 package fi.nutrifier.ui.screens.cookbook
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ManageSearch
-import androidx.compose.material.icons.filled.ManageSearch
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
@@ -29,7 +26,7 @@ import fi.nutrifier.ui.screens.BaseScreen
 import fi.nutrifier.ui.screens.cookbook.tabs.DiscoverRecipesTab
 import fi.nutrifier.ui.screens.cookbook.tabs.PersonalRecipesTab
 import fi.nutrifier.ui.screens.cookbook.tabs.SavedRecipesTab
-import fi.nutrifier.utils.Constants
+import fi.nutrifier.utils.Enums
 import fi.nutrifier.viewmodels.ViewModelWrapper
 
 /**
@@ -86,7 +83,7 @@ fun CookbookScreen(
             )
         },
         bottomBar = { NavBar(navController, "cookbook") },
-        screen = Constants.Screen.COOKBOOK,
+        screen = Enums.Screen.COOKBOOK,
         viewModels,
         navController,
         floatingActionButton = {

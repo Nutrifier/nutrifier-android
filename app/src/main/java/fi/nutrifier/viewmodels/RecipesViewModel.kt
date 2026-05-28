@@ -1,6 +1,6 @@
 package fi.nutrifier.viewmodels
 
-import fi.nutrifier.models.database.Recipe
+import fi.nutrifier.models.room.Recipe
 
 /**
  * Interface defining the contract for view models managing recipes.

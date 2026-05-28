@@ -2,10 +2,10 @@ package fi.nutrifier.repositories.room
 
 import android.content.SharedPreferences
 import fi.nutrifier.BuildConfig
-import fi.nutrifier.models.database.MealType
 import fi.nutrifier.models.room.FavouriteRecipe
 import fi.nutrifier.repositories.shared.RepositoryResponseHandler
 import fi.nutrifier.services.database.RetrofitInstance
+import fi.nutrifier.utils.Enums
 import fi.nutrifier.utils.SharedPreferencesManager
 
 /**
@@ -31,7 +31,7 @@ class TodaysSpecialsRepository(private val prefs: SharedPreferences) {
                 RepositoryResponseHandler(error = "Error with getting saved specials!")
             }
         } else {
-            val newRecipes = MealType.entries.map {
+            val newRecipes = Enums.MealType.entries.map {
                 val response = RetrofitInstance().recipeService.getRandomRecipes(
                     apiKey = BuildConfig.API_KEY,
                     includeTags = it.toString().lowercase(),

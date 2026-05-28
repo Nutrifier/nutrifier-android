@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material.icons.rounded.KeyboardArrowUp
@@ -30,6 +31,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -39,17 +41,21 @@ fun Section(
     isCollapsible: Boolean = true,
     content: @Composable () -> Unit,
 ) {
-    var isExpanded by remember { mutableStateOf(true) }
+    var isExpanded by remember { mutableStateOf(false) }
 
     fun onClick() { if (isCollapsible) isExpanded = !isExpanded }
 
     Column {
         Row(
-            modifier = Modifier.fillMaxWidth().clickable { onClick() },
             horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(8.dp))
+                .clickable { onClick() }
         ) {
             Column(
                 verticalArrangement = Arrangement.spacedBy(4.dp),
+                modifier = Modifier.padding(8.dp)
             ) {
                 if (title != null) {
                     Text(title, style = MaterialTheme.typography.headlineMedium)
@@ -78,7 +84,7 @@ fun Section(
             exit = shrinkVertically(animationSpec = tween(300)) + fadeOut(animationSpec = tween(300)),
         ) {
             Column(
-                modifier = Modifier.padding(start = 4.dp),
+                modifier = Modifier.padding(start = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
                 Spacer(modifier = Modifier.height(16.dp))

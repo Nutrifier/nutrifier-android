@@ -6,6 +6,6 @@ package fi.nutrifier.models.other
  * @property fraction The fraction represented as a string.
  */
 data class Fraction(
-    val range: ClosedFloatingPointRange<Float>,
+    val range: ClosedFloatingPointRange<Double>,
     val fraction: String
 )
