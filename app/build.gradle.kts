@@ -39,10 +39,6 @@ android {
         buildConfigField("String", "FINELI_UUID", fineliUUID)
     }
 
-    buildFeatures {
-        buildConfig = true
-    }
-
     buildTypes {
         debug {
             // Use 10.0... url for emulators and 127.0... for actual devices
@@ -64,6 +60,7 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
     buildFeatures {
+        buildConfig = true
         compose = true
     }
     composeOptions {

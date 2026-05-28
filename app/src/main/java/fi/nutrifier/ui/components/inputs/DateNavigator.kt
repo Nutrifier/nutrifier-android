@@ -1,5 +1,6 @@
 package fi.nutrifier.ui.components.inputs
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,7 +40,10 @@ import kotlin.time.toJavaInstant
  * A composable function that displays the selected date.
  */
 @Composable
-fun DateNavigator(selectedDate: LocalDate, onDateChange: (LocalDate) -> Unit) {
+fun DateNavigator(
+    selectedDate: LocalDate,
+    onDateChange: (LocalDate) -> Unit,
+) {
     var isDatePickerOpen by remember { mutableStateOf(false) }
     val today = LocalDate.now() // NOTE: Can be exploited by changing device's time
     val state = rememberDatePickerState(
@@ -46,6 +51,10 @@ fun DateNavigator(selectedDate: LocalDate, onDateChange: (LocalDate) -> Unit) {
         initialDisplayMode = DisplayMode.Picker,
         yearRange = today.minusYears(3).year..today.plusYears(1).year
     )
+
+    LaunchedEffect(selectedDate) {
+        Log.d("DateNavigator", "DateNavigator incoming selected date: $selectedDate")
+    }
 
     fun changeDate() {
         val localDate: LocalDate? = state.selectedDateMillis?.let { millis ->
@@ -78,7 +87,7 @@ fun DateNavigator(selectedDate: LocalDate, onDateChange: (LocalDate) -> Unit) {
             )
         ) {
             Text(
-                text = FormattingUtils.generateDateString(selectedDate),
+                text = FormattingUtils.formatDateLabel(selectedDate),
                 style = MaterialTheme.typography.headlineSmall,
             )
         }

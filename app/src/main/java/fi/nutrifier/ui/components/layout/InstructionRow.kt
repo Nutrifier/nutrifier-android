@@ -21,9 +21,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
-import fi.nutrifier.models.database.Instruction
+import fi.nutrifier.models.room.RecipeInstruction
 import fi.nutrifier.ui.components.misc.CheckCircle
 import fi.nutrifier.ui.components.buttons.RemoveButton
 
@@ -39,7 +38,7 @@ import fi.nutrifier.ui.components.buttons.RemoveButton
 @Composable
 fun InstructionRow(
     index: Int,
-    instruction: Instruction,
+    instruction: RecipeInstruction,
     handleDelete: ((Int) -> Unit)? = null,
 ) {
     var isDone by remember { mutableStateOf(false) }

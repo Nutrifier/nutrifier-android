@@ -16,28 +16,31 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import fi.nutrifier.models.database.MealType
-import fi.nutrifier.utils.Constants
-import fi.nutrifier.utils.ConversionUtils
+import fi.nutrifier.utils.Enums
 import fi.nutrifier.utils.FormattingUtils
 import fi.nutrifier.utils.FormattingUtils.toLowerCaseCapitalizeFirst
 import fi.nutrifier.viewmodels.ViewModelWrapper
 
 @Composable
 fun MealButton(
-    mealType: MealType,
+    mealType: Enums.MealType,
     viewModels: ViewModelWrapper,
     onClick: () -> Unit,
 ) {
-    val nutrientString = viewModels.foodEntry.nutrients.entries.find { it.key == mealType }?.value?.let {
-        FormattingUtils.generateEnergyMacroString(
-            energy = it.energy[viewModels.user.settings?.energyUnit ?: Constants.EnergyUnit.KCAL] ?: 0.0,
-            fats = it.fats[viewModels.user.settings?.macroWeightUnit ?: Constants.MacroWeightUnit.G] ?: 0.0,
-            carbs = it.carbs[viewModels.user.settings?.macroWeightUnit ?: Constants.MacroWeightUnit.G] ?: 0.0,
-            protein = it.protein[viewModels.user.settings?.macroWeightUnit ?: Constants.MacroWeightUnit.G] ?: 0.0,
-            userViewModel = viewModels.user,
-        )
-    } ?: "Loading..."
+    // TODO: Add "Loading..." text
+    val nutrientString = if (viewModels.foodEntry.summary == null) {
+        "0 ${viewModels.settings.settings?.energyUnit?.displayName ?: "kcal"} 0/0/0 g"
+    } else {
+        viewModels.foodEntry.summary!!.mealSummaries[mealType]?.let {
+            FormattingUtils.generateEnergyMacroString(
+                energy = it.caloriesConsumed, // TODO: Support unit change
+                fats = it.fatConsumed, // TODO: Support unit change
+                carbs = it.carbsConsumed, // TODO: Support unit change
+                protein = it.proteinConsumed, // TODO: Support unit change
+                energyUnit = viewModels.settings.settings?.energyUnit
+            )
+        } ?: "-"
+    }
 
     TextButton(
         onClick = { onClick() },
@@ -58,7 +61,11 @@ fun MealButton(
                 Text(
                     text = nutrientString,
                     style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.outline,
+                    color = if (viewModels.foodEntry.summary == null) {
+                        MaterialTheme.colorScheme.outline
+                    } else {
+                        MaterialTheme.colorScheme.outlineVariant
+                    },
                 )
             }
             Icon(

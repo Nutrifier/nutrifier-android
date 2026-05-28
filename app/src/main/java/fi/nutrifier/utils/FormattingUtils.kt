@@ -1,22 +1,29 @@
 package fi.nutrifier.utils
 
-import android.util.Log
-import fi.nutrifier.viewmodels.UserViewModel
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
-import java.time.format.DateTimeFormatterBuilder
-import java.time.format.FormatStyle
 import kotlin.math.round
 
 object FormattingUtils {
+    val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
+
     fun toLowerCaseCapitalizeFirst(str: String): String {
-        return str[0] + str.substring(1).lowercase()
+        return str[0].uppercase() + str.substring(1).lowercase()
     }
 
-    fun formatLocalTimeToString(time: LocalTime): String {
-        val split = time.toString().split(".")
+    fun formatLocalTimeToStringExcludeNanoSeconds(time: LocalTime): String {
+        val split = time.toString().split(".") // Excluding nanoseconds
         return split[0]
+    }
+
+    fun localDateToString(date: LocalDate?): String? {
+        return date?.format(formatter)
+    }
+
+    fun formatDateStr(dateStr: String?): String? {
+        if (dateStr == null) return dateStr
+        return LocalDate.parse(dateStr).format(formatter)
     }
 
     fun stringToDouble(string: String): Double {
@@ -29,28 +36,32 @@ object FormattingUtils {
         return round(value * 10) / 10
     }
 
-    fun formatNumber(value: Double?): Double {
+    fun formatNumberAndRound(value: Double?): Double {
         if (value == null) return 0.0
 
         return when {
-            value < 0.1 -> round(value * 100) / 100
-            value < 1 -> round(value * 10) / 10
-            else -> round(value)
+            value < 0.1 -> round(value * 100) / 100     // Round to 1 decimal
+            value < 10 -> round(value * 10) / 10        // 1 decimal Integer
+            value <= 100 -> round(value)                // integer
+            else -> round(value / 5) * 5                // nearest 5
         }
     }
 
-    fun generateEnergyString(energy: Double, userViewModel: UserViewModel): String {
-        val convertedEnergy = ConversionUtils.convertEnergy(energy, userViewModel.settings?.energyUnit)
-
-        return "${convertedEnergy.toInt()} ${userViewModel.settings?.energyUnit?.displayName ?: "kcal"}"
+    fun generateEnergyString(
+        energy: Double,
+        energyUnit: Enums.EnergyUnit?
+    ): String {
+        val convertedEnergy = ConversionUtils.convertEnergy(energy, energyUnit)
+        return "${convertedEnergy.toInt()} ${energyUnit?.displayName ?: "kcal"}"
     }
 
-    fun generateMacroString(fats: Double, carbs: Double, protein: Double, userViewModel: UserViewModel): String {
-        val convertedFats = ConversionUtils.convertMacroWeight(fats, userViewModel.settings?.macroWeightUnit)
-        val convertedCarbs = ConversionUtils.convertMacroWeight(carbs, userViewModel.settings?.macroWeightUnit)
-        val convertedProtein = ConversionUtils.convertMacroWeight(protein, userViewModel.settings?.macroWeightUnit)
+    fun generateMacroString(fats: Double, carbs: Double, protein: Double): String {
+        val convertedFats = ConversionUtils.convertMacroWeight(fats, Enums.MacroWeightUnit.GRAMS)
+        val convertedCarbs = ConversionUtils.convertMacroWeight(carbs, Enums.MacroWeightUnit.GRAMS)
+        val convertedProtein = ConversionUtils.convertMacroWeight(protein, Enums.MacroWeightUnit.GRAMS)
 
-        return "${convertedFats.toInt()}/${convertedCarbs.toInt()}/${convertedProtein.toInt()} ${userViewModel.settings?.macroWeightUnit?.displayName ?: "g"}"
+        // Show decimals for oz, otherwise most values would round to 0 or 1
+        return "${convertedFats.toInt()}/${convertedCarbs.toInt()}/${convertedProtein.toInt()} g"
     }
 
     fun generateEnergyMacroString(
@@ -58,18 +69,22 @@ object FormattingUtils {
         fats: Double,
         carbs: Double,
         protein: Double,
-        userViewModel: UserViewModel,
+        energyUnit: Enums.EnergyUnit?,
     ): String {
-        return "${generateEnergyString(energy, userViewModel)}  ${generateMacroString(fats, carbs, protein, userViewModel)}"
+        return "${generateEnergyString(energy, energyUnit)}  ${generateMacroString(fats, carbs, protein)}"
     }
 
-    fun generateDateString(date: LocalDate): String {
+    fun formatDateLabel(
+        date: LocalDate,
+        showRelativeDates: Boolean = true,
+        showWeekday: Boolean = true
+    ): String {
         val today = LocalDate.now()
-        return if (date == today) {
+        return if (showRelativeDates && date == today) {
             "Today"
-        } else if (date == today.minusDays(1)) {
+        } else if (showRelativeDates && date == today.minusDays(1)) {
             "Yesterday"
-        } else if (date == today.plusDays(1)) {
+        } else if (showRelativeDates && date == today.plusDays(1)) {
             "Tomorrow"
         } else {
             val formatter = if (date.year == today.year) {
@@ -77,7 +92,23 @@ object FormattingUtils {
             } else {
                 DateTimeFormatter.ofPattern("dd.MM.yyyy")
             }
-            "${Constants.Weekday.fromIndex(date.dayOfWeek.value)?.displayName}  ${date.format(formatter)}"
+            "${if (showWeekday) "${Enums.Weekday.fromIndex(date.dayOfWeek.value)?.displayName}  " else ""}${date.format(formatter)}"
+        }
+    }
+
+    fun removeTrailingZero(value: Double): String {
+        return if (ValidatorUtils.hasFraction(value)) value.toString() else value.toInt().toString()
+    }
+
+    fun cardinalToOrdinal(number: Int): String {
+        val numberStr = number.toString()
+        val lastNumberChar = numberStr.last()
+
+        return when (lastNumberChar) {
+            '1' -> numberStr + "st"
+            '2' -> numberStr + "nd"
+            '3' -> numberStr + "rd"
+            else -> numberStr + "th"
         }
     }
 }

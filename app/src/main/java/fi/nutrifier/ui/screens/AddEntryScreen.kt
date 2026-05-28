@@ -37,11 +37,11 @@ import androidx.navigation.NavController
 import fi.nutrifier.ui.components.buttons.BackButton
 import fi.nutrifier.ui.components.buttons.BarcodeButton
 import fi.nutrifier.ui.components.buttons.FoodButton
-import fi.nutrifier.ui.components.inputs.CancelSaveOption
+import fi.nutrifier.ui.components.inputs.ActionButtons
 import fi.nutrifier.ui.components.inputs.CustomSearchBar
 import fi.nutrifier.ui.components.layout.TopBar
 import fi.nutrifier.ui.components.misc.ItemDivider
-import fi.nutrifier.utils.Constants
+import fi.nutrifier.utils.Enums
 import fi.nutrifier.viewmodels.ViewModelWrapper
 import kotlinx.coroutines.flow.collectLatest
 
@@ -80,16 +80,12 @@ fun AddEntryScreen(
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.Companion
-                    .fillMaxWidth()
-                    .padding(24.dp)
+                modifier = Modifier.fillMaxWidth()
             ) {
-                CancelSaveOption(onClose = { navController.navigateUp() }) {
-                    /* TODO */
-                }
+                ActionButtons(onSecondaryAction = { navController.navigateUp() })
             }
         },
-        screen = Constants.Screen.FOOD_ADD,
+        screen = Enums.Screen.FOOD_ADD,
         viewModels,
         navController,
     ) {
@@ -97,7 +93,7 @@ fun AddEntryScreen(
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Text("Add foods", style = MaterialTheme.typography.headlineLarge)
                 Row {
-                    TextButton(onClick = { navController.navigate("food_editor/${Constants.FoodMode.CREATE}") }) {
+                    TextButton(onClick = { navController.navigate("food_editor/${Enums.FoodMode.CREATE}") }) {
                         Icon(imageVector = Icons.Filled.AddCircle, contentDescription = "Add")
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(text = "Create food")
@@ -120,21 +116,43 @@ fun AddEntryScreen(
                 }
             )
             Spacer(modifier = Modifier.height(8.dp))
-            Box {
+            Box(
+                modifier = Modifier.weight(1f)
+            ) {
                 LazyColumn(
                     modifier = Modifier.padding(horizontal = 8.dp),
                     state = listState,
                     flingBehavior = ScrollableDefaults.flingBehavior(),
                 ) {
                     itemsIndexed(
+                        viewModels.foods.recentFoods,
+                        key = { index, food -> food.id ?: 0 }
+                    ) { index, food ->
+                        FoodButton(viewModels.settings, food, true) {
+                            viewModels.foods.setSelectedFood(food)
+                            navController.navigate("food_editor/${Enums.FoodMode.CREATE_ENTRY}")
+                        }
+                        if (index < viewModels.foods.foods.size - 1) ItemDivider()
+                    }
+                    itemsIndexed(
                         viewModels.foods.foods,
                         key = { index, food -> food.id ?: 0 }
                     ) { index, food ->
-                        FoodButton(viewModels.user, food) {
+                        FoodButton(viewModels.settings, food) {
                             viewModels.foods.setSelectedFood(food)
-                            navController.navigate("food_editor/${Constants.FoodMode.CREATE_ENTRY}")
+                            navController.navigate("food_editor/${Enums.FoodMode.CREATE_ENTRY}")
                         }
                         if (index < viewModels.foods.foods.size - 1) ItemDivider()
+                        if (index == viewModels.foods.foods.size - 1) {
+                            Column(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                TextButton({ viewModels.foods.loadMoreFoods() }) {
+                                    Text("Load more foods")
+                                }
+                            }
+                        }
                     }
                 }
                 if (isLoading) {
@@ -147,6 +165,17 @@ fun AddEntryScreen(
                         CircularProgressIndicator()
                     }
                 }
+            }
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "${viewModels.foods.firstItemIndex}-${viewModels.foods.lastItemIndex} of ${viewModels.foods.totalFoodsCount} foods",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.outline,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
             }
         }
     }

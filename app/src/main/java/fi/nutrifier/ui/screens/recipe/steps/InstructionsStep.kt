@@ -25,7 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import fi.nutrifier.models.database.Instruction
+import fi.nutrifier.models.room.RecipeInstruction
 import fi.nutrifier.ui.components.layout.InstructionRow
 import fi.nutrifier.viewmodels.RecipeUnderInspectionViewModel
 
@@ -41,7 +41,7 @@ internal fun InstructionsStep(
     handleAllowNextChange: (Boolean) -> Unit
 ) {
     var text by remember { mutableStateOf("") }
-    val instructions = remember { mutableStateListOf<Instruction>() }
+    val instructions = remember { mutableStateListOf<RecipeInstruction>() }
 
     LaunchedEffect(Unit) {
         instructions.addAll(viewModel.recipe.value.instructions)
@@ -64,7 +64,7 @@ internal fun InstructionsStep(
             val nextNumber = if (instructions.isEmpty()) 1 else instructions.size + 1
 
             // Generating the new instruction
-            val newInstruction = Instruction(nextNumber, text)
+            val newInstruction = RecipeInstruction(nextNumber, text)
 
             // Adding to viewModel state
             viewModel.addInstruction(newInstruction)

@@ -2,8 +2,6 @@ package fi.nutrifier.models.room
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import fi.nutrifier.models.database.Ingredient
-import fi.nutrifier.models.database.Instruction
 
 /**
  * Entity class representing a personal recipe stored in the 'personal_recipes' table of the Room database.
@@ -19,8 +17,8 @@ import fi.nutrifier.models.database.Instruction
 data class PersonalRecipe(
     val title: String,
     val image: String,
-    val servings: Int,
-    val ingredients: List<Ingredient>,
-    val instructions: List<Instruction>,
+    val servings: Double,
+    val ingredients: List<RecipeIngredient>,
+    val instructions: List<RecipeInstruction>,
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
 )

@@ -16,10 +16,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.material.icons.rounded.Checklist
+import androidx.compose.material.icons.rounded.WifiProtectedSetup
 import fi.nutrifier.ui.components.buttons.NavButton
+import fi.nutrifier.utils.Constants.IS_DEV
 
 /**
  * A composable function that displays a bottom navigation bar with buttons for navigation.
@@ -49,10 +50,10 @@ fun NavBar(navController: NavController, selected: String) {
                     text = "Logs"
                 )
                 NavButton(
-                    selected = selected == "dashboard",
-                    onClick = { navController.navigate("dashboard") },
+                    selected = selected == "analytics",
+                    onClick = { navController.navigate("analytics") },
                     iconVector = Icons.Filled.Analytics,
-                    text = "Dashboard"
+                    text = "Analytics"
                 )
                 NavButton(
                     selected = selected == "cookbook",
@@ -66,6 +67,14 @@ fun NavBar(navController: NavController, selected: String) {
                     iconVector = Icons.Rounded.Checklist,
                     text = "Grocery"
                 )
+                if (IS_DEV) {
+                    NavButton(
+                        selected = selected == "register",
+                        onClick = { navController.navigate("register") },
+                        iconVector = Icons.Rounded.WifiProtectedSetup,
+                        text = "Register"
+                    )
+                }
             }
         }
     }

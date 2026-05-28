@@ -24,7 +24,8 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun TitledContainer(
-    title: String,
+    modifier: Modifier = Modifier,
+    title: String? = null,
     actionButton: (@Composable () -> Unit)? = null,
     titleSize: TextStyle = MaterialTheme.typography.headlineMedium,
     backgroundColor: Color = MaterialTheme.colorScheme.surface,
@@ -40,9 +41,11 @@ fun TitledContainer(
         else -> Modifier.padding(vertical = 10.dp)
     }
 
-    Box {
+    Box(modifier = modifier) {
         Column {
-            Spacer(modifier = titleSpacing)
+            if (title != null) {
+                Spacer(modifier = titleSpacing)
+            }
             Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier
                 .fillMaxWidth()
                 .border(2.dp, borderColor, RoundedCornerShape(8.dp))
@@ -53,22 +56,29 @@ fun TitledContainer(
                 content()
             }
         }
-        Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
-            Text(title,
-                style = titleSize,
-                modifier = Modifier
-                    .padding(start = 16.dp, top = 8.dp)
-                    .background(
-                        Brush.linearGradient(
-                        start = Offset(0f, 0f),
-                        end = Offset(0f, 100f),
-                        colors = listOf(
-                            MaterialTheme.colorScheme.background,
-                            backgroundColor,
-                        ),
-                    ))
-            )
+        Row(
+            horizontalArrangement = if (title != null) Arrangement.SpaceBetween else Arrangement.End,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            if (title != null) {
+                Text(title,
+                    style = titleSize,
+                    modifier = Modifier
+                        .padding(start = 16.dp, top = 8.dp)
+                        .background(
+                            Brush.linearGradient(
+                            start = Offset(0f, 0f),
+                            end = Offset(0f, 100f),
+                            colors = listOf(
+                                MaterialTheme.colorScheme.background,
+                                backgroundColor,
+                            ),
+                        ))
+                )
+            }
             if (actionButton != null) actionButton()
         }
+
     }
 }

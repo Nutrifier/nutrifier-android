@@ -11,7 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import fi.nutrifier.models.database.Recipe
+import fi.nutrifier.models.room.Recipe
 import fi.nutrifier.ui.components.buttons.RecipeButton
 import fi.nutrifier.viewmodels.ViewModelWrapper
 

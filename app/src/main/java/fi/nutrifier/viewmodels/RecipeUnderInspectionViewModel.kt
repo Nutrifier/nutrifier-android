@@ -1,20 +1,17 @@
 package fi.nutrifier.viewmodels
 
-import android.app.Application
 import android.content.SharedPreferences
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
-import fi.nutrifier.models.database.Ingredient
-import fi.nutrifier.models.database.Instruction
-import fi.nutrifier.models.database.Recipe
-import fi.nutrifier.repositories.room.PersonalRecipeRepository
+import fi.nutrifier.models.room.RecipeIngredient
+import fi.nutrifier.models.room.RecipeInstruction
+import fi.nutrifier.models.room.Recipe
 import fi.nutrifier.repositories.room.RecipeUnderInspectionRepository
 import fi.nutrifier.utils.ConversionUtils.emptyRecipe
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.util.UUID
 
 /**
  * ViewModel class responsible for managing the recipe under inspection.
@@ -52,7 +49,7 @@ class RecipeUnderInspectionViewModel(
         }
     }
 
-    fun addIngredient(ingredient: Ingredient) {
+    fun addIngredient(ingredient: RecipeIngredient) {
         val newIngredients = recipe.value.ingredients.toMutableList()
         newIngredients.add(ingredient)
 
@@ -68,7 +65,7 @@ class RecipeUnderInspectionViewModel(
         setRecipe(newRecipe)
     }
 
-    fun addInstruction(instruction: Instruction) {
+    fun addInstruction(instruction: RecipeInstruction) {
         val newInstructions = recipe.value.instructions.toMutableList()
         newInstructions.add(instruction)
 

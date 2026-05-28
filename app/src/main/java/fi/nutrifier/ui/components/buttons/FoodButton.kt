@@ -16,15 +16,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import fi.nutrifier.models.database.Food
-import fi.nutrifier.ui.components.misc.Tag
 import fi.nutrifier.ui.components.misc.TextTag
 import fi.nutrifier.utils.ConversionUtils
 import fi.nutrifier.utils.FormattingUtils
-import fi.nutrifier.viewmodels.UserViewModel
+import fi.nutrifier.viewmodels.SettingsViewModel
 import kotlin.math.roundToInt
 
 @Composable
-fun FoodButton(userViewModel: UserViewModel, food: Food, onClick: () -> Unit) {
+fun FoodButton(
+    settingsViewModel: SettingsViewModel,
+    food: Food,
+    isRecent: Boolean = false,
+    onClick: () -> Unit,
+) {
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         TextButton(
             onClick = { onClick() },
@@ -40,14 +44,17 @@ fun FoodButton(userViewModel: UserViewModel, food: Food, onClick: () -> Unit) {
                 ) {
                     Text(text = food.name, style = MaterialTheme.typography.titleMedium)
                     Spacer(Modifier.padding(vertical = 4.dp))
-                    if (food.fineliId != null) TextTag("Fineli")
+                    Row {
+                        if (food.fineliId != null) TextTag("Fineli")
+                        if (isRecent) TextTag("Recent")
+                    }
                 }
                 Column(horizontalAlignment = Alignment.End) {
                     Text(
                         text = "${ConversionUtils.convertEnergy(
                             food.calories,
-                            userViewModel.user?.settings?.energyUnit
-                        ).roundToInt()} ${userViewModel.user?.settings?.energyUnit?.displayName ?: "kcal"}",
+                            settingsViewModel.settings?.energyUnit
+                        ).roundToInt()} ${settingsViewModel.settings?.energyUnit?.displayName ?: "kcal"}",
                         style = MaterialTheme.typography.titleMedium
                     )
                     Spacer(Modifier.padding(vertical = 2.dp))
@@ -56,7 +63,6 @@ fun FoodButton(userViewModel: UserViewModel, food: Food, onClick: () -> Unit) {
                             fats = food.fat,
                             carbs = food.carbs,
                             protein = food.protein,
-                            userViewModel = userViewModel,
                         ),
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.outline,

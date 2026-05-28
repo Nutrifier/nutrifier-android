@@ -8,11 +8,16 @@ import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKeys
 import fi.nutrifier.models.room.AppDatabase
 import fi.nutrifier.models.room.DatabaseProvider
+import fi.nutrifier.repositories.database.AnalyticsRepository
 import fi.nutrifier.repositories.database.AuthRepository
 import fi.nutrifier.repositories.database.FoodEntryRepository
 import fi.nutrifier.repositories.database.FoodRepository
 import fi.nutrifier.repositories.database.SearchRepository
+import fi.nutrifier.repositories.database.GoalsRepository
+import fi.nutrifier.repositories.database.ProfileRepository
 import fi.nutrifier.repositories.database.UserRepository
+import fi.nutrifier.repositories.database.SettingsRepository
+import fi.nutrifier.repositories.database.WeightRepository
 import fi.nutrifier.repositories.room.FavouriteRecipeRepository
 import fi.nutrifier.repositories.room.PersonalRecipeRepository
 import fi.nutrifier.repositories.room.RecipeUnderInspectionRepository
@@ -40,37 +45,97 @@ class ViewModelFactory(private val context: Context) : ViewModelProvider.Factory
         @Suppress("UNCHECKED_CAST")
         return when {
             modelClass.isAssignableFrom(AuthViewModel::class.java) -> {
-                AuthViewModel(AuthRepository(encryptedSharedPreferences), encryptedSharedPreferences)
+                AuthViewModel(
+                    AuthRepository(encryptedSharedPreferences),
+                    encryptedSharedPreferences,
+                )
             }
             modelClass.isAssignableFrom(BarcodeScannerViewModel::class.java) -> {
                 BarcodeScannerViewModel(encryptedSharedPreferences)
             }
             modelClass.isAssignableFrom(FavouriteRecipesViewModel::class.java) -> {
-                FavouriteRecipesViewModel(FavouriteRecipeRepository(database), encryptedSharedPreferences)
+                FavouriteRecipesViewModel(
+                    FavouriteRecipeRepository(database),
+                    encryptedSharedPreferences,
+                )
             }
             modelClass.isAssignableFrom(FoodEntryViewModel::class.java) -> {
-                FoodEntryViewModel(FoodEntryRepository(encryptedSharedPreferences), encryptedSharedPreferences)
+                FoodEntryViewModel(
+                    FoodEntryRepository(encryptedSharedPreferences),
+                    encryptedSharedPreferences,
+                )
             }
             modelClass.isAssignableFrom(FoodsViewModel::class.java) -> {
-                FoodsViewModel(FoodRepository(encryptedSharedPreferences), encryptedSharedPreferences)
+                FoodsViewModel(
+                    FoodRepository(encryptedSharedPreferences),
+                    encryptedSharedPreferences,
+                )
             }
             modelClass.isAssignableFrom(PersonalRecipesViewModel::class.java) -> {
-                PersonalRecipesViewModel(PersonalRecipeRepository(database), encryptedSharedPreferences)
+                PersonalRecipesViewModel(
+                    PersonalRecipeRepository(database),
+                    encryptedSharedPreferences,
+                )
             }
             modelClass.isAssignableFrom(RecipeUnderInspectionViewModel::class.java) -> {
-                RecipeUnderInspectionViewModel(RecipeUnderInspectionRepository(), encryptedSharedPreferences)
+                RecipeUnderInspectionViewModel(
+                    RecipeUnderInspectionRepository(),
+                    encryptedSharedPreferences,
+                )
             }
             modelClass.isAssignableFrom(SearchViewModel::class.java) -> {
-                SearchViewModel(SearchRepository(), encryptedSharedPreferences)
+                SearchViewModel(
+                    SearchRepository(),
+                    encryptedSharedPreferences,
+                )
             }
             modelClass.isAssignableFrom(ShoppingListViewModel::class.java) -> {
-                ShoppingListViewModel(ShoppingListRepository(encryptedSharedPreferences), encryptedSharedPreferences)
+                ShoppingListViewModel(
+                    ShoppingListRepository(encryptedSharedPreferences),
+                    encryptedSharedPreferences,
+                )
             }
             modelClass.isAssignableFrom(TodaysSpecialsViewModel::class.java) -> {
-                TodaysSpecialsViewModel(TodaysSpecialsRepository(encryptedSharedPreferences), encryptedSharedPreferences)
+                TodaysSpecialsViewModel(
+                    TodaysSpecialsRepository(encryptedSharedPreferences),
+                    encryptedSharedPreferences,
+                )
             }
-            modelClass.isAssignableFrom(UserViewModel::class.java) -> {
-                UserViewModel(UserRepository(encryptedSharedPreferences), encryptedSharedPreferences)
+            modelClass.isAssignableFrom(UserSessionViewModel::class.java) -> {
+                UserSessionViewModel(
+                    UserRepository(encryptedSharedPreferences),
+                    encryptedSharedPreferences,
+                )
+            }
+            modelClass.isAssignableFrom(SettingsViewModel::class.java) -> {
+                SettingsViewModel(
+                    SettingsRepository(encryptedSharedPreferences),
+                    encryptedSharedPreferences,
+                )
+            }
+            modelClass.isAssignableFrom(GoalsViewModel::class.java) -> {
+                GoalsViewModel(
+                    GoalsRepository(encryptedSharedPreferences),
+                    encryptedSharedPreferences,
+                )
+            }
+            modelClass.isAssignableFrom(ProfileViewModel::class.java) -> {
+                ProfileViewModel(
+                    ProfileRepository(encryptedSharedPreferences),
+                    encryptedSharedPreferences,
+                )
+            }
+            modelClass.isAssignableFrom(WeightViewModel::class.java) -> {
+                WeightViewModel(
+                    WeightRepository(encryptedSharedPreferences),
+                    encryptedSharedPreferences,
+                )
+            }
+            modelClass.isAssignableFrom(AnalyticsViewModel::class.java) -> {
+                AnalyticsViewModel(
+                    AnalyticsRepository(encryptedSharedPreferences),
+                    encryptedSharedPreferences,
+                )
             }
             else -> {
                 throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")

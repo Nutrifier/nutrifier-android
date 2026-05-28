@@ -85,10 +85,10 @@ object Blue2ThemeColors {
 
     val backgroundLight = Color(0xFFF6F8FC)
     val onBackgroundLight = Color(0xFF0F172A)
-    val surfaceLight = Color(0xFFFFFFFF)
+    val surfaceLight = Color(0xFFEBEFF8)
     val onSurfaceLight = Color(0xFF1E293B)
 
-    val surfaceVariantLight = Color(0xFFE6EDF5)
+    val surfaceVariantLight = Color(0xFFDFE6F6)
     val onSurfaceVariantLight = Color(0xFF2B3A55)
 
     val outlineLight = Color(0xFF9AA6B2)

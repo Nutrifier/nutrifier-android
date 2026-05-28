@@ -1,17 +1,22 @@
 package fi.nutrifier.viewmodels
 
-import android.app.Application
 import android.content.SharedPreferences
+import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.ViewModelFactoryDsl
-import fi.nutrifier.models.database.Recipe
-import fi.nutrifier.models.room.DatabaseProvider
+import fi.nutrifier.models.database.FoodEntry
+import fi.nutrifier.models.database.FoodEntryFood
+import fi.nutrifier.models.room.Recipe
 import fi.nutrifier.models.room.PersonalRecipe
 import fi.nutrifier.repositories.room.PersonalRecipeRepository
+import fi.nutrifier.utils.ConversionUtils.emptyFood
 import fi.nutrifier.utils.ConversionUtils.toRecipe
+import fi.nutrifier.utils.Enums
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlin.collections.filter
+import kotlin.collections.map
+import kotlin.collections.orEmpty
 
 /**
  * ViewModel class for managing personal recipes.

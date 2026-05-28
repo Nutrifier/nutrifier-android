@@ -7,7 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import fi.nutrifier.models.database.Ingredient
+import fi.nutrifier.models.room.RecipeIngredient
 import fi.nutrifier.ui.components.inputs.IngredientForm
 import fi.nutrifier.ui.components.layout.IngredientRow
 import fi.nutrifier.viewmodels.RecipeUnderInspectionViewModel
@@ -31,7 +31,7 @@ internal fun IngredientsStep(
         }
     }
 
-    fun handleIngredientAdd(ingredient: Ingredient) {
+    fun handleIngredientAdd(ingredient: RecipeIngredient) {
         // TODO: Clear data on save
         viewModel.addIngredient(ingredient)
     }

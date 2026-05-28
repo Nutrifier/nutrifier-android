@@ -5,6 +5,7 @@ import fi.nutrifier.models.database.SpoonacularRecipe
 import fi.nutrifier.models.database.SpoonacularResponse
 import retrofit2.Response
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.Path
 import retrofit2.http.Query
 import java.util.UUID

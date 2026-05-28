@@ -3,12 +3,7 @@ package fi.nutrifier.models.database
 import fi.nutrifier.BuildConfig
 import java.util.UUID
 
-data class FineliName(
-    val fi: String,
-    val sv: String,
-    val en: String,
-    val la: String,
-)
+
 
 data class FineliResponse(
     val id: Int,

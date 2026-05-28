@@ -2,6 +2,8 @@ package fi.nutrifier.repositories.database
 
 import android.content.SharedPreferences
 import fi.nutrifier.models.database.Food
+import fi.nutrifier.models.database.FoodRequest
+import fi.nutrifier.models.database.PaginatedResponse
 import fi.nutrifier.services.database.RetrofitInstance
 import fi.nutrifier.utils.Result
 import fi.nutrifier.utils.SharedPreferencesManager
@@ -11,14 +13,29 @@ class FoodRepository(private val encryptedPrefs: SharedPreferences) {
     private val retrofitInstance = RetrofitInstance()
     private val service = retrofitInstance.foodService
 
-    suspend fun getFoods(page: Int, size: Int): Result<List<Food>> {
+    suspend fun getFoods(page: Int, size: Int): Result<PaginatedResponse<Food>> {
         val token: String? = SharedPreferencesManager.getAuthToken(encryptedPrefs)
 
         return try {
             val response = service.getFoods(page, size, "Bearer $token")
             if (response.isSuccessful) {
-                val data = response.body()?.content
-                Result.success(data ?: emptyList())
+                val data = response.body()
+                Result.success(data)
+            }
+            else Result.fail(response.code())
+        } catch (e: Exception) {
+            Result.fail(500, e.localizedMessage ?: "Unknown error occurred.")
+        }
+    }
+
+    suspend fun getRecentFoods(): Result<List<Food>> {
+        val token: String? = SharedPreferencesManager.getAuthToken(encryptedPrefs)
+
+        return try {
+            val response = service.getRecentFoods("Bearer $token")
+            if (response.isSuccessful) {
+                val data = response.body()
+                Result.success(data)
             }
             else Result.fail(response.code())
         } catch (e: Exception) {
@@ -62,11 +79,11 @@ class FoodRepository(private val encryptedPrefs: SharedPreferences) {
         }
     }
 
-    suspend fun saveFood(food: Food): Result<Boolean> {
+    suspend fun saveFood(foodRequest: FoodRequest): Result<Boolean> {
         val token: String? = SharedPreferencesManager.getAuthToken(encryptedPrefs)
 
         return try {
-            val response = service.saveFood(food, "Bearer $token")
+            val response = service.saveFood(foodRequest, "Bearer $token")
             if (response.isSuccessful) Result.success(true)
             else Result.fail(response.code())
         } catch (e: Exception) {

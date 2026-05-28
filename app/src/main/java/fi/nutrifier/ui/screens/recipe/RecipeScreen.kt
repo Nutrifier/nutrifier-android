@@ -1,6 +1,5 @@
 package fi.nutrifier.ui.screens.recipe
 
-import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -20,18 +19,16 @@ import androidx.compose.material.icons.rounded.StarBorder
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -48,21 +45,16 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import fi.nutrifier.BuildConfig
 import fi.nutrifier.R
 import fi.nutrifier.ui.components.dialogs.DeleteDialog
 import fi.nutrifier.ui.components.layout.IngredientRow
 import fi.nutrifier.ui.components.layout.InstructionRow
 import fi.nutrifier.ui.components.inputs.NumberCounter
 import fi.nutrifier.ui.components.inputs.NutrientInputRow
-import fi.nutrifier.ui.components.layout.nutrient.NutrientRow
 import fi.nutrifier.ui.components.misc.RecipeImage
 import fi.nutrifier.ui.components.misc.UserFeedbackMessage
-import fi.nutrifier.utils.Alert
 import fi.nutrifier.utils.AlertType
 import fi.nutrifier.viewmodels.ViewModelWrapper
-import kotlinx.coroutines.flow.collectLatest
-import java.util.UUID
 
 /**
  * Composable function for rendering the recipe screen.
@@ -83,7 +75,7 @@ fun RecipeScreen(
     var showMore by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showServingsChangedNotice by remember { mutableStateOf(false) }
-    var initialServings by remember { mutableIntStateOf(recipe.servings) }
+    var initialServings by remember { mutableDoubleStateOf(recipe.servings) }
     val isLoading by viewModels.inspection.loading.collectAsState()
 
     LaunchedEffect(Unit) {
@@ -116,7 +108,7 @@ fun RecipeScreen(
         showDeleteDialog = true
     }
 
-    fun calculateIngredients(newServings: Int) {
+    fun calculateIngredients(newServings: Double) {
         showServingsChangedNotice = newServings != initialServings
 
         // Calculate new ingredient amounts based on new servings size
@@ -213,9 +205,12 @@ fun RecipeScreen(
                                 onClick = { handleDeleteClick() }
                             )
                         }
-                        if (showDeleteDialog) {
-                            DeleteDialog(navController, viewModels) { showDeleteDialog = false }
-                        }
+                        DeleteDialog(
+                            navController,
+                            viewModels,
+                            isVisible = showDeleteDialog,
+                            exitDialog = { showDeleteDialog = false }
+                        )
                     }
                 } else {
                     IconButton(
@@ -255,8 +250,8 @@ fun RecipeScreen(
             NumberCounter(
                 value = recipe.servings,
                 suffix = "servings",
-                onNumberChange = { calculateIngredients(it.toInt()) },
-                max = 50,
+                onNumberChange = { calculateIngredients(it) },
+                max = 50.0,
             )
             Spacer(modifier = Modifier.height(24.dp))
 

@@ -1,12 +1,9 @@
 package fi.nutrifier.viewmodels
 
-import android.app.Application
 import android.content.SharedPreferences
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.viewModelScope
-import androidx.security.crypto.EncryptedSharedPreferences
-import fi.nutrifier.models.database.Recipe
-import fi.nutrifier.models.room.DatabaseProvider
+import fi.nutrifier.models.room.Recipe
 import fi.nutrifier.models.room.FavouriteRecipe
 import fi.nutrifier.repositories.room.FavouriteRecipeRepository
 import fi.nutrifier.utils.ConversionUtils.toRecipe

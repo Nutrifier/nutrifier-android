@@ -32,7 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import fi.nutrifier.R
-import fi.nutrifier.models.database.Recipe
+import fi.nutrifier.models.room.Recipe
 import fi.nutrifier.ui.components.misc.RecipeImage
 import fi.nutrifier.viewmodels.RecipeUnderInspectionViewModel
 
@@ -109,7 +109,8 @@ fun RecipeButton(
                     text = recipe.title,
                     style = TextStyle(
                         fontSize = 20.sp
-                    )
+                    ),
+                    color = Color(255, 255, 255) // Always white on images
                 )
             }
             if (loading && !imageError) {

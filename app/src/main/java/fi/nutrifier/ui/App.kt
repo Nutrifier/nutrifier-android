@@ -20,7 +20,7 @@ import fi.nutrifier.ui.components.misc.CustomSnackbar
 import fi.nutrifier.ui.screens.BarcodeScreen
 import fi.nutrifier.utils.LocalApplicationContext
 import fi.nutrifier.ui.screens.recipe.RecipeEditorScreen
-import fi.nutrifier.ui.screens.dashboard.DashboardScreen
+import fi.nutrifier.ui.screens.analytics.AnalyticsScreen
 import fi.nutrifier.ui.screens.cookbook.CookbookScreen
 import fi.nutrifier.ui.screens.food.FoodScreen
 import fi.nutrifier.ui.screens.AddEntryScreen
@@ -30,20 +30,26 @@ import fi.nutrifier.ui.screens.MealScreen
 import fi.nutrifier.ui.screens.settings.SettingsScreen
 import fi.nutrifier.ui.screens.recipe.RecipeScreen
 import fi.nutrifier.ui.screens.ShoppingListScreen
+import fi.nutrifier.ui.screens.register.RegisterScreen
 import fi.nutrifier.utils.Alert
+import fi.nutrifier.viewmodels.AnalyticsViewModel
 import fi.nutrifier.viewmodels.AuthViewModel
 import fi.nutrifier.viewmodels.BarcodeScannerViewModel
 import fi.nutrifier.viewmodels.FavouriteRecipesViewModel
 import fi.nutrifier.viewmodels.FoodsViewModel
 import fi.nutrifier.viewmodels.FoodEntryViewModel
+import fi.nutrifier.viewmodels.GoalsViewModel
 import fi.nutrifier.viewmodels.PersonalRecipesViewModel
+import fi.nutrifier.viewmodels.ProfileViewModel
 import fi.nutrifier.viewmodels.RecipeUnderInspectionViewModel
 import fi.nutrifier.viewmodels.SearchViewModel
+import fi.nutrifier.viewmodels.SettingsViewModel
 import fi.nutrifier.viewmodels.ShoppingListViewModel
 import fi.nutrifier.viewmodels.TodaysSpecialsViewModel
-import fi.nutrifier.viewmodels.UserViewModel
+import fi.nutrifier.viewmodels.UserSessionViewModel
 import fi.nutrifier.viewmodels.ViewModelFactory
 import fi.nutrifier.viewmodels.ViewModelWrapper
+import fi.nutrifier.viewmodels.WeightViewModel
 
 /**
  * Composable function representing the entry point of the Recipe App.
@@ -72,7 +78,12 @@ fun App(applicationContext: Context) {
     val authViewModel: AuthViewModel = viewModel(factory = factory)
     val barcodeScannerViewModel: BarcodeScannerViewModel = viewModel(factory = factory)
     val foodsViewModel: FoodsViewModel = viewModel(factory = factory)
-    val userViewModel: UserViewModel = viewModel(factory = factory)
+    val userSessionViewModel: UserSessionViewModel = viewModel(factory = factory)
+    val settingsViewModel: SettingsViewModel = viewModel(factory = factory)
+    val goalsViewModel: GoalsViewModel = viewModel(factory = factory)
+    val profileViewModel: ProfileViewModel = viewModel(factory = factory)
+    val weightViewModel: WeightViewModel = viewModel(factory = factory)
+    val analyticsViewModel: AnalyticsViewModel = viewModel(factory = factory)
 
     val viewModels = ViewModelWrapper(
         favourite = favouriteRecipesViewModel,
@@ -85,7 +96,12 @@ fun App(applicationContext: Context) {
         authViewModel = authViewModel,
         barcode = barcodeScannerViewModel,
         foods = foodsViewModel,
-        user = userViewModel,
+        user = userSessionViewModel,
+        settings = settingsViewModel,
+        goals = goalsViewModel,
+        profile = profileViewModel,
+        weight = weightViewModel,
+        analytics = analyticsViewModel
     )
 
     LaunchedEffect(Unit) {
@@ -110,11 +126,18 @@ fun App(applicationContext: Context) {
                 composable("login") {
                     LoginScreen(navController, viewModels)
                 }
-                composable("dashboard") {
-                    DashboardScreen(navController, viewModels)
+                composable("register") {
+                    RegisterScreen(navController, viewModels)
+                }
+                composable("analytics") {
+                    AnalyticsScreen(navController, viewModels)
                 }
                 composable("logs") {
-                    FoodEntryScreen(navController, viewModels)
+                    FoodEntryScreen(navController, viewModels, null)
+                }
+                composable("logs/{date}") {
+                    val date = it.arguments?.getString("date")
+                    FoodEntryScreen(navController, viewModels, date)
                 }
                 composable("add_food") {
                     AddEntryScreen(navController, viewModels)
