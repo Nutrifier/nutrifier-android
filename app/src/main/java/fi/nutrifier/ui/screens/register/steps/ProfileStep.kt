@@ -3,39 +3,19 @@ package fi.nutrifier.ui.screens.register.steps
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import fi.nutrifier.models.database.UserProfile
-import fi.nutrifier.ui.components.inputs.Dropdown
+import fi.nutrifier.ui.components.inputs.NutrifierDropdown
 import fi.nutrifier.ui.components.inputs.NumberCounter
 import fi.nutrifier.ui.components.misc.LabeledComponent
 import fi.nutrifier.ui.components.misc.TitleSubtitle
 import fi.nutrifier.utils.Constants
-import fi.nutrifier.utils.Constants.emptyProfile
 import fi.nutrifier.utils.Enums
-import fi.nutrifier.utils.FormattingUtils
 import fi.nutrifier.utils.ProfileErrors
 import fi.nutrifier.utils.RegistrationFormState
-import fi.nutrifier.viewmodels.ViewModelWrapper
 
 @Composable
 fun ProfileStep(
@@ -56,7 +36,7 @@ fun ProfileStep(
                 label = "Gender/sex",
                 error = registrationFormState.profileErrors.sex,
             ) {
-                Dropdown(
+                NutrifierDropdown(
                     value = registrationFormState.profile.sex,
                     items = Enums.Sex.entries.toList(),
                     labelMapper = { it.displayName },

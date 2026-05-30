@@ -1,5 +1,6 @@
 package fi.nutrifier.ui.components.inputs
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -62,12 +63,13 @@ fun DatePickerButton(
 
     TextButton(
         onClick = { isDatePickerOpen = !isDatePickerOpen },
-        shape = RoundedCornerShape(8.dp),
+        shape = RoundedCornerShape(16.dp),
         contentPadding = PaddingValues(horizontal = 22.dp, vertical = 12.dp),
         colors = ButtonDefaults.buttonColors().copy(
-            containerColor = MaterialTheme.colorScheme.surface,
-            contentColor = MaterialTheme.colorScheme.onSurface,
+            containerColor = MaterialTheme.colorScheme.background,
+            contentColor = MaterialTheme.colorScheme.onBackground,
         ),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
     ) {
         Text(
             text = FormattingUtils.formatDateStr(dateCalculated?.toString())

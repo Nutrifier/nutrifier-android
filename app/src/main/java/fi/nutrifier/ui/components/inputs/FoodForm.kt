@@ -1,17 +1,15 @@
 package fi.nutrifier.ui.components.inputs
 
 import android.util.Log
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -20,8 +18,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -29,7 +25,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -90,73 +85,55 @@ fun FoodForm(navController: NavController, viewModels: ViewModelWrapper) {
         }
     }
 
-    Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-        TextField(
+    Column(
+        modifier = Modifier.verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        NutrifierTextField(
             value = name,
             onValueChange = { name = it },
             label = { Text("Name *") },
-            singleLine = true,
-            colors = TextFieldDefaults.colors(
-                unfocusedContainerColor = MaterialTheme.colorScheme.surface
-            ),
+            modifier = Modifier.fillMaxWidth()
         )
-        Spacer(modifier = Modifier.padding(vertical = 8.dp))
-        TextField(
+        NutrifierTextField(
             value = brand,
             onValueChange = { brand = it },
             label = { Text("Brand") },
-            singleLine = true,
-            colors = TextFieldDefaults.colors(
-                unfocusedContainerColor = MaterialTheme.colorScheme.surface
-            ),
+            modifier = Modifier.fillMaxWidth()
         )
-        Spacer(modifier = Modifier.padding(vertical = 8.dp))
-        TextField(
+        NutrifierTextField(
             value = category,
             onValueChange = { category = it },
             label = { Text("Category") },
-            singleLine = true,
-            colors = TextFieldDefaults.colors(
-                unfocusedContainerColor = MaterialTheme.colorScheme.surface
-            ),
+            modifier = Modifier.fillMaxWidth()
         )
-        Spacer(modifier = Modifier.padding(vertical = 8.dp))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-        ) {
-            TextField(
+        Row(modifier = Modifier.fillMaxWidth()) {
+            NutrifierTextField(
                 value = barcode,
                 onValueChange = { barcode = it },
-                singleLine = true,
                 keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
                 label = { Text("Barcode") },
-                colors = TextFieldDefaults.colors(
-                    unfocusedContainerColor = MaterialTheme.colorScheme.surface
-                ),
-                modifier = Modifier
-                    .clip(RoundedCornerShape(6.dp, 0.dp, 0.dp, 6.dp))
-                    .fillMaxWidth(0.85f)
-            )
-            Spacer(modifier = Modifier.padding(horizontal = 2.dp))
-            IconButton(
-                onClick = {
-                    Log.d("FoodForm", "Navigating to barcode")
-                    navController.navigate("barcode")
+                modifier = Modifier.fillMaxWidth(),
+                trailingIcon = {
+                    IconButton(
+                        onClick = {
+                            Log.d("FoodForm", "Navigating to barcode")
+                            navController.navigate("barcode/CREATE-FOOD")
+                        },
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .padding(end = 4.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.QrCodeScanner,
+                            contentDescription = "Barcode Scanner",
+                            tint = MaterialTheme.colorScheme.outline
+                        )
+                    }
                 },
-                modifier = Modifier
-                    .clip(RoundedCornerShape(topEnd = 6.dp, bottomEnd = 6.dp))
-                    .background(MaterialTheme.colorScheme.surface)
-                    .height(56.dp)
-                    .width(56.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.QrCodeScanner,
-                    contentDescription = "Barcode Scanner",
-                )
-            }
+            )
         }
-        Spacer(modifier = Modifier.padding(vertical = 24.dp))
+        Spacer(modifier = Modifier.height(16.dp))
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
             NutrientInputRow(
                 text = "Nutrients per",
@@ -168,7 +145,6 @@ fun FoodForm(navController: NavController, viewModels: ViewModelWrapper) {
                 editable = false // TODO: Make editable
             )
         }
-        Spacer(modifier = Modifier.padding(horizontal = 8.dp))
         TitledContainer(
             title = "Nutrients",
             titleSize = MaterialTheme.typography.titleLarge,

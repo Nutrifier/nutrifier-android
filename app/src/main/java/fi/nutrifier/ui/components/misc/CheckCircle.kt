@@ -22,30 +22,43 @@ import androidx.compose.ui.unit.dp
  * This can be used to indicate a selected or completed state.
  */
 @Composable
-fun CheckCircle(checked: Boolean = true) {
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = Modifier
+fun CheckCircle(checked: Boolean = true, useBorder: Boolean = true) {
+    val modifier = if (useBorder) {
+        Modifier
             .clip(CircleShape)
             .height(20.dp)
             .width(20.dp)
             .background(
-                if (checked) MaterialTheme.colorScheme.tertiary
+                if (checked) MaterialTheme.colorScheme.primary
                 else MaterialTheme.colorScheme.outline
             )
             .border(
                 width = 1.dp,
                 color =
-                    if (checked) MaterialTheme.colorScheme.tertiary
+                    if (checked) MaterialTheme.colorScheme.primary
                     else MaterialTheme.colorScheme.surface,
                 shape = CircleShape
             )
+    } else {
+        Modifier
+            .clip(CircleShape)
+            .height(22.dp)
+            .width(22.dp)
+            .background(
+                if (checked) MaterialTheme.colorScheme.primary
+                else MaterialTheme.colorScheme.outline
+            )
+    }
+
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = modifier
     ) {
         if (checked) {
             Icon(
                 imageVector = Icons.Rounded.Check,
                 contentDescription = "check",
-                tint = MaterialTheme.colorScheme.scrim,
+                tint = MaterialTheme.colorScheme.onPrimary,
                 modifier = Modifier.padding(2.dp)
             )
         }

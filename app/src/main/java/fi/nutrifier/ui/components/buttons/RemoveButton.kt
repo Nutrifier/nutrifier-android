@@ -23,9 +23,8 @@ fun RemoveButton(index: Int, onClick: (Int) -> Unit) {
     IconButton(
         onClick = { onClick(index) },
         modifier = Modifier.height(20.dp).width(20.dp),
-        colors = IconButtonDefaults.iconButtonColors(
-            containerColor = MaterialTheme.colorScheme.errorContainer,
-            contentColor = MaterialTheme.colorScheme.onErrorContainer
+        colors = IconButtonDefaults.iconButtonColors().copy(
+            contentColor = MaterialTheme.colorScheme.error
         )
     ) {
         Icon(

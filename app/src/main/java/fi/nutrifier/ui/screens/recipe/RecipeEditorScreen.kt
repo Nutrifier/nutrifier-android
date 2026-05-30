@@ -26,6 +26,7 @@ import fi.nutrifier.ui.components.buttons.BackButton
 import fi.nutrifier.ui.components.inputs.PreviousNextOption
 import fi.nutrifier.ui.components.misc.StepIndicator
 import fi.nutrifier.ui.components.layout.TopBar
+import fi.nutrifier.ui.components.misc.TitleSubtitle
 import fi.nutrifier.ui.screens.BaseScreen
 import fi.nutrifier.ui.screens.recipe.steps.IngredientsStep
 import fi.nutrifier.ui.screens.recipe.steps.InstructionsStep
@@ -93,6 +94,7 @@ fun RecipeEditorScreen(
                 PreviousNextOption(
                     showPrevious = currentFormStep > 0,
                     allowNext = allowNext,
+                    nextButtonText = if (currentFormStep == 3) "Save" else "Next"
                 ) {
                     handleStepChange(it)
                 }
@@ -105,14 +107,14 @@ fun RecipeEditorScreen(
         Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
             Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                 when (currentFormStep) {
-                    0 -> Text("General", style = MaterialTheme.typography.headlineLarge)
-                    1 -> Text("Ingredients", style = MaterialTheme.typography.headlineLarge)
-                    2 -> Text("Instructions", style = MaterialTheme.typography.headlineLarge)
-                    3 -> Text("Preview", style = MaterialTheme.typography.headlineLarge)
+                    0 -> TitleSubtitle("General")
+                    1 -> TitleSubtitle("Ingredients")
+                    2 -> TitleSubtitle("Instructions")
+                    3 -> TitleSubtitle("Preview")
                 }
                 Spacer(modifier = Modifier.height(16.dp))
                 StepIndicator(0..3, currentFormStep)
-                Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(44.dp))
                 when (currentFormStep) {
                     0 -> TitleStep(viewModel, ::handleAllowNextChange, ::handleStepChange)
                     1 -> IngredientsStep(viewModel, ::handleAllowNextChange)

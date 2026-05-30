@@ -54,11 +54,15 @@ fun StepIndicator(
                     .background(MaterialTheme.colorScheme.surface)
                     .border(
                         width = 1.dp,
-                        color = MaterialTheme.colorScheme.outline,
+                        color = if (currentStep > it) {
+                            MaterialTheme.colorScheme.onPrimary
+                        } else {
+                            MaterialTheme.colorScheme.outline
+                        },
                         shape = CircleShape
                     )
             ) {
-                if (currentStep > it) CheckCircle()
+                if (currentStep > it) CheckCircle(useBorder = false)
                 else {
                     Text(
                         text = "${it + 1}",
@@ -88,7 +92,7 @@ fun StepIndicator(
                     .weight(1f)
                     .background(
                         if (currentStep > it) {
-                            MaterialTheme.colorScheme.tertiary
+                            MaterialTheme.colorScheme.primary
                         } else {
                             MaterialTheme.colorScheme.outline
                         }

@@ -2,6 +2,7 @@ package fi.nutrifier.viewmodels
 
 import android.app.Application
 import android.content.SharedPreferences
+import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -55,7 +56,6 @@ class FoodsViewModel(
     private val foodPageSize = 20
 
     fun loadFoods() {
-        android.util.Log.d("LogsScreenViewModel", "foods")
         foodPage = 0 // Reset food page
 
         viewModelScope.launch(Dispatchers.IO) {
@@ -63,13 +63,20 @@ class FoodsViewModel(
             val recentResult = repository.getRecentFoods()
             if (recentResult.isSuccessful()) {
                 _recentFoods.value = recentResult.value ?: emptyList()
+
             } else {
                 showAlert("Error occurred while loading recent foods (${recentResult.errorCode}).")
             }
 
             val result = repository.getFoods(foodPage, foodPageSize)
             if (result.isSuccessful()) {
-                _foods.value = result.value?.content ?: emptyList()
+                // Filtering out "recentFoods" from "foods" so duplicate values (and id's) are not used in the same LazyList
+                val recentFiltered = result.value?.content?.filter { food ->
+                    recentResult.value?.find { recent ->
+                        food.id == recent.id
+                    } == null
+                }
+                _foods.value = recentFiltered ?: emptyList()
                 if (result.value?.content != null && result.value.content.isNotEmpty()) {
                     _totalFoodsCount.value = result.value.totalElements.toInt()
                     _firstItemIndex.value = (result.value.size * result.value.number) + 1
@@ -82,7 +89,6 @@ class FoodsViewModel(
     }
 
     fun loadMoreFoods() {
-        android.util.Log.d("LogsScreenViewModel", "MORE foods")
         if (loading.value) return
         setLoading(true)
 
@@ -133,8 +139,6 @@ class FoodsViewModel(
     }
 
     fun saveFood(foodRequest: FoodRequest) {
-        android.util.Log.d("LogsScreenViewModel", "Saving food: $foodRequest")
-
         viewModelScope.launch(Dispatchers.IO) {
             val result = repository.saveFood(foodRequest)
             if (result.isSuccessful()) {

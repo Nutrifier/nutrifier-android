@@ -11,8 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
@@ -40,7 +38,7 @@ import androidx.compose.ui.unit.dp
 import fi.nutrifier.ui.components.dialogs.GoalUpdateDialog
 import fi.nutrifier.ui.components.inputs.ActionButtons
 import fi.nutrifier.ui.components.inputs.DatePickerButton
-import fi.nutrifier.ui.components.inputs.Dropdown
+import fi.nutrifier.ui.components.inputs.NutrifierDropdown
 import fi.nutrifier.ui.components.inputs.NumberCounter
 import fi.nutrifier.ui.components.layout.GoalPeriodItem
 import fi.nutrifier.ui.components.misc.LabeledComponent
@@ -114,11 +112,11 @@ internal fun GoalsSection(viewModels: ViewModelWrapper) {
 
     Section("Goals", "Set the goals of your food logging.") {
         LabeledComponent(label = "Reasoning:") {
-            Dropdown(
+            NutrifierDropdown(
                 value = goalType,
                 items = Enums.GoalType.entries.toList(),
                 modifier = Modifier.width(180.dp),
-                labelMapper = { it.displayName }
+                labelMapper = { it.displayName },
             ) {
                 goalType = it
             }
