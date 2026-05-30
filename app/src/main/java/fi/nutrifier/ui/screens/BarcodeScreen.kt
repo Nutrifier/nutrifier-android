@@ -122,7 +122,7 @@ fun BarcodeScreen(
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
             ) {
                 ActionButtons(onSecondaryAction = { navController.navigateUp() })
             }

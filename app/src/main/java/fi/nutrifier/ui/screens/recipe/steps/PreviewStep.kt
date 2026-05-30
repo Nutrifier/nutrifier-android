@@ -1,6 +1,7 @@
 package fi.nutrifier.ui.screens.recipe.steps
 
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -26,6 +27,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import fi.nutrifier.ui.components.misc.LabeledComponent
 import fi.nutrifier.ui.screens.recipe.RecipeScreen
 import fi.nutrifier.viewmodels.ViewModelWrapper
 
@@ -49,72 +51,32 @@ internal fun PreviewStep(
         handleAllowNextChange(true)
     }
 
-    Column {
-        Text(
-            text = "Title:",
-            style = TextStyle(
-                fontWeight = FontWeight.SemiBold,
-                color = Color.Gray.copy(alpha = 0.8f)
-            )
-        )
-        Text(viewModels.inspection.recipe.value.title)
-    }
-    Spacer(modifier = Modifier.height(8.dp))
-    Column {
-        Text(
-            text = "Image:",
-            style = TextStyle(
-                fontWeight = FontWeight.SemiBold,
-                color = Color.Gray.copy(alpha = 0.8f)
-            )
-        )
-        Text(viewModels.inspection.recipe.value.image)
-    }
-    Spacer(modifier = Modifier.height(8.dp))
-    Column {
-        Text(
-            text = "Servings:",
-            style = TextStyle(
-                fontWeight = FontWeight.SemiBold,
-                color = Color.Gray.copy(alpha = 0.8f)
-            )
-        )
-        Text("${viewModels.inspection.recipe.value.servings}")
-    }
-    Spacer(modifier = Modifier.height(8.dp))
-    Column {
-        Text(
-            text = "Ingredients:",
-            style = TextStyle(
-                fontWeight = FontWeight.SemiBold,
-                color = Color.Gray.copy(alpha = 0.8f)
-            )
-        )
-        Column {
+    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        LabeledComponent(label = "Title", gap = 4.dp) {
+            Text(viewModels.inspection.recipe.value.title)
+        }
+        LabeledComponent(label = "Image", gap = 4.dp) {
+            // TODO: Render the actual image
+            Text(viewModels.inspection.recipe.value.image)
+        }
+        LabeledComponent(label = "Servings", gap = 4.dp) {
+            Text("${viewModels.inspection.recipe.value.servings}")
+        }
+        LabeledComponent(label = "Ingredients", gap = 4.dp) {
             viewModels.inspection.recipe.value.ingredients.forEach {
-                Text("${it.amount} ${it.unit}  ${it.name}")
+                Text("${it.amount} ${it.unit.displayName}  ${it.name}")
             }
         }
-    }
-    Spacer(modifier = Modifier.height(8.dp))
-    Column {
-        Text(
-            text = "Instructions:",
-            style = TextStyle(
-                fontWeight = FontWeight.SemiBold,
-                color = Color.Gray.copy(alpha = 0.8f)
-            )
-        )
-        Column {
+        LabeledComponent(label = "Instructions", gap = 4.dp) {
             viewModels.inspection.recipe.value.instructions.forEach { instruction ->
-                Row {
-                    Text("${instruction.number}")
+                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text("${instruction.number}.")
                     Text(instruction.text)
                 }
             }
         }
     }
-    Spacer(modifier = Modifier.height(8.dp))
+    Spacer(modifier = Modifier.height(16.dp))
     TextButton(
         shape = RoundedCornerShape(8.dp),
         contentPadding = PaddingValues(vertical = 0.dp, horizontal = 8.dp),

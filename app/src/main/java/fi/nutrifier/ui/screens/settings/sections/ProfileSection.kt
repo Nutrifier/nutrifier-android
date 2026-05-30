@@ -9,7 +9,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import fi.nutrifier.ui.components.inputs.Dropdown
+import fi.nutrifier.ui.components.inputs.NutrifierDropdown
 import fi.nutrifier.ui.components.misc.LabeledComponent
 import fi.nutrifier.utils.Enums
 import fi.nutrifier.viewmodels.ViewModelWrapper
@@ -36,6 +36,7 @@ internal fun ProfileSection(viewModels: ViewModelWrapper) {
             horizontalArrangement = Arrangement.spacedBy(24.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
+            // TODO: Make email and password changeable
             profileItems.forEach {
                 LabeledComponent(label = it.label) {
                     Text(it.text)
@@ -47,10 +48,10 @@ internal fun ProfileSection(viewModels: ViewModelWrapper) {
         }
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
             LabeledComponent(label = "Energy unit") {
-                Dropdown(
+                NutrifierDropdown(
                     value = viewModels.settings.settings?.energyUnit,
                     items = Enums.EnergyUnit.entries.toList(),
-                    modifier = Modifier.width(80.dp),
+                    modifier = Modifier.width(100.dp),
                     labelMapper = { it.displayName }
                 ) {
                     Log.d("ProfileSection", "settings ${viewModels.settings.settings.toString()}")
@@ -61,10 +62,10 @@ internal fun ProfileSection(viewModels: ViewModelWrapper) {
                 }
             }
             LabeledComponent(label = "Weight unit") {
-                Dropdown(
+                NutrifierDropdown(
                     value = viewModels.settings.settings?.weightUnit,
                     items = Enums.FoodWeightUnit.entries.toList(),
-                    modifier = Modifier.width(80.dp),
+                    modifier = Modifier.width(100.dp),
                     labelMapper = { it.displayName }
                 ) {
                     val updatedSettings = viewModels.settings.settings?.copy(
@@ -95,10 +96,10 @@ internal fun ProfileSection(viewModels: ViewModelWrapper) {
         }
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
             LabeledComponent(label = "Nutrient display mode") {
-                Dropdown(
+                NutrifierDropdown(
                     value = viewModels.settings.settings?.nutrientDisplayMode,
                     items = Enums.NutrientDisplayMode.entries.toList().filter { it.name != "LEGACY_CIRCLE" },
-                    modifier = Modifier.width(120.dp),
+                    modifier = Modifier.width(140.dp),
                     labelMapper = { it.displayName }
                 ) {
                     val updatedSettings = viewModels.settings.settings?.copy(
@@ -108,10 +109,10 @@ internal fun ProfileSection(viewModels: ViewModelWrapper) {
                 }
             }
             LabeledComponent(label = "Language") {
-                Dropdown(
+                NutrifierDropdown(
                     value = viewModels.settings.settings?.language,
                     items = Enums.Language.entries.toList(),
-                    modifier = Modifier.width(120.dp),
+                    modifier = Modifier.width(140.dp),
                     labelMapper = { it.displayName }
                 ) {
                     val updatedSettings = viewModels.settings.settings?.copy(language =

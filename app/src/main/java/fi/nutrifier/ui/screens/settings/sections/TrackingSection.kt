@@ -9,7 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import fi.nutrifier.ui.components.inputs.Dropdown
+import fi.nutrifier.ui.components.inputs.NutrifierDropdown
 import fi.nutrifier.ui.components.inputs.NumberCounter
 import fi.nutrifier.ui.components.misc.LabeledComponent
 import fi.nutrifier.utils.Enums
@@ -19,11 +19,11 @@ import fi.nutrifier.viewmodels.ViewModelWrapper
 internal fun TrackingSection(viewModels: ViewModelWrapper) {
     Section("Tracking", "Set specific tracking tools and helpers.") {
         LabeledComponent(label = "Diet:") {
-            Dropdown(
+            NutrifierDropdown(
                 value = viewModels.settings.settings?.diet,
                 items = Enums.Diet.entries.toList(),
                 modifier = Modifier.width(180.dp),
-                labelMapper = { it.name }
+                labelMapper = { it.displayName }
             ) {
                 val updatedSettings = viewModels.settings.settings?.copy(diet =
                     Enums.Diet.valueOf(it.name))

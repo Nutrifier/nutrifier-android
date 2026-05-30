@@ -28,7 +28,7 @@ object Constants {
     const val MAX_CARBS = 700.0
     const val MIN_FAT = 0.0
     const val MAX_FAT = 300.0
-    const val IS_DEV = true
+    const val IS_DEV = false
 
     val categories = listOf(
         Category(R.drawable.chicken, "Chicken", "chicken"),

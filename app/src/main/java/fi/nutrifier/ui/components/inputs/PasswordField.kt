@@ -8,7 +8,6 @@ import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -23,12 +22,11 @@ import androidx.compose.ui.text.input.VisualTransformation
 fun PasswordField(value: String, errorMessage: String? = null, onValueChange: (String) -> Unit) {
     var isVisible by remember { mutableStateOf(false) }
 
-    TextField(
+    NutrifierTextField(
         modifier = Modifier.fillMaxWidth(),
         label = { Text(text = "Password") },
         value = value,
         onValueChange = { onValueChange(it) },
-        singleLine = true,
         isError = errorMessage != null,
         supportingText = { if (errorMessage != null) Text(errorMessage) },
         visualTransformation =

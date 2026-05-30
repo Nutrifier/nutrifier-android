@@ -10,6 +10,7 @@ import androidx.compose.ui.unit.dp
 import fi.nutrifier.models.room.RecipeIngredient
 import fi.nutrifier.ui.components.inputs.IngredientForm
 import fi.nutrifier.ui.components.layout.IngredientRow
+import fi.nutrifier.ui.components.misc.LabeledComponent
 import fi.nutrifier.viewmodels.RecipeUnderInspectionViewModel
 
 /**
@@ -41,14 +42,12 @@ internal fun IngredientsStep(
     }
 
     IngredientForm { handleIngredientAdd(it) }
-
-    Spacer(modifier = Modifier.height(16.dp))
-
+    Spacer(modifier = Modifier.height(32.dp))
     if (viewModel.recipe.value.ingredients.isNotEmpty()) {
-        Text("Current ingredients:")
-        Spacer(modifier = Modifier.height(8.dp))
-        viewModel.recipe.value.ingredients.mapIndexed { index, ingredient ->
-            IngredientRow(index, ingredient, handleDelete = { handleIngredientDelete(index) })
+        LabeledComponent(label = "Added ingredients") {
+            viewModel.recipe.value.ingredients.mapIndexed { index, ingredient ->
+                IngredientRow(index, ingredient, handleDelete = { handleIngredientDelete(index) })
+            }
         }
     }
 }

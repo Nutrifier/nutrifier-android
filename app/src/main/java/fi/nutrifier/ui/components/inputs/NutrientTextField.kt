@@ -1,16 +1,16 @@
 package fi.nutrifier.ui.components.inputs
 
-import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.Dp
@@ -27,10 +27,11 @@ fun NutrientTextField(
     onChange: ((String) -> Unit)? = null,
 ) {
     if (editable) {
-        TextField(
+        OutlinedTextField(
             value = value,
             onValueChange = { if (onChange != null) { onChange(it) } },
             singleLine = true,
+            shape = RoundedCornerShape(32.dp),
             keyboardOptions = KeyboardOptions.Default.copy(
                 keyboardType = keyboardType,
                 imeAction = ImeAction.Done,
@@ -38,13 +39,7 @@ fun NutrientTextField(
             keyboardActions = KeyboardActions(
                 onDone = { if (onConfirm != null) onConfirm() }
             ),
-            colors = TextFieldDefaults.colors(
-                unfocusedContainerColor = MaterialTheme.colorScheme.surface
-            ),
-            modifier = androidx.compose.ui.Modifier
-                .width(width)
-                .border(2.dp, MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(32.dp))
-                .clip(RoundedCornerShape(32.dp)),
+            modifier = Modifier.width(width).height(56.dp).padding(0.dp),
             suffix = {
                 Text(text = suffixText, color = MaterialTheme.colorScheme.outlineVariant)
             },

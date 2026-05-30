@@ -1,21 +1,17 @@
 package fi.nutrifier.ui.screens.recipe.steps
 
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -24,9 +20,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import fi.nutrifier.models.room.RecipeInstruction
+import fi.nutrifier.ui.components.inputs.NutrifierTextField
 import fi.nutrifier.ui.components.layout.InstructionRow
+import fi.nutrifier.ui.components.misc.LabeledComponent
 import fi.nutrifier.viewmodels.RecipeUnderInspectionViewModel
 
 /**
@@ -94,36 +93,29 @@ internal fun InstructionsStep(
         viewModel.setRecipe(newRecipe)
     }
 
-    Row(modifier = Modifier.fillMaxWidth()) {
-        TextField(
-            value = text,
-            shape = RoundedCornerShape(topStart = 4.dp, bottomStart = 4.dp, bottomEnd = 4.dp),
-            onValueChange = { text = it },
-            label = { Text("Text") },
-            modifier = Modifier
-                .weight(0.9f)
-                .padding(0.dp)
-        )
-        Button(
-            onClick = ::addInstruction,
-            shape = RoundedCornerShape(topEnd = 4.dp, bottomEnd = 4.dp),
-            contentPadding = PaddingValues(vertical = 16.dp),
-            modifier = Modifier.fillMaxHeight(),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primary,
-            ),
-        ) {
-            Icon(Icons.Rounded.Add, "add")
+    NutrifierTextField(
+        value = text,
+        onValueChange = { text = it },
+        label = { Text("Text *") },
+        modifier = Modifier.fillMaxWidth(),
+        keyboardActions = KeyboardActions(onNext = { addInstruction() }),
+        keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next),
+        singleLine = false,
+        trailingIcon = {
+            IconButton(
+                onClick = ::addInstruction,
+                modifier = Modifier.fillMaxHeight().padding(end = 4.dp),
+            ) {
+                Icon(Icons.Rounded.Add, "add")
+            }
         }
-    }
-
-    Spacer(modifier = Modifier.height(24.dp))
-
+    )
+    Spacer(modifier = Modifier.height(32.dp))
     if (instructions.isNotEmpty()) {
-        Text("Current instructions")
-        Spacer(modifier = Modifier.height(8.dp))
-        instructions.forEachIndexed { index, instruction ->
-            InstructionRow(index, instruction, ::deleteInstruction)
+        LabeledComponent(label = "Added instructions") {
+            instructions.forEachIndexed { index, instruction ->
+                InstructionRow(index, instruction, ::deleteInstruction)
+            }
         }
     }
 }

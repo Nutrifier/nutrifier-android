@@ -14,7 +14,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun TitleSubtitle(
     title: String,
-    subtitle: String?,
+    subtitle: String? = null,
     alignment: Alignment.Horizontal = Alignment.CenterHorizontally,
     subtitleStyle: TextStyle = LocalTextStyle.current
 ) {

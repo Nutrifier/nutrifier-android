@@ -110,7 +110,6 @@ fun LoginScreen(
                 Text(text = "Recipe App", style = MaterialTheme.typography.headlineLarge)
                 Spacer(modifier = Modifier.padding(vertical = 24.dp))
                 EmailField(email) { email = it }
-                Spacer(modifier = Modifier.padding(vertical = 8.dp))
                 PasswordField(password) { password = it }
                 Spacer(modifier = Modifier.padding(vertical = 16.dp))
                 Button(onClick = { handleLogin() }, modifier = Modifier

@@ -50,7 +50,7 @@ fun ShoppingListScreen(
                         modifier = Modifier.weight(1f),
                         contentPadding = PaddingValues(vertical = 8.dp)
                     ) {
-                        itemsIndexed(viewModels.shopping.items) { index, item ->
+                        itemsIndexed(viewModels.shopping.items.reversed()) { index, item ->
                             ShoppingListItemRow(index, item, viewModels.shopping)
                             Spacer(modifier = Modifier.height(8.dp))
                         }

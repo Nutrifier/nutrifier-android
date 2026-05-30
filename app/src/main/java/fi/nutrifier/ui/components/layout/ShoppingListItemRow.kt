@@ -75,13 +75,12 @@ fun ShoppingListItemRow(index: Int, item: ShoppingListItem, viewModel: ShoppingL
             .clickable { handleListItemClick() }
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp).weight(1f)
         ) {
             CheckCircle(checked)
             Spacer(modifier = Modifier.width(8.dp))
             Text(
                 text = item.name,
-                style = MaterialTheme.typography.titleMedium,
                 color = if (checked) MaterialTheme.colorScheme.outline else MaterialTheme.colorScheme.onBackground,
                 textDecoration =
                 if (checked) TextDecoration.LineThrough
@@ -92,7 +91,7 @@ fun ShoppingListItemRow(index: Int, item: ShoppingListItem, viewModel: ShoppingL
             text = item.note,
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.outline,
-            modifier = Modifier.padding(horizontal = 8.dp)
+            modifier = Modifier.padding(horizontal = 8.dp).weight(1f)
         )
         IconButton(onClick = { viewModel.delete(index) }) {
             Icon(Icons.Rounded.Delete, "Delete")

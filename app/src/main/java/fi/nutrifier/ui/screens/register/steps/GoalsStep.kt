@@ -29,7 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import fi.nutrifier.models.database.Goal
-import fi.nutrifier.ui.components.inputs.Dropdown
+import fi.nutrifier.ui.components.inputs.NutrifierDropdown
 import fi.nutrifier.ui.components.inputs.NumberCounter
 import fi.nutrifier.ui.components.misc.LabeledComponent
 import fi.nutrifier.ui.components.misc.TitleSubtitle
@@ -88,7 +88,7 @@ fun GoalsStep(
             label = "Reasoning",
             error = registrationFormState.goalErrors.reasoning,
         ) {
-            Dropdown(
+            NutrifierDropdown(
                 value = registrationFormState.goal.goalType,
                 items = Enums.GoalType.entries.toList(),
                 labelMapper = { it.displayName },
