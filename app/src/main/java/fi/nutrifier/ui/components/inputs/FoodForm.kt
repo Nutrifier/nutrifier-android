@@ -142,7 +142,7 @@ fun FoodForm(navController: NavController, viewModels: ViewModelWrapper) {
             IconButton(
                 onClick = {
                     Log.d("FoodForm", "Navigating to barcode")
-                    navController.navigate("barcode")
+                    navController.navigate("barcode/CREATE-FOOD")
                 },
                 modifier = Modifier
                     .clip(RoundedCornerShape(topEnd = 6.dp, bottomEnd = 6.dp))
