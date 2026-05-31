@@ -1,5 +1,6 @@
 package fi.nutrifier.services.database
 
+import fi.nutrifier.models.database.ApiInfo
 import fi.nutrifier.models.database.UserSettings
 import retrofit2.Response
 import retrofit2.http.Body
@@ -18,4 +19,9 @@ interface SettingsService {
         @Body settings: UserSettings,
         @Header("Authorization") authHeader: String
     ): Response<UserSettings>
+
+    @GET("actuator/info")
+    suspend fun getApiInfo(
+        @Header("Authorization") authHeader: String,
+    ): Response<ApiInfo>
 }
