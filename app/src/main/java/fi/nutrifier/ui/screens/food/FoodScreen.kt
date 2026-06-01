@@ -41,6 +41,7 @@ fun FoodScreen(
     navController: NavController,
     viewModels: ViewModelWrapper,
     mode: String,
+    barcode: String?
 ) {
     val isLoading by viewModels.foods.loading.collectAsState()
     var showDialog by remember { mutableStateOf<Alert?>(null) }
@@ -176,8 +177,8 @@ fun FoodScreen(
     ) {
         when (foodMode) {
             Enums.FoodMode.CREATE -> CreateMode(navController, viewModels)
-            Enums.FoodMode.CREATE_ENTRY -> EditMode(viewModels, foodMode)
-            Enums.FoodMode.EDIT_AMOUNT -> EditMode(viewModels, foodMode)
+            Enums.FoodMode.CREATE_ENTRY -> EditMode(navController, viewModels, foodMode, barcode)
+            Enums.FoodMode.EDIT_AMOUNT -> EditMode(navController, viewModels, foodMode, barcode)
             else -> ViewMode(navController, viewModels)
         }
     }

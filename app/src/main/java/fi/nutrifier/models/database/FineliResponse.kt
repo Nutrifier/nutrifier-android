@@ -30,8 +30,6 @@ data class FineliResponse(
             servingSize = 100,
             calories = this.energyKcal,
             carbs = this.carbohydrate,
-            createdBy = BuildConfig.FINELI_UUID,
-            editedBy = BuildConfig.FINELI_UUID,
             fat = this.fat,
             protein = this.protein
         )

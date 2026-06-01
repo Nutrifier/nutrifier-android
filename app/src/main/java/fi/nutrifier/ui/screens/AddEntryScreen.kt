@@ -93,7 +93,7 @@ fun AddEntryScreen(
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Text("Add foods", style = MaterialTheme.typography.headlineLarge)
                 Row {
-                    TextButton(onClick = { navController.navigate("food_editor/${Enums.FoodMode.CREATE}") }) {
+                    TextButton(onClick = { navController.navigate("food_editor/${Enums.FoodMode.CREATE}/") }) {
                         Icon(imageVector = Icons.Filled.AddCircle, contentDescription = "Add")
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(text = "Create food")
@@ -130,7 +130,7 @@ fun AddEntryScreen(
                     ) { index, food ->
                         FoodButton(viewModels.settings, food, true) {
                             viewModels.foods.setSelectedFood(food)
-                            navController.navigate("food_editor/${Enums.FoodMode.CREATE_ENTRY}")
+                            navController.navigate("food_editor/${Enums.FoodMode.CREATE_ENTRY}/")
                         }
                         if (index < viewModels.foods.foods.size - 1) ItemDivider()
                     }
@@ -140,7 +140,7 @@ fun AddEntryScreen(
                     ) { index, food ->
                         FoodButton(viewModels.settings, food) {
                             viewModels.foods.setSelectedFood(food)
-                            navController.navigate("food_editor/${Enums.FoodMode.CREATE_ENTRY}")
+                            navController.navigate("food_editor/${Enums.FoodMode.CREATE_ENTRY}/")
                         }
                         if (index < viewModels.foods.foods.size - 1) ItemDivider()
                         if (index == viewModels.foods.foods.size - 1) {

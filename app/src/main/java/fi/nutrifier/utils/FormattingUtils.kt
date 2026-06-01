@@ -41,8 +41,8 @@ object FormattingUtils {
 
         return when {
             value < 0.1 -> round(value * 100) / 100     // Round to 1 decimal
-            value < 10 -> round(value * 10) / 10        // 1 decimal Integer
-            value <= 100 -> round(value)                // integer
+            value <= 100 -> round(value * 10) / 10      // 1 decimal Integer
+            value <= 1000 -> round(value)               // integer
             else -> round(value / 5) * 5                // nearest 5
         }
     }

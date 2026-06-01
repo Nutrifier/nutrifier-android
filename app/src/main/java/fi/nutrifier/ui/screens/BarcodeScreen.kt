@@ -94,6 +94,18 @@ fun BarcodeScreen(
         }
     }
 
+    fun handleBackNavigation() {
+        when (useCase) {
+            "ADD_FOODS" -> navController.navigate("add_food/${viewModels.barcode.barScanResult}") {
+                popUpTo("barcode") { inclusive = true }
+            }
+            "EDIT_FOOD" -> navController.navigate("food_editor/${Enums.FoodMode.CREATE_ENTRY}/${viewModels.barcode.barScanResult ?: ""}") {
+                popUpTo("barcode") { inclusive = true }
+            }
+            else -> navController.popBackStack("barcode", true)
+        }
+    }
+
     LaunchedEffect(barScanState) {
         if (barScanState is BarScanState.ScanSuccess) {
             val cameraProviderFuture: ListenableFuture<ProcessCameraProvider> =
@@ -103,12 +115,7 @@ fun BarcodeScreen(
 
             cameraProvider.unbindAll()
 
-            when (useCase) {
-                "ADD_FOODS" -> navController.navigate("add_food/${viewModels.barcode.barScanResult}") {
-                    popUpTo("barcode") { inclusive = true }
-                }
-                else -> navController.popBackStack("barcode", true)
-            }
+            handleBackNavigation()
 
             viewModels.barcode.resetState()
         }
@@ -116,7 +123,10 @@ fun BarcodeScreen(
 
     BaseScreen(
         topBar = {
-            TopBar(subtitle = { BackButton(navController) })
+            TopBar(subtitle = { BackButton(
+                navController = navController,
+                onNavigation = { handleBackNavigation() }
+            ) })
         },
         bottomBar = {
             Row(
@@ -124,7 +134,7 @@ fun BarcodeScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
             ) {
-                ActionButtons(onSecondaryAction = { navController.navigateUp() })
+                ActionButtons(onSecondaryAction = { handleBackNavigation() })
             }
         },
         screen = Enums.Screen.BARCODE,
