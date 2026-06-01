@@ -14,7 +14,7 @@ import kotlin.time.toJavaInstant
 
 object ConversionUtils {
     val emptyRecipe = Recipe(-1, "", "", 1.0, emptyList(), emptyList(), RecipeNutrition(emptyList()))
-    val emptyFood = Food("", null, "",0,0.0,0.0,0.0,0.0, UUID.randomUUID().toString(), UUID.randomUUID().toString())
+    val emptyFood = Food("", null, "", "", 0,0.0,0.0,0.0,0.0, UUID.randomUUID().toString(), null)
 
     fun PersonalRecipe.toRecipe(): Recipe {
         return emptyRecipe.copy(

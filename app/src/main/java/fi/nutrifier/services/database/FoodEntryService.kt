@@ -13,9 +13,10 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface FoodEntryService {
-    @GET("api/v1/food-entries/by-date")
-    suspend fun getFoodEntriesByDateAndUser(
+    @GET("api/v1/food-entries")
+    suspend fun getFoodEntriesByDateAndMealTypeAndUserId(
         @Query("date") date: String,
+        @Query("mealType") mealType: String? = null,
         @Header("Authorization") authHeader: String,
     ): Response<List<FoodEntry>>
 

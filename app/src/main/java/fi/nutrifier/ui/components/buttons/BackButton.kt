@@ -23,9 +23,9 @@ import androidx.navigation.NavController
  * @param navController The NavController used to navigate between screens.
  */
 @Composable
-fun BackButton(navController: NavController) {
+fun BackButton(navController: NavController, onNavigation: () -> Unit = { navController.navigateUp() }) {
     TextButton(
-        onClick = { navController.navigateUp() }
+        onClick = { onNavigation() }
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(

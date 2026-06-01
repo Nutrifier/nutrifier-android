@@ -146,9 +146,10 @@ fun App(applicationContext: Context) {
                     val barcodeQuery = it.arguments?.getString("barcodeQuery")
                     AddEntryScreen(navController, viewModels, barcodeQuery)
                 }
-                composable("food_editor/{mode}") {
+                composable("food_editor/{mode}/{barcode}") {
                     val mode = it.arguments?.getString("mode")
-                    FoodScreen(navController, viewModels, mode ?: "VIEW")
+                    val barcode = it.arguments?.getString("barcode")
+                    FoodScreen(navController, viewModels, mode ?: "VIEW", barcode)
                 }
                 composable("cookbook") {
                     CookbookScreen(navController, viewModels)

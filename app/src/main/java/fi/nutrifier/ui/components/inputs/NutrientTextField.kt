@@ -1,5 +1,6 @@
 package fi.nutrifier.ui.components.inputs
 
+import android.util.Log
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -9,7 +10,9 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -31,6 +34,10 @@ fun NutrientTextField(
             value = value,
             onValueChange = { if (onChange != null) { onChange(it) } },
             singleLine = true,
+            colors = TextFieldDefaults.colors().copy(
+                unfocusedContainerColor = MaterialTheme.colorScheme.background,
+                focusedContainerColor = MaterialTheme.colorScheme.background
+            ),
             shape = RoundedCornerShape(32.dp),
             keyboardOptions = KeyboardOptions.Default.copy(
                 keyboardType = keyboardType,

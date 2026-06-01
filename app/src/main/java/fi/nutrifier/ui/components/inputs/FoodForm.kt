@@ -108,29 +108,10 @@ fun FoodForm(navController: NavController, viewModels: ViewModelWrapper) {
             modifier = Modifier.fillMaxWidth()
         )
         Row(modifier = Modifier.fillMaxWidth()) {
-            NutrifierTextField(
-                value = barcode,
-                onValueChange = { barcode = it },
-                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
-                label = { Text("Barcode") },
-                modifier = Modifier.fillMaxWidth(),
-                trailingIcon = {
-                    IconButton(
-                        onClick = {
-                            Log.d("FoodForm", "Navigating to barcode")
-                            navController.navigate("barcode/CREATE-FOOD")
-                        },
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .padding(end = 4.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.QrCodeScanner,
-                            contentDescription = "Barcode Scanner",
-                            tint = MaterialTheme.colorScheme.outline
-                        )
-                    }
-                },
+            BarcodeTextField(
+                barcode = barcode,
+                onBarcodeChange = { barcode = it },
+                navController = navController
             )
         }
         Spacer(modifier = Modifier.height(16.dp))

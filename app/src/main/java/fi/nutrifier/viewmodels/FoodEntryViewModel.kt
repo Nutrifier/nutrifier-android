@@ -23,6 +23,8 @@ import fi.nutrifier.utils.Enums
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.util.UUID
+import kotlin.collections.mapNotNull
 
 class FoodEntryViewModel(
     private val repository: FoodEntryRepository,
@@ -34,23 +36,12 @@ class FoodEntryViewModel(
     private val selectedDateRepository = SelectedDateRepository()
 
     private var _entries: MutableState<List<FoodEntryFood>> = mutableStateOf(emptyList())
-
-    private var _breakfastEntries: MutableState<List<FoodEntryFood>> = mutableStateOf(emptyList())
-    val breakfastEntries get() = _breakfastEntries.value
-
-    private var _lunchEntries: MutableState<List<FoodEntryFood>> = mutableStateOf(emptyList())
-    val lunchEntries get() = _lunchEntries.value
-
-    private var _dinnerEntries: MutableState<List<FoodEntryFood>> = mutableStateOf(emptyList())
-    val dinnerEntries get() = _dinnerEntries.value
-
-    private var _snacksEntries: MutableState<List<FoodEntryFood>> = mutableStateOf(emptyList())
-    val snacksEntries get() = _snacksEntries.value
+    val entries get() = _entries.value
 
     val selectedDate = selectedDateRepository.selectedDate
     val setSelectedDate: (LocalDate) -> Unit = {
         selectedDateRepository.setSelectedDate(it)
-        loadFoodEntries()
+        loadDailySummary()
     }
 
     private val emptyNutrientSummary = NutrientSummary(
@@ -67,15 +58,18 @@ class FoodEntryViewModel(
     val nutrients get() = _mealNutrients.value
     val setNutrients: (Map<Enums.MealType, NutrientSummary>) -> Unit = { _mealNutrients.value = it }
 
-    suspend fun fetchFoodById(id: String): Food?  {
-        val result = foodRepository.getFoodById(id)
+    suspend fun fetchFoodByIds(ids: List<String>): List<Food>?  {
+        val result = foodRepository.getFoodByIds(ids)
         Log.d("FoodEntryViewModel", "fetchFoodById $result")
         return if (result.isSuccessful()) result.value else null
     }
 
     private var _selectedMeal = mutableStateOf<Enums.MealType?>(null)
     val selectedMeal get() = _selectedMeal.value
-    val setSelectedMeal: (Enums.MealType?) -> Unit = { _selectedMeal.value = it }
+    val setSelectedMeal: (Enums.MealType?) -> Unit = {
+        _selectedMeal.value = it
+        loadFoodEntries()
+    }
 
     private var _selectedFoodEntry = mutableStateOf<FoodEntry?>(null)
     val selectedFoodEntry get() = _selectedFoodEntry.value
@@ -148,7 +142,7 @@ class FoodEntryViewModel(
         return result
     }
 
-    fun loadFoodEntries(triggerLoading: Boolean = true) {
+    fun loadDailySummary(triggerLoading: Boolean = true) {
         Log.d("FoodEntryViewModel", "Loading food entries...")
 
         if (triggerLoading) setLoading(true)
@@ -164,8 +158,19 @@ class FoodEntryViewModel(
             } else {
                 _summary.value = null
             }
+        }
 
-            val result = repository.getFoodEntriesByDate(selectedDate.value)
+        if (triggerLoading) setLoading(false)
+    }
+
+    fun loadFoodEntries(triggerLoading: Boolean = true) {
+        Log.d("FoodEntryViewModel", "Loading food entries...")
+
+        if (triggerLoading) setLoading(true)
+
+        viewModelScope.launch(Dispatchers.IO) {
+
+            val result = repository.getFoodEntriesByDateAndMealType(selectedDate.value, selectedMeal)
             val entries: List<FoodEntry> = result.value.orEmpty()
 
             Log.d("FoodEntryViewModel", "Got entries: $entries")
@@ -178,46 +183,34 @@ class FoodEntryViewModel(
 
             val (fineliEntries, dbEntries) = entries.partition { it.fineliId != null }
 
+            Log.d("FoodEntryViewModel", "Split entries, fineli: $fineliEntries dbEntries: $dbEntries")
+
+            val backendFoods = foodRepository.getFoodByIds(dbEntries.map { e -> e.foodId })
             val fineliFoods = fetchFineliFoods(fineliEntries.mapNotNull { it.fineliId })
 
-            suspend fun FoodEntry.toFoodEntryFood(): FoodEntryFood {
+            Log.d("FoodEntryViewModel", "Fetched foods, fineli: $fineliFoods backendFoods: $backendFoods")
+
+            val backendFoodsById: Map<String?, Food> =
+                backendFoods.value?.mapNotNull { food -> food.id?.let { id -> id to food } }?.toMap() ?: emptyMap()
+            Log.d("FoodEntryViewModel", "backendFoodsById: $backendFoodsById")
+
+            val fineliFoodsById: Map<Int, Food> =
+                fineliFoods.mapNotNull { food ->
+                    food.fineliId?.let { id -> id to food }
+                }.toMap()
+            Log.d("FoodEntryViewModel", "fineliFoodsById: $fineliFoodsById")
+
+            val finalList = entries.mapNotNull { entry ->
                 val food = when {
-                    this.fineliId != null -> fineliFoods.find { it.fineliId == this.fineliId } ?: emptyFood
-                    else -> fetchFoodById(this.foodId) ?: emptyFood
+                    entry.fineliId != null -> fineliFoodsById[entry.fineliId]
+                    else -> backendFoodsById[entry.foodId]
                 }
-                return FoodEntryFood(foodEntry = this, food = food)
+                food?.let { FoodEntryFood(entry, it) }
             }
 
-            val entriesByMeal = entries.groupBy { it.mealType }
+            Log.d("FoodEntryViewModel", "finalList: $finalList")
 
-            val dbNutrientsByMeal = Enums.MealType.entries.associateWith { mealType ->
-                val mealEntries = entriesByMeal[mealType]?.filter { it.fineliId == null }.orEmpty()
-                calculateNutrientsForEntries(mealEntries)
-            }
-
-            val fineliNutrientsByMeal = Enums.MealType.entries.associateWith { mealType ->
-                val mealEntries = entriesByMeal[mealType]?.filter { it.fineliId != null }.orEmpty()
-                calculateNutrientsForEntries(mealEntries)
-            }
-
-            val mealNutrients = Enums.MealType.entries.associateWith { mealType ->
-                val listOfNutrientsByMeal = listOf(
-                    dbNutrientsByMeal[mealType] ?: emptyNutrientSummary,
-                    fineliNutrientsByMeal[mealType] ?: emptyNutrientSummary,
-                )
-                combineNutrientSummaries(listOfNutrientsByMeal)
-            }
-
-            Log.d("FoodEntryViewModel", "Calculated meal nutrients: $mealNutrients")
-
-            setNutrients(mealNutrients)
-
-            _entries.value = entries.map { it.toFoodEntryFood() }
-            _breakfastEntries.value = entriesByMeal[Enums.MealType.BREAKFAST]?.map { it.toFoodEntryFood() } ?: emptyList()
-            _lunchEntries.value = entriesByMeal[Enums.MealType.LUNCH]?.map { it.toFoodEntryFood() } ?: emptyList()
-            _dinnerEntries.value = entriesByMeal[Enums.MealType.DINNER]?.map { it.toFoodEntryFood() } ?: emptyList()
-            _snacksEntries.value = entriesByMeal[Enums.MealType.SNACKS]?.map { it.toFoodEntryFood() } ?: emptyList()
-
+            _entries.value = finalList
         }
 
         if (triggerLoading) setLoading(false)
@@ -232,6 +225,7 @@ class FoodEntryViewModel(
                     else it
                 }*/
                 loadFoodEntries(false)
+                loadDailySummary(false)
                 showAlert("Log updated!", AlertType.INFO)
             } else {
                 showAlert("Error occurred while updating log (${result.errorCode}).")
@@ -249,6 +243,7 @@ class FoodEntryViewModel(
             if (result.isSuccessful()) {
                 showAlert("Log saved!", AlertType.INFO)
                 loadFoodEntries()
+                loadDailySummary()
             } else {
                 showAlert("Error occurred while saving the log (${result.errorCode}).")
                 setLoading(false)
@@ -262,6 +257,7 @@ class FoodEntryViewModel(
             val result = repository.deleteFoodEntry(id)
             if (result.isSuccessful()) {
                 _entries.value = _entries.value.filter { id != it.foodEntry.id }
+                loadDailySummary(false)
                 loadFoodEntries(false)
                 showAlert("Log deleted!", AlertType.INFO)
             } else {

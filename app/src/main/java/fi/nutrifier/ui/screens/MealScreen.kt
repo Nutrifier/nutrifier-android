@@ -47,22 +47,6 @@ fun MealScreen(
     var foodEntries: List<FoodEntryFood> by remember { mutableStateOf(emptyList()) }
     val isLoading by viewModels.foodEntry.loading.collectAsState()
 
-    LaunchedEffect(
-        viewModels.foodEntry.selectedMeal,
-        viewModels.foodEntry.breakfastEntries,
-        viewModels.foodEntry.lunchEntries,
-        viewModels.foodEntry.dinnerEntries,
-        viewModels.foodEntry.snacksEntries,
-    ) {
-        foodEntries = when (viewModels.foodEntry.selectedMeal) {
-            Enums.MealType.BREAKFAST -> viewModels.foodEntry.breakfastEntries
-            Enums.MealType.LUNCH -> viewModels.foodEntry.lunchEntries
-            Enums.MealType.DINNER -> viewModels.foodEntry.dinnerEntries
-            else -> viewModels.foodEntry.snacksEntries
-        }
-        //Log.d("MealScreen", foodEntries.toString())
-    }
-
     BaseScreen(
         topBar = { TopBar(subtitle = { BackButton(navController) }) },
         bottomBar = {},
@@ -79,16 +63,16 @@ fun MealScreen(
                         style = MaterialTheme.typography.headlineLarge,
                     )
                     Column {
-                        viewModels.foodEntry.nutrients[viewModels.foodEntry.selectedMeal]?.let {
+                        viewModels.foodEntry.summary?.mealSummaries[viewModels.foodEntry.selectedMeal]?.let {
                             NutrientColumn(
                                 nutrient = "Energy",
-                                value = it.energy[viewModels.settings.settings?.energyUnit ?: Enums.EnergyUnit.KCAL] ?: 0.0,
+                                value = it.caloriesConsumed,
                                 suffix = viewModels.settings.settings?.energyUnit?.displayName ?: "kcal",
                             )
                             if (IS_DEV) {
                                 Enums.EnergyUnit.entries.filter{ it2 -> it2 != viewModels.settings.settings?.energyUnit }.forEach { energyUnit ->
                                     Text(
-                                        text = "${FormattingUtils.roundUp(it.energy[energyUnit])} ${energyUnit.displayName}",
+                                        text = "${FormattingUtils.roundUp(it.caloriesConsumed)} ${energyUnit.displayName}",
                                         color = MaterialTheme.colorScheme.outline,
                                     )
                                 }
@@ -97,8 +81,8 @@ fun MealScreen(
                     }
                 }
                 Spacer(modifier = Modifier.padding(vertical = 8.dp))
-                viewModels.foodEntry.nutrients[viewModels.foodEntry.selectedMeal]?.let {
-                    MealNutrients(viewModels.settings, it.carbs, it.protein, it.fats)
+                viewModels.foodEntry.summary?.mealSummaries[viewModels.foodEntry.selectedMeal]?.let {
+                    MealNutrients(it.carbsConsumed, it.proteinConsumed, it.fatConsumed)
                 }
                 Spacer(modifier = Modifier.padding(vertical = 16.dp))
 
@@ -112,11 +96,11 @@ fun MealScreen(
                         ) {
                             CircularProgressIndicator()
                         }
-                    } else if (foodEntries.isEmpty()) {
+                    } else if (viewModels.foodEntry.entries.isEmpty()) {
                         EmptyFoodEntryList()
                     } else {
                         LazyColumn {
-                            items(foodEntries) {
+                            items(viewModels.foodEntry.entries) {
                                 FoodEntryButton(
                                     settingsViewModel = viewModels.settings,
                                     foodEntryFood = it,
@@ -124,7 +108,7 @@ fun MealScreen(
                                         viewModels.foods.setSelectedFood(it.food)
                                         viewModels.foodEntry.setSelectedFoodEntry(it.foodEntry)
                                         viewModels.foodEntry.setCurrentAmount(it.foodEntry.amount)
-                                        navController.navigate("food_editor/${Enums.FoodMode.EDIT_AMOUNT}")
+                                        navController.navigate("food_editor/${Enums.FoodMode.EDIT_AMOUNT}/")
                                     },
                                     onDelete = {
                                         it.foodEntry.id?.let { logId -> viewModels.foodEntry.deleteFoodEntry(logId) }
