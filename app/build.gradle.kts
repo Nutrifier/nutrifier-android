@@ -27,7 +27,7 @@ android {
         minSdk = 26
         targetSdk = 34
         versionCode = 13
-        versionName = "1.1.9-beta"
+        versionName = "1.1.11-beta"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -42,10 +42,10 @@ android {
     buildTypes {
         debug {
             // Use 10.0... url for emulators
-            //buildConfigField("String", "BASE_URL", "\"http://10.0.2.2:8080/\"")
+            buildConfigField("String", "BASE_URL", "\"http://10.0.2.2:8080/\"")
             
             // Use 127.0... for actual devices
-            buildConfigField("String", "BASE_URL", "\"http://127.0.0.1:8080/\"")
+            //buildConfigField("String", "BASE_URL", "\"http://127.0.0.1:8080/\"")
 
             // Use releaseBaseUrl when want to test live backend
             //buildConfigField("String", "BASE_URL", releaseBaseUrl)
