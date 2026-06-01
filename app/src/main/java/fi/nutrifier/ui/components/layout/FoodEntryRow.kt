@@ -30,9 +30,11 @@ import fi.nutrifier.viewmodels.FoodEntryViewModel
 fun FoodEntryRow(foodEntry: FoodEntry, viewModel: FoodEntryViewModel) {
     var food: Food? by remember { mutableStateOf(null) }
 
+    /*
     LaunchedEffect(foodEntry) {
         food = viewModel.fetchFoodById(foodEntry.foodId)
     }
+    */
 
     Row(
         modifier = Modifier.fillMaxWidth(),

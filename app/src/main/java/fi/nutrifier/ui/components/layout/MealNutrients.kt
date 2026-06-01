@@ -15,34 +15,27 @@ import fi.nutrifier.viewmodels.SettingsViewModel
 
 @Composable
 fun MealNutrients(
-    settingsViewModel: SettingsViewModel,
-    carbs: Map<Enums.MacroWeightUnit, Double>,
-    protein: Map<Enums.MacroWeightUnit, Double>,
-    fat: Map<Enums.MacroWeightUnit, Double>,
+    carbs: Double,
+    protein: Double,
+    fat: Double,
 ) {
-
-    // TODO: Remove MacroWeightUnits from everywhere
-    val convertedCarbs = carbs[Enums.MacroWeightUnit.GRAMS] ?: 0.0
-    val convertedProtein = protein[Enums.MacroWeightUnit.GRAMS] ?: 0.0
-    val convertedFat = fat[Enums.MacroWeightUnit.GRAMS] ?: 0.0
-
     FlowRow(
         verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalArrangement = Arrangement.spacedBy(20.dp),
     ) {
         NutrientColumn(
             "Fat",
-            convertedFat,
+            fat,
             "g"
         )
         NutrientColumn(
             "Carbs",
-            convertedCarbs,
+            carbs,
             "g"
         )
         NutrientColumn(
             "Protein",
-            convertedProtein,
+            protein,
             "g"
         )
     }

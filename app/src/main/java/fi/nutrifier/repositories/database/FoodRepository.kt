@@ -2,6 +2,7 @@ package fi.nutrifier.repositories.database
 
 import android.content.SharedPreferences
 import fi.nutrifier.models.database.Food
+import fi.nutrifier.models.database.FoodBarcodeRequest
 import fi.nutrifier.models.database.FoodRequest
 import fi.nutrifier.models.database.PaginatedResponse
 import fi.nutrifier.services.database.RetrofitInstance
@@ -43,11 +44,11 @@ class FoodRepository(private val encryptedPrefs: SharedPreferences) {
         }
     }
 
-    suspend fun getFoodById(id: String): Result<Food> {
+    suspend fun getFoodByIds(ids: List<String>): Result<List<Food>> {
         val token: String? = SharedPreferencesManager.getAuthToken(encryptedPrefs)
 
         return try {
-            val response = service.getFoodById(id, "Bearer $token")
+            val response = service.getFoodByIds(ids, "Bearer $token")
             if (response.isSuccessful && response.body() != null) Result.success(response.body())
             else Result.fail(response.code())
         } catch (e: Exception) {
@@ -55,11 +56,11 @@ class FoodRepository(private val encryptedPrefs: SharedPreferences) {
         }
     }
 
-    suspend fun getFoodsByQuery(query: String): Result<List<Food>> {
+    suspend fun getFoodsByQuery(page: Int, size: Int, query: String): Result<PaginatedResponse<Food>> {
         val token: String? = SharedPreferencesManager.getAuthToken(encryptedPrefs)
 
         return try {
-            val response = service.getFoodByQuery(query, "Bearer $token")
+            val response = service.getFoodByQuery(page, size, query, "Bearer $token")
             if (response.isSuccessful && response.body() != null) Result.success(response.body())
             else Result.fail(response.code())
         } catch (e: Exception) {
@@ -84,6 +85,32 @@ class FoodRepository(private val encryptedPrefs: SharedPreferences) {
 
         return try {
             val response = service.saveFood(foodRequest, "Bearer $token")
+            if (response.isSuccessful) Result.success(true)
+            else Result.fail(response.code())
+        } catch (e: Exception) {
+            Result.fail(500, e.localizedMessage ?: "Unknown error occurred.")
+        }
+    }
+
+    suspend fun updateFood(foodId: UUID, foodRequest: FoodRequest): Result<Boolean> {
+        val token: String? = SharedPreferencesManager.getAuthToken(encryptedPrefs)
+
+        return try {
+            val response = service.updateFood(foodId, foodRequest, "Bearer $token")
+            if (response.isSuccessful) Result.success(true)
+            else Result.fail(response.code())
+        } catch (e: Exception) {
+            Result.fail(500, e.localizedMessage ?: "Unknown error occurred.")
+        }
+    }
+
+    suspend fun addBarcode(foodId: String, request: FoodBarcodeRequest): Result<Boolean> {
+        val token: String? = SharedPreferencesManager.getAuthToken(encryptedPrefs)
+
+        return try {
+            val foodUUID = UUID.fromString(foodId);
+
+            val response = service.addBarcode(foodUUID, request, "Bearer $token")
             if (response.isSuccessful) Result.success(true)
             else Result.fail(response.code())
         } catch (e: Exception) {

@@ -8,6 +8,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import fi.nutrifier.models.database.Food
+import fi.nutrifier.models.database.FoodBarcodeRequest
 import fi.nutrifier.models.database.FoodRequest
 import fi.nutrifier.models.database.SelectedFood
 import fi.nutrifier.repositories.database.AuthRepository
@@ -17,6 +18,7 @@ import fi.nutrifier.utils.AlertType
 import fi.nutrifier.utils.ConversionUtils.calculatePev
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.UUID
 
 class FoodsViewModel(
     private val repository: FoodRepository,
@@ -121,15 +123,23 @@ class FoodsViewModel(
 
                 // Searching foods from database and Fineli
                 val fineliResult = fineliRepository.getFoodsByQuery(query)
-                val repositoryResult = repository.getFoodsByQuery(query)
+                val repositoryResult = repository.getFoodsByQuery(0, 10, query)
+                // TODO: Hard coded values here
+
+                Log.d("FoodsViewModel", "Database results: ${repositoryResult}")
+                Log.d("FoodsViewModel", "Fineli results: ${fineliResult}")
 
                 // Then database results
                 if (repositoryResult.isSuccessful()) {
-                    result.addAll(repositoryResult.value ?: emptyList())
+                    val sorted = repositoryResult.value?.content?.sortedBy { r -> r.name }
+                    result.addAll(sorted ?: emptyList())
+                    Log.d("FoodsViewModel", "Database results: ${repositoryResult.value}")
                 }
                 // Then Fineli results
                 if (fineliResult.isSuccessful()) {
-                    result.addAll(fineliResult.value?.map { it.toFood() } ?: emptyList())
+                    val sorted = fineliResult.value?.map { it.toFood() }?.sortedBy { r -> r.name }
+                    result.addAll(sorted ?: emptyList())
+                    Log.d("FoodsViewModel", "Fineli results: ${fineliResult.value}")
                 }
             }
 
@@ -141,6 +151,49 @@ class FoodsViewModel(
     fun saveFood(foodRequest: FoodRequest) {
         viewModelScope.launch(Dispatchers.IO) {
             val result = repository.saveFood(foodRequest)
+            if (result.isSuccessful()) {
+                loadFoods()
+                showAlert("Food saved!", AlertType.INFO)
+            } else {
+                showAlert("Error occurred while saving the food (${result.errorCode}).")
+            }
+        }
+    }
+
+    fun updateFoodFromSelectedFood() {
+        viewModelScope.launch(Dispatchers.IO) {
+            if (selectedFood?.food != null) {
+                val foodId = selectedFood!!.food!!.id
+                val foodRequest = FoodRequest(
+                    name = selectedFood!!.food!!.name,
+                    brand = selectedFood!!.food!!.brand ?: "",
+                    category = selectedFood!!.food!!.category ?: "",
+                    barcode = selectedFood!!.food!!.barcode ?: "",
+                    servingSize = selectedFood!!.food!!.servingSize,
+                    calories = selectedFood!!.food!!.calories,
+                    fat = selectedFood!!.food!!.fat,
+                    carbs = selectedFood!!.food!!.carbs,
+                    protein = selectedFood!!.food!!.protein
+                )
+
+                val result = repository.updateFood(UUID.fromString(foodId), foodRequest)
+                if (result.isSuccessful()) {
+                    loadFoods()
+                    showAlert("Food saved!", AlertType.INFO)
+                } else {
+                    showAlert("Error occurred while saving the food (${result.errorCode}).")
+                }
+            }
+        }
+    }
+
+    fun addBarcode(newBarcode: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            if (_selectedFood.value?.food?.id == null) {
+                return@launch
+            }
+
+            val result = repository.addBarcode(_selectedFood.value!!.food!!.id!!, FoodBarcodeRequest(newBarcode))
             if (result.isSuccessful()) {
                 loadFoods()
                 showAlert("Food saved!", AlertType.INFO)
