@@ -75,13 +75,11 @@ fun FoodEntryScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             DateNavigator(selectedDate) { viewModels.foodEntry.setSelectedDate(it) }
-            Column(modifier = Modifier.fillMaxSize()) {
+            Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
                 Spacer(modifier = Modifier.padding(vertical = if (isLineMode) 8.dp else 4.dp))
                 NutrientProgressSection(viewModels)
                 // TODO: Add functionality to change the status of the dailySummary
-                Column(
-                    modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())
-                ) {
+                Column(modifier = Modifier.fillMaxSize()) {
                     if (viewModels.foodEntry.summary != null
                         && ValidatorUtils.isDateInPast(selectedDate)
                         && viewModels.foodEntry.summary!!.caloriesConsumed <= viewModels.foodEntry.summary!!.calorieTarget

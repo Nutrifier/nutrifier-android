@@ -48,9 +48,10 @@ fun NutrientProgressIndicator(
 
     BoxWithConstraints(modifier = modifier) {
         val baseSize = minOf(maxWidth, maxHeight) *
-                if (size == Enums.IndicatorSize.LARGE) 0.45f else 0.28f
+                if (size == Enums.IndicatorSize.LARGE) 0.55f else 0.44f
 
         when (settingsViewModel.settings?.nutrientDisplayMode) {
+            /* TODO: Implement line mode
             Enums.NutrientDisplayMode.LINE -> {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -110,7 +111,7 @@ fun NutrientProgressIndicator(
                         )
                     }
                 }
-            }
+            }*/
             else -> {
                 Column(
                     verticalArrangement = Arrangement.Center,
