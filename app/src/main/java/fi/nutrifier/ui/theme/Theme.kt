@@ -76,7 +76,7 @@ private val darkScheme = darkColorScheme(
 )
 
 @Composable
-fun RecipeAppTheme(
+fun NutrifierTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = false,

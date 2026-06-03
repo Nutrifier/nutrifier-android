@@ -31,7 +31,7 @@ class RetrofitInstance {
         .addInterceptor(logging)
         .addInterceptor { chain ->
             val request = chain.request().newBuilder()
-                .header("User-Agent", "RecipeApp")
+                .header("User-Agent", "Nutrifier")
                 .build()
             chain.proceed(request)
         }
