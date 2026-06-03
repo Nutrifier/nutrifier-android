@@ -6,6 +6,7 @@ import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
 
+// TODO: Remove these!!! Backend should handle the fetching from Fineli API all together
 interface FineliService {
     @GET("fineli/api/v1/foods")
     suspend fun getFoods(

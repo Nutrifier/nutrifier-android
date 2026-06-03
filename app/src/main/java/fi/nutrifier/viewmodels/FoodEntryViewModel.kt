@@ -20,6 +20,7 @@ import fi.nutrifier.utils.AlertType
 import fi.nutrifier.utils.ConversionUtils
 import fi.nutrifier.utils.ConversionUtils.emptyFood
 import fi.nutrifier.utils.Enums
+import fi.nutrifier.utils.Result
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -164,16 +165,12 @@ class FoodEntryViewModel(
     }
 
     fun loadFoodEntries(triggerLoading: Boolean = true) {
-        Log.d("FoodEntryViewModel", "Loading food entries...")
-
         if (triggerLoading) setLoading(true)
 
         viewModelScope.launch(Dispatchers.IO) {
 
             val result = repository.getFoodEntriesByDateAndMealType(selectedDate.value, selectedMeal)
             val entries: List<FoodEntry> = result.value.orEmpty()
-
-            Log.d("FoodEntryViewModel", "Got entries: $entries")
 
             if (!result.isSuccessful()) {
                 showAlert("Error occured in loading food entries (${result.errorCode}")
@@ -183,34 +180,34 @@ class FoodEntryViewModel(
 
             val (fineliEntries, dbEntries) = entries.partition { it.fineliId != null }
 
-            Log.d("FoodEntryViewModel", "Split entries, fineli: $fineliEntries dbEntries: $dbEntries")
+            if (entries.isNotEmpty()) {
+                var backendFoodsById: Map<String?, Food> = emptyMap()
+                var fineliFoodsById: Map<Int, Food> = emptyMap()
 
-            val backendFoods = foodRepository.getFoodByIds(dbEntries.map { e -> e.foodId })
-            val fineliFoods = fetchFineliFoods(fineliEntries.mapNotNull { it.fineliId })
+                if (dbEntries.isNotEmpty()) {
+                    val backendFoods = foodRepository.getFoodByIds(dbEntries.mapNotNull { it.foodId })
+                    backendFoodsById =
+                        backendFoods.value?.mapNotNull { food -> food.id?.let { id -> id to food } }?.toMap() ?: emptyMap()
 
-            Log.d("FoodEntryViewModel", "Fetched foods, fineli: $fineliFoods backendFoods: $backendFoods")
-
-            val backendFoodsById: Map<String?, Food> =
-                backendFoods.value?.mapNotNull { food -> food.id?.let { id -> id to food } }?.toMap() ?: emptyMap()
-            Log.d("FoodEntryViewModel", "backendFoodsById: $backendFoodsById")
-
-            val fineliFoodsById: Map<Int, Food> =
-                fineliFoods.mapNotNull { food ->
-                    food.fineliId?.let { id -> id to food }
-                }.toMap()
-            Log.d("FoodEntryViewModel", "fineliFoodsById: $fineliFoodsById")
-
-            val finalList = entries.mapNotNull { entry ->
-                val food = when {
-                    entry.fineliId != null -> fineliFoodsById[entry.fineliId]
-                    else -> backendFoodsById[entry.foodId]
                 }
-                food?.let { FoodEntryFood(entry, it) }
+                if (fineliEntries.isNotEmpty()) {
+                    val fineliFoods = fetchFineliFoods(fineliEntries.mapNotNull { it.fineliId })
+                    fineliFoodsById =
+                        fineliFoods.mapNotNull { food ->
+                            food.fineliId?.let { id -> id to food }
+                        }.toMap()
+                }
+
+                val finalList = entries.mapNotNull { entry ->
+                    val food = when {
+                        entry.fineliId != null -> fineliFoodsById[entry.fineliId]
+                        else -> backendFoodsById[entry.foodId]
+                    }
+                    food?.let { FoodEntryFood(entry, it) }
+                }
+
+                _entries.value = finalList
             }
-
-            Log.d("FoodEntryViewModel", "finalList: $finalList")
-
-            _entries.value = finalList
         }
 
         if (triggerLoading) setLoading(false)

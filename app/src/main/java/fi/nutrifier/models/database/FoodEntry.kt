@@ -14,6 +14,6 @@ data class FoodEntry(
     val carbsSnapshot: Double,
     val proteinSnapshot: Double,
     val userId: String,
-    val foodId: String,
+    val foodId: String? = null,
     var amount: Double,
 )
