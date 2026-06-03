@@ -1,13 +1,16 @@
 package fi.nutrifier.ui.components.layout
 
 import android.util.Log
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -110,6 +113,8 @@ fun NutrientProgressSection(viewModels: ViewModelWrapper) {
                     MaterialTheme.colorScheme.onBackground
                 },
                 suffix = viewModels.settings.settings?.energyUnit?.displayName ?: "kcal",
+                showMax = false,
+                showLeftValue = true,
                 onClick = { showMacros = !showMacros }
             )
         }
@@ -188,8 +193,41 @@ fun NutrientProgressSection(viewModels: ViewModelWrapper) {
                 suffix = "g",
             )
         }
+        /* TODO: Add this back when line mode is implemented
         Box(modifier = Modifier.align(Alignment.TopEnd)) {
             NutrientModeSwitch(viewModels.settings)
+        }*/
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .padding(start = 24.dp, top = centerYOffset)
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = "Goal",
+                    style = MaterialTheme.typography.labelMedium
+                )
+                Text(
+                    text = "${determineMaxValueToUse(Enums.Nutrition.CALORIES).toInt()}",
+                    style = MaterialTheme.typography.headlineSmall
+                )
+            }
+        }
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(end = 24.dp, top = centerYOffset)
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = "Eaten",
+                    style = MaterialTheme.typography.labelMedium
+                )
+                Text(
+                    text = "${determineValueToShow(Enums.Nutrition.CALORIES).toInt()}",
+                    style = MaterialTheme.typography.headlineSmall
+                )
+            }
         }
     }
 }
