@@ -1,11 +1,16 @@
 package fi.nutrifier.ui.components.layout
 
 import android.util.Log
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -13,6 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import fi.nutrifier.ui.components.layout.nutrient.progress.indicator.NutrientProgressIndicator
 import fi.nutrifier.ui.components.switches.NutrientModeSwitch
 import fi.nutrifier.utils.ConversionUtils
@@ -82,10 +88,12 @@ fun NutrientProgressSection(viewModels: ViewModelWrapper) {
     }
 
     BoxWithConstraints(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(280.dp),
     ) {
-        val radius = maxWidth * 0.10f
-        val centerYOffset = if (isLineMode) maxHeight * 0.20f else maxHeight * 0.16f
+        val radius = maxWidth * 0.12f
+        val centerYOffset = maxHeight * 0.16f
 
         Box(modifier = Modifier.align(Alignment.TopCenter)) {
             NutrientProgressIndicator(
@@ -105,10 +113,16 @@ fun NutrientProgressSection(viewModels: ViewModelWrapper) {
                     MaterialTheme.colorScheme.onBackground
                 },
                 suffix = viewModels.settings.settings?.energyUnit?.displayName ?: "kcal",
+                showMax = false,
+                showLeftValue = true,
                 onClick = { showMacros = !showMacros }
             )
         }
-        Box(modifier = Modifier.align(Alignment.CenterStart).padding(start = radius, top = centerYOffset)) {
+        Box(
+            modifier = Modifier
+                .align(Alignment.CenterStart)
+                .padding(start = radius, top = radius + centerYOffset)
+        ) {
             NutrientProgressIndicator(
                 settingsViewModel = viewModels.settings,
                 value = determineValueToShow(Enums.Nutrition.FAT),
@@ -129,7 +143,11 @@ fun NutrientProgressSection(viewModels: ViewModelWrapper) {
                 suffix = "g",
             )
         }
-        Box(modifier = Modifier.align(Alignment.BottomCenter).padding(top = if (isLineMode) centerYOffset else radius * 2 + centerYOffset )) {
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(top = radius + centerYOffset)
+        ) {
             NutrientProgressIndicator(
                 settingsViewModel = viewModels.settings,
                 value = determineValueToShow(Enums.Nutrition.CARBS),
@@ -150,7 +168,11 @@ fun NutrientProgressSection(viewModels: ViewModelWrapper) {
                 suffix = "g",
             )
         }
-        Box(modifier = Modifier.align(Alignment.CenterEnd).padding(end = radius, top = centerYOffset)) {
+        Box(
+            modifier = Modifier
+                .align(Alignment.CenterEnd)
+                .padding(end = radius, top = radius + centerYOffset)
+        ) {
             NutrientProgressIndicator(
                 settingsViewModel = viewModels.settings,
                 value = determineValueToShow(Enums.Nutrition.PROTEIN),
@@ -171,8 +193,41 @@ fun NutrientProgressSection(viewModels: ViewModelWrapper) {
                 suffix = "g",
             )
         }
+        /* TODO: Add this back when line mode is implemented
         Box(modifier = Modifier.align(Alignment.TopEnd)) {
             NutrientModeSwitch(viewModels.settings)
+        }*/
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .padding(start = 24.dp, top = centerYOffset)
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = "Goal",
+                    style = MaterialTheme.typography.labelMedium
+                )
+                Text(
+                    text = "${determineMaxValueToUse(Enums.Nutrition.CALORIES).toInt()}",
+                    style = MaterialTheme.typography.headlineSmall
+                )
+            }
+        }
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(end = 24.dp, top = centerYOffset)
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = "Eaten",
+                    style = MaterialTheme.typography.labelMedium
+                )
+                Text(
+                    text = "${determineValueToShow(Enums.Nutrition.CALORIES).toInt()}",
+                    style = MaterialTheme.typography.headlineSmall
+                )
+            }
         }
     }
 }

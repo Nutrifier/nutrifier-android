@@ -1,11 +1,9 @@
 package fi.nutrifier.ui.components.layout.nutrient.progress.indicator
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
@@ -13,7 +11,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Text
@@ -40,6 +37,8 @@ fun NutrientProgressIndicator(
     valueColor: Color = MaterialTheme.colorScheme.onBackground,
     maxColor: Color = MaterialTheme.colorScheme.onBackground,
     suffix: String? = null,
+    showMax: Boolean = true,
+    showLeftValue: Boolean = false,
     onClick: (() -> Unit)? = null,
 ) {
     fun onClickInner() {
@@ -48,9 +47,10 @@ fun NutrientProgressIndicator(
 
     BoxWithConstraints(modifier = modifier) {
         val baseSize = minOf(maxWidth, maxHeight) *
-                if (size == Enums.IndicatorSize.LARGE) 0.45f else 0.28f
+                if (size == Enums.IndicatorSize.LARGE) 0.55f else 0.44f
 
         when (settingsViewModel.settings?.nutrientDisplayMode) {
+            /* TODO: Implement line mode
             Enums.NutrientDisplayMode.LINE -> {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -110,7 +110,7 @@ fun NutrientProgressIndicator(
                         )
                     }
                 }
-            }
+            }*/
             else -> {
                 Column(
                     verticalArrangement = Arrangement.Center,
@@ -133,23 +133,33 @@ fun NutrientProgressIndicator(
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             if (size === Enums.IndicatorSize.LARGE) Text(text = title)
                             Text(
-                                text = value.toInt().toString(),
+                                text = if (showLeftValue) {
+                                    (max.toDouble() - value.toDouble()).toInt().toString()
+                                } else value.toInt().toString(),
                                 color = if (value.toInt() < 0) MaterialTheme.colorScheme.error else valueColor,
                                 style =
                                     if(size === Enums.IndicatorSize.LARGE) MaterialTheme.typography.headlineMedium
                                     else MaterialTheme.typography.headlineSmall
                             )
-                            Spacer(modifier = Modifier.height(baseSize * 0.05f))
-                            HorizontalDivider(
-                                modifier = Modifier.width(baseSize * 0.25f),
-                                thickness = 1.dp,
-                            )
-                            Spacer(modifier = Modifier.height(2.dp))
-                            Text(
-                                text = if (suffix != null) "${max.toInt()} $suffix" else "/${max.toInt()}",
-                                color = if (max.toInt() < 0) MaterialTheme.colorScheme.error else maxColor,
-                                style = MaterialTheme.typography.bodySmall,
-                            )
+                            if (showLeftValue) {
+                                Text(
+                                    text = "Left",
+                                    style = MaterialTheme.typography.bodySmall,
+                                )
+                            }
+                            if (showMax) {
+                                Spacer(modifier = Modifier.height(baseSize * 0.05f))
+                                HorizontalDivider(
+                                    modifier = Modifier.width(baseSize * 0.25f),
+                                    thickness = 1.dp,
+                                )
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Text(
+                                    text = if (suffix != null) "${max.toInt()} $suffix" else "/${max.toInt()}",
+                                    color = if (max.toInt() < 0) MaterialTheme.colorScheme.error else maxColor,
+                                    style = MaterialTheme.typography.bodySmall,
+                                )
+                            }
                         }
                     }
                     if (size === Enums.IndicatorSize.SMALL) {
