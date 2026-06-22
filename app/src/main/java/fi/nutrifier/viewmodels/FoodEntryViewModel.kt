@@ -207,6 +207,8 @@ class FoodEntryViewModel(
                 }
 
                 _entries.value = finalList
+            } else {
+                _entries.value = emptyList<FoodEntryFood>()
             }
         }
 

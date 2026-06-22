@@ -74,10 +74,9 @@ object Enums {
     }
 
     enum class GoalType(val displayName: String) {
-        MAINTAIN_WEIGHT("Maintain weight"),
-        LOOSE_WEIGHT("Loose weight"),
-        GAIN_MUSCLE("Gain muscle"),
-        JUST_FOR_FUN("Just for fun!"),
+        MAINTAIN("Maintain"),
+        CUT("Cut"),
+        BULK("Bulk"),
     }
 
     enum class Weekday(val index: Int, val displayName: String) {

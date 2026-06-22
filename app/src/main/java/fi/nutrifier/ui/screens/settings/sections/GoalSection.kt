@@ -40,7 +40,7 @@ import fi.nutrifier.ui.components.inputs.ActionButtons
 import fi.nutrifier.ui.components.inputs.DatePickerButton
 import fi.nutrifier.ui.components.inputs.NutrifierDropdown
 import fi.nutrifier.ui.components.inputs.NumberCounter
-import fi.nutrifier.ui.components.layout.GoalPeriodItem
+import fi.nutrifier.ui.components.layout.MealPlan
 import fi.nutrifier.ui.components.misc.LabeledComponent
 import fi.nutrifier.utils.Enums
 import fi.nutrifier.viewmodels.ViewModelWrapper
@@ -48,7 +48,7 @@ import fi.nutrifier.viewmodels.ViewModelWrapper
 @Composable
 internal fun GoalsSection(viewModels: ViewModelWrapper) {
     var mealPlanEditable by remember { mutableStateOf(false) }
-    var goalType by remember { mutableStateOf(Enums.GoalType.JUST_FOR_FUN) }
+    var goalType by remember { mutableStateOf(Enums.GoalType.MAINTAIN) }
     var target by remember { mutableDoubleStateOf(viewModels.goals.goals?.targetWeight ?: 0.0) }
     var menuOpen by remember { mutableStateOf(false) }
     var showRecalculationDialog by remember { mutableStateOf(false) }
@@ -191,7 +191,7 @@ internal fun GoalsSection(viewModels: ViewModelWrapper) {
                         }
                     }
                 }
-                GoalPeriodItem(viewModels, editable = mealPlanEditable)
+                MealPlan(viewModels, editable = mealPlanEditable)
                 Spacer(modifier = Modifier.height(8.dp))
                 Box(
                     contentAlignment = Alignment.Center,

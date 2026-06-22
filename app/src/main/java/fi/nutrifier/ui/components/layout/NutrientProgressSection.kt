@@ -121,7 +121,7 @@ fun NutrientProgressSection(viewModels: ViewModelWrapper) {
         Box(
             modifier = Modifier
                 .align(Alignment.CenterStart)
-                .padding(start = radius, top = radius + centerYOffset)
+                .padding(start = radius, end = 16.dp, top = radius + centerYOffset + 16.dp)
         ) {
             NutrientProgressIndicator(
                 settingsViewModel = viewModels.settings,
@@ -171,7 +171,7 @@ fun NutrientProgressSection(viewModels: ViewModelWrapper) {
         Box(
             modifier = Modifier
                 .align(Alignment.CenterEnd)
-                .padding(end = radius, top = radius + centerYOffset)
+                .padding(start = 16.dp, end = radius, top = radius + centerYOffset + 16.dp)
         ) {
             NutrientProgressIndicator(
                 settingsViewModel = viewModels.settings,

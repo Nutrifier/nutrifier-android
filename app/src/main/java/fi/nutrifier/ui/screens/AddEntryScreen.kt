@@ -126,7 +126,7 @@ fun AddEntryScreen(
                 ) {
                     itemsIndexed(
                         viewModels.foods.recentFoods,
-                        key = { index, food -> food.id ?: 0 }
+                        key = { index, food -> (food.id + index) }
                     ) { index, food ->
                         FoodButton(viewModels.settings, food, true) {
                             viewModels.foods.setSelectedFood(food)
@@ -136,7 +136,7 @@ fun AddEntryScreen(
                     }
                     itemsIndexed(
                         viewModels.foods.foods,
-                        key = { index, food -> food.id ?: 0 }
+                        key = { index, food -> (food.id + index) }
                     ) { index, food ->
                         FoodButton(viewModels.settings, food) {
                             viewModels.foods.setSelectedFood(food)
